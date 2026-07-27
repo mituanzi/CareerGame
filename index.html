@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>职业觉醒实验室</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f0f11;
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --accent-color: #00ff88;
+            --text-main: #ffffff;
+            --text-sub: #888;
+            --font-main: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* 职业主题配色 */
+        .theme-coder { --accent-color: #00ff88; --glow: rgba(0, 255, 136, 0.3); }
+        .theme-finance { --accent-color: #ffd700; --glow: rgba(255, 215, 0, 0.3); }
+        .theme-soe { --accent-color: #ff6b6b; --glow: rgba(255, 107, 107, 0.3); }
+        .theme-civil { --accent-color: #48dbfb; --glow: rgba(72, 219, 251, 0.3); }
+        .theme-academic { --accent-color: #a55eea; --glow: rgba(165, 94, 234, 0.3); }
+        .theme-medical { --accent-color: #2ecc71; --glow: rgba(46, 204, 113, 0.3); }
+
+        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-main); overflow-x: hidden; min-height: 100vh; transition: background 0.5s ease; }
+        
+        /* 背景特效 */
+        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; }
+        .bg-glow { position: absolute; width: 150%; height: 150%; top: -25%; left: -25%; background: radial-gradient(circle at center, var(--glow) 0%, transparent 50%); opacity: 0.5; animation: breathe 10s infinite alternate; }
+        .grid-lines { position: absolute; width: 100%; height: 100%; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+
+        @keyframes breathe { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(1.2); opacity: 0.6; } }
+
+        .container { max-width: 640px; margin: 0 auto; padding: 20px; box-sizing: border-box; min-height: 90vh; display: flex; flex-direction: column; justify-content: center; }
+        
+        /* 游戏状态栏 */
+        .game-hud {
+            position: fixed; top: 0; left: 0; right: 0; padding: 10px 20px;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; transform: translateY(-100%); transition: transform 0.5s;
+        }
+        .hud-visible { transform: translateY(0); }
+        .timer { font-weight: 900; font-size: 18px; color: var(--accent-color); letter-spacing: 1px; }
+        .trait-point { font-size: 12px; color: #aaa; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px; }
+
+        /* 开场页面 */
+        .intro-screen { text-align: center; }
+        .main-title { font-size: 36px; font-weight: 900; margin-bottom: 10px; background: linear-gradient(to right, #fff, #888); -webkit-background-clip: text; color: transparent; text-shadow: 0 0 30px rgba(255,255,255,0.3); }
+        .intro-text { font-size: 14px; color: #666; margin-bottom: 40px; }
+        
+        /* 职业卡片 */
+        .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .role-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;
+            padding: 30px 10px; cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .role-card:hover { transform: translateY(-5px) scale(1.02); border-color: var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .role-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-color); transform: scaleX(0); transition: transform 0.3s; }
+        .role-card:hover::before { transform: scaleX(1); }
+        .role-icon { font-size: 36px; margin-bottom: 10px; display: block; opacity: 0.8; transition: opacity 0.3s; }
+        .role-card:hover .role-icon { opacity: 1; transform: scale(1.1); }
+        .role-name { font-size: 16px; font-weight: bold; color: #fff; }
+
+        /* 游戏主界面 */
+        .event-container {
+            background: var(--card-bg); border-radius: 24px; border: 1px solid rgba(255,255,255,0.08);
+            padding: 30px; position: relative; backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        /* 状态数值展示 */
+        .stats-row { display: flex; justify-content: space-around; margin-bottom: 30px; }
+        .stat-orb {
+            width: 80px; height: 80px; border-radius: 50%; position: relative;
+            background: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .stat-val { font-size: 20px; font-weight: 900; color: #fff; }
+        .stat-lbl { font-size: 10px; color: #888; margin-top: 2px; }
+        .orb-progress { position: absolute; top: -2px; left: -2px; width: 80px; height: 80px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--accent-color); transform: rotate(45deg); }
+
+        .event-content { min-height: 150px; display: flex; flex-direction: column; justify-content: center; }
+        .event-time { font-size: 12px; color: var(--accent-color); font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; }
+        .event-desc { font-size: 18px; line-height: 1.6; margin-bottom: 30px; }
+
+        .action-btns { display: flex; flex-direction: column; gap: 12px; }
+        .act-btn {
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #ccc;
+            padding: 15px; border-radius: 12px; text-align: left; cursor: pointer; position: relative;
+            transition: all 0.2s; overflow: hidden; font-size: 15px;
+        }
+        .act-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-color); color: #fff; padding-left: 20px; }
+        .act-btn::after { content: '👉'; position: absolute; right: 20px; opacity: 0; transition: opacity 0.2s; }
+        .act-btn:hover::after { opacity: 1; }
+
+        /* 结果页 */
+        .result-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+        }
+        .result-badge {
+            width: 80px; height: 80px; background: var(--accent-color); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+            margin: 0 auto 20px; box-shadow: 0 0 20px var(--glow);
+        }
+        .result-title { font-size: 24px; font-weight: 900; text-align: center; margin-bottom: 5px; }
+        .result-subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 25px; }
+        
+        .report-block { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--accent-color); text-align: left; }
+        .block-head { font-size: 12px; color: var(--accent-color); font-weight: bold; margin-bottom: 5px; display: block; }
+        .block-txt { font-size: 14px; line-height: 1.5; color: #ddd; display: block; }
+    </style>
+</head>
+<body class="theme-coder">
+    <div class="bg-layer">
+        <div class="bg-glow"></div>
+        <div class="grid-lines"></div>
+    </div>
+
+    <!-- 游戏状态栏 -->
+    <div class="game-hud" id="game-hud">
+        <div class="timer" id="hud-time">09:00 AM</div>
+        <div class="trait-point" id="hud-trait">特质感知中...</div>
+    </div>
+
+    <!-- 开场页 -->
+    <div class="container" id="role-screen">
+        <div class="intro-screen">
+            <h1 class="main-title">职业觉醒实验室</h1>
+            <p class="intro-text">V8.0 引力增强版 | 发现你的职业内核</p>
+            <div class="role-grid">
+                <div class="role-card" onclick="startGame('coder')">
+                    <span class="role-icon">💻</span>
+                    <div class="role-name">程序员</div>
+                </div>
+                <div class="role-card" onclick="startGame('finance')">
+                    <span class="role-icon">💰</span>
+                    <div class="role-name">金融民工</div>
+                </div>
+                <div class="role-card" onclick="startGame('soe')">
+                    <span class="role-icon">🏭</span>
+                    <div class="role-name">央企职员</div>
+                </div>
+                <div class="role-card" onclick="startGame('civil')">
+                    <span class="role-icon">🏛️</span>
+                    <div class="role-name">体制内</div>
+                </div>
+                <div class="role-card" onclick="startGame('academic')">
+                    <span class="role-icon">📚</span>
+                    <div class="role-name">高校青椒</div>
+                </div>
+                <div class="role-card" onclick="startGame('medical')">
+                    <span class="role-icon">⚕️</span>
+                    <div class="role-name">医务工作者</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏页 -->
+    <div class="container" id="game-screen" style="display:none;">
+        <div class="event-container">
+            <!-- 状态球 -->
+            <div class="stats-row">
+                <div class="stat-orb">
+                    <div class="orb-progress" id="energy-ring"></div>
+                    <div class="stat-val" id="val-energy">50</div>
+                    <div class="stat-lbl">⚡️ 能量</div>
+                </div>
+                <div class="stat-orb">
+                    <div class="orb-progress" id="meaning-ring" style="border-top-color: #3498db;"></div>
+                    <div class="stat-val" id="val-meaning">50</div>
+                    <div class="stat-lbl">🌟 意义</div>
+                </div>
+                <div class="stat-orb">
+                    <div class="orb-progress" id="money-ring" style="border-top-color: #f1c40f;"></div>
+                    <div class="stat-val" id="val-money">50</div>
+                    <div class="stat-lbl">💰 金币</div>
+                </div>
+            </div>
+
+            <div class="event-content">
+                <div class="event-time" id="event-time">09:00 AM</div>
+                <div class="event-desc" id="event-text">正在加载工作...</div>
+                
+                <div class="action-btns">
+                    <button class="act-btn" id="btn-a" onclick="handleAction('do')">选项A</button>
+                    <button class="act-btn" id="btn-b" onclick="handleAction('reject')">选项B</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div class="container" id="result-screen" style="display:none;">
+        <div class="result-card" id="result-card">
+            <div class="result-badge" id="result-icon">🧠</div>
+            <div class="result-title" id="result-title">职业人格生成中</div>
+            <div class="result-subtitle" id="result-sub">基于你的潜意识抉择分析</div>
+            
+            <div class="report-block">
+                <span class="block-head"># 今日复盘</span>
+                <span class="block-txt" id="report-summary"></span>
+            </div>
+
+            <div class="report-block">
+                <span class="block-head"># 职业内核</span>
+                <span class="block-txt" id="report-trait"></span>
+            </div>
+
+            <div class="report-block" style="border-left-color: #ffa502;">
+                <span class="block-head" style="color: #ffa502;"># 行动线索</span>
+                <span class="block-txt" id="report-advice"></span>
+            </div>
+        </div>
+        <button onclick="location.reload()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid #fff; padding: 12px 30px; border-radius: 30px; margin: 30px auto; display: block; cursor: pointer;">重新开启</button>
+    </div>
+
+<script>
+    let state = { energy: 50, meaning: 50, money: 50, traits: { creator: 0, organizer: 0, server: 0, analyzer: 0, survivor: 0 } };
+    let currentRole = '';
+    let currentEventIndex = 0;
+    let currentEvents = [];
+    
+    const timeStamps = ["09:00 AM", "10:30 AM", "01:00 PM", "03:30 PM", "06:00 PM", "08:00 PM", "11:00 PM"];
+
+    // 增强版事件库
+    const allEvents = {
+        coder: [
+            { text: "产品经理甩来一句话：'这个功能很简单，这周上线行不行？'", choices: { do: { text: "拉着PM排期，把风险说清楚", effects: {e: -10, m: 5, y: 0}, trait: "organizer" }, reject: { text: "'好的收到'，先答应下来再说", effects: {e: -5, m: -5, y: 5}, trait: "survivor" } } },
+            { text: "你翻到一段三年前的'祖传代码'，逻辑混乱，没注释。", choices: { do: { text: "重构掉，顺便补文档和单测", effects: {e: -20, m: 15, y: 0}, trait: "creator" }, reject: { text: "别动，能跑就行，把任务做完", effects: {e: -5, m: -5, y: 5}, trait: "survivor" } } },
+            { text: "实习生写的代码导致线上故障，他在一旁手足无措。", choices: { do: { text: "手把手教他调试，讲清原理", effects: {e: -15, m: 10, y: 0}, trait: "server" }, reject: { text: "自己改完，让他去倒杯水", effects: {e: -5, m: 0, y: 0}, trait: "analyzer" } } },
+            { text: "系统性能瓶颈出现，你可以选择两种优化方案。", choices: { do: { text: "设计一套长期通用的中间件方案", effects: {e: -15, m: 15, y: 0}, trait: "creator" }, reject: { text: "针对当前问题快速打补丁", effects: {e: -5, m: -5, y: 5}, trait: "survivor" } } }
+        ],
+        finance: [
+            { text: "IPO项目冲刺期，凌晨1点领导@你核对底稿。", choices: { do: { text: "秒回'收到'，爬起来核对", effects: {e: -35, m: -5, y: 20}, trait: "survivor" }, reject: { text: "装睡，明早解释'睡太死'", effects: {e: 5, m: -10, y: -10}, trait: "survivor" } } },
+            { text: "客户亏钱了，情绪激动地打电话来骂人。", choices: { do: { text: "专业安抚，发送市场分析报告", effects: {e: -20, m: -10, y: 10}, trait: "server" }, reject: { text: "转接客服，不直接面对情绪", effects: {e: -5, m: -5, y: -5}, trait: "survivor" } } },
+            { text: "尽调中发现目标公司财务数据有疑点。", choices: { do: { text: "写进风险备忘录，坚持原则", effects: {e: -15, m: 10, y: 0}, trait: "analyzer" }, reject: { text: "睁只眼闭只眼，先把项目推完", effects: {e: -5, m: -15, y: 5}, trait: "survivor" } } },
+            { text: "需要为明天路演准备一份极具说服力的PPT。", choices: { do: { text: "熬夜打磨，追求完美呈现", effects: {e: -20, m: 5, y: 10}, trait: "creator" }, reject: { text: "套模板，数据差不多就行", effects: {e: -5, m: -5, y: 0}, trait: "survivor" } } }
+        ],
+        soe: [
+            { text: "材料改了第8版，领导批示：'高度还不够，要再升华'。", choices: { do: { text: "查阅文件，堆砌辞藻改到满意", effects: {e: -20, m: -15, y: 0}, trait: "organizer" }, reject: { text: "改两个标点，换个格式交差", effects: {e: -5, m: -10, y: 0}, trait: "survivor" } } },
+            { text: "同事老王是'关系户'，把工作推给你。", choices: { do: { text: "帮他把活干了，维持表面和平", effects: {e: -15, m: -10, y: 0}, trait: "survivor" }, reject: { text: "'我手头也紧，帮不了'", effects: {e: 5, m: 5, y: 0}, trait: "organizer" } } },
+            { text: "基层减负通知来了，结果又要填'减负台账'。", choices: { do: { text: "认真填台账，证明减负了", effects: {e: -15, m: -10, y: 0}, trait: "organizer" }, reject: { text: "象征性填两句，应付过去", effects: {e: -5, m: -5, y: 0}, trait: "survivor" } } },
+            { text: "你提了个创新方案，领导说：'先放放'。", choices: { do: { text: "继续完善方案，找机会再推", effects: {e: -10, m: 10, y: 0}, trait: "creator" }, reject: { text: "算了吧，按老规矩来", effects: {e: 5, m: -15, y: 0}, trait: "survivor" } } }
+        ],
+        civil: [
+            { text: "办事大厅来了一位情绪激动的群众，拍桌子喊'黑幕'。", choices: { do: { text: "倒杯水，耐心解释政策", effects: {e: -25, m: 20, y: 0}, trait: "server" }, reject: { text: "呼叫保安，维持秩序", effects: {e: -5, m: -15, y: 0}, trait: "organizer" } } },
+            { text: "上级要个数据，周五通知周一报。", choices: { do: { text: "加班拉数据，尽量接近真实", effects: {e: -20, m: -10, y: 0}, trait: "analyzer" }, reject: { text: "按经验估算，先交上去", effects: {e: -5, m: -5, y: 0}, trait: "survivor" } } },
+            { text: "政策一刀切，明显不适合本地。", choices: { do: { text: "继续沟通，准备书面建议", effects: {e: -15, m: 15, y: 0}, trait: "creator" }, reject: { text: "照搬文件执行，不说话", effects: {e: 5, m: -10, y: 0}, trait: "organizer" } } },
+            { text: "你帮老乡落实政策，他握着你的手说谢谢。", choices: { do: { text: "微笑着说'这是我们该做的'", effects: {e: 15, m: 40, y: 0}, trait: "server" }, reject: { text: "客气两句，转身忙别的", effects: {e: 5, m: 20, y: 0}, trait: "analyzer" } } }
+        ],
+        academic: [
+            { text: "收到拒稿邮件，审稿意见：'创新性不足'。", choices: { do: { text: "调整心情，换个刊重投", effects: {e: -15, m: -10, y: 0}, trait: "analyzer" }, reject: { text: "先放一放，改方向", effects: {e: 5, m: -20, y: 0}, trait: "survivor" } } },
+            { text: "学校要求三年发三篇核心，还要承担新课。", choices: { do: { text: "拼命挤时间，把课备好", effects: {e: -30, m: -15, y: 0}, trait: "organizer" }, reject: { text: "课能水就水，先保论文", effects: {e: -5, m: -5, y: 0}, trait: "survivor" } } },
+            { text: "学生上课玩手机，你提醒后他继续刷。", choices: { do: { text: "停下讲课，严肃课堂纪律", effects: {e: -15, m: 5, y: 0}, trait: "organizer" }, reject: { text: "装没看见，把课上完", effects: {e: 0, m: -5, y: 0}, trait: "survivor" } } },
+            { text: "你听说有'教学型教授'通道。", choices: { do: { text: "整理教学成绩，赌一把", effects: {e: -10, m: 20, y: 0}, trait: "creator" }, reject: { text: "还是走传统科研路线", effects: {e: -10, m: -5, y: 0}, trait: "analyzer" } } }
+        ],
+        medical: [
+            { text: "凌晨3点，你想休息十分钟，家属堵门投诉。", choices: { do: { text: "解释情况，争取休息时间", effects: {e: -20, m: 5, y: 0}, trait: "server" }, reject: { text: "沉默起身，继续守着", effects: {e: -5, m: -10, y: 0}, trait: "survivor" } } },
+            { text: "患者嫌换药收费贵，网上吐槽。", choices: { do: { text: "耐心解释操作规范和成本", effects: {e: -15, m: 5, y: 0}, trait: "server" }, reject: { text: "'按规定收费'，不再多言", effects: {e: -5, m: -5, y: 0}, trait: "organizer" } } },
+            { text: "你发现病历复制粘贴时带进了上一位患者信息。", choices: { do: { text: "立即报告科室，主动整改", effects: {e: -25, m: -10, y: 0}, trait: "organizer" }, reject: { text: "悄悄改掉，祈祷没人发现", effects: {e: -5, m: -15, y: 0}, trait: "survivor" } } },
+            { text: "病人康复出院，家属写来感谢信。", choices: { do: { text: "真诚回应，把感谢信贴在墙上", effects: {e: 25, m: 45, y: 0}, trait: "server" }, reject: { text: "礼貌收下，继续忙下一个", effects: {e: 15, m: 25, y: 0}, trait: "analyzer" } } }
+        ]
+    };
+
+    function startGame(role) {
+        document.body.className = `theme-${role}`;
+        currentRole = role;
+        currentEvents = [...allEvents[role]];
+        currentEvents.sort(() => Math.random() - 0.5);
+        
+        // 显示HUD
+        document.getElementById('game-hud').classList.add('hud-visible');
+        
+        document.getElementById('role-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        
+        loadEvent(0);
+    }
+
+    function updateUI() {
+        document.getElementById('val-energy').innerText = state.energy;
+        document.getElementById('val-meaning').innerText = state.meaning;
+        document.getElementById('val-money').innerText = state.money;
+    }
+
+    function loadEvent(index) {
+        // 更新时间
+        document.getElementById('hud-time').innerText = timeStamps[index];
+        document.getElementById('event-time').innerText = timeStamps[index];
+        
+        const event = currentEvents[index];
+        document.getElementById("event-text").innerText = event.text;
+        
+        const btnA = document.getElementById("btn-a");
+        const btnB = document.getElementById("btn-b");
+        
+        btnA.innerText = event.choices.do.text;
+        btnB.innerText = event.choices.reject.text;
+
+        // 更新HUD特质提示
+        const traitNames = { creator: "创造", organizer: "组织", server: "助人", analyzer: "分析", survivor: "生存" };
+        let topTrait = Object.entries(state.traits).sort((a,b) => b[1]-a[1])[0];
+        if(topTrait[1] > 0) {
+            document.getElementById('hud-trait').innerText = `特质倾向: ${traitNames[topTrait[0]]}`;
+        }
+    }
+
+    function handleAction(type) {
+        const event = currentEvents[currentEventIndex];
+        const choice = event.choices[type];
+        
+        // 更新状态
+        state.energy += choice.effects.e;
+        state.meaning += choice.effects.m;
+        state.money += choice.effects.y;
+        state.energy = Math.max(0, Math.min(100, state.energy));
+        state.meaning = Math.max(0, Math.min(100, state.meaning));
+        state.money = Math.max(0, Math.min(100, state.money));
+
+        // 更新特质
+        if(choice.trait) state.traits[choice.trait]++;
+
+        updateUI();
+
+        // 快速反馈，进入下一题
+        currentEventIndex++;
+        if (currentEventIndex >= 4 || currentEventIndex >= currentEvents.length) { 
+            showResult(); 
+        } else { 
+            loadEvent(currentEventIndex); 
+        }
+    }
+
+    function showResult() {
+        document.getElementById("game-screen").style.display = "none";
+        document.getElementById("game-hud").classList.remove('hud-visible');
+        document.getElementById("result-screen").style.display = "block";
+        
+        generateReport();
+    }
+
+    function generateReport() {
+        // 1. 确定核心特质
+        const sortedTraits = Object.entries(state.traits).sort((a, b) => b[1] - a[1]);
+        const dominantTrait = sortedTraits[0][0];
+        
+        // 2. 定义人格头像和标题
+        const archetypes = {
+            creator: { icon: "🚀", title: "破局创造者", sub: "你拒绝平庸，渴望构建新事物" },
+            organizer: { icon: "🛡️", title: "秩序守护者", sub: "你擅长在规则中建立功勋" },
+            server: { icon: "🕊️", title: "意义赋能者", sub: "你从帮助他人中获得力量" },
+            analyzer: { icon: "🧠", title: "真相探索者", sub: "你追求逻辑、数据与本质" },
+            survivor: { icon: "🌵", title: "坚韧生存者", sub: "你在高压下依然保有生命力" }
+        };
+
+        const profile = archetypes[dominantTrait];
+        
+        // 填充结果
+        document.getElementById('result-icon').innerText = profile.icon;
+        document.getElementById('result-title').innerText = profile.title;
+        document.getElementById('result-sub').innerText = profile.sub;
+
+        // 总结
+        let summary = `今日结束，你的能量剩余 <strong>${state.energy}%</strong>，`;
+        if(state.energy < 30) summary += `这已经是极限，建议立刻关注身心健康。`;
+        else if(state.meaning > state.money) summary += `虽然收益平平，但内心充实。`;
+        else summary += `赚到了钱，但也消耗了心力。`;
+        document.getElementById('report-summary').innerHTML = summary;
+
+        // 特质解释
+        const traitDefs = {
+            creator: "你更倾向于通过'创造'来解决职业危机。你的职业三角中，'创造性表达'权重最高。适合岗位：产品、架构、内容创作。",
+            organizer: "你擅长协调资源和管理流程。在复杂的科层制中，你是不可或缺的枢纽。适合岗位：项目管理、行政主管。",
+            server: "你的职业满足感来源于'人'。你是连接职业意义的桥梁。适合岗位：客户成功、教育、公共服务。",
+            analyzer: "你喜欢深挖问题的本质。在这个信息过载的时代，你是稀缺的灯塔。适合岗位：研究员、数据分析、战略规划。",
+            survivor: "你现在的主要模式是'防御'和'适应'。这不代表失败，而是一种韧性。但长期来看，需要找到恢复能量的出口。"
+        };
+        document.getElementById('report-trait').innerText = traitDefs[dominantTrait];
+
+        // 建议
+        let advice = "";
+        if(state.energy < 30) {
+            advice = "🚨 紧急预警：'生存模式'已开启。现在的首要任务是'回血'而非'奋斗'。试着每天给自己30分钟完全的放空，或者重新评估这份工作是否值得透支健康。";
+        } else if (dominantTrait === 'survivor') {
+            advice = "🛠️ 提示：你目前处于'被动应对'状态。建议在业余时间开启一个完全由自己掌控的小项目（哪怕只是写写博客），找回一点'主动权'。";
+        } else {
+            advice = "💡 建议：你的职业内核是'<strong>" + profile.title + "</strong>'。试着在现有工作中，主动申请更符合这个特质的项目（如主导新流程、负责带新人），或在副业中放大这一优势。";
+        }
+        document.getElementById('report-advice').innerHTML = advice;
+    }
+</script>
+</body>
+</html>
