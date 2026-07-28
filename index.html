@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>职业觉醒实验室 V16 - 修复版</title>
+    <title>职业觉醒实验室 V16 - AI增强版</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -94,8 +94,13 @@
         .rec-role { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 5px; }
         .rec-desc { font-size: 12px; color: #aaa; }
 
+        /* 按钮样式 */
         .btn-restart { background: var(--accent-color); color: #000; font-weight: bold; border: none; padding: 15px 30px; border-radius: 30px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 16px; transition: transform 0.1s; }
         .btn-restart:active { transform: scale(0.98); }
+        
+        /* AI增强按钮 */
+        .btn-ai { background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 30px; margin-top: 15px; cursor: pointer; width: 100%; font-size: 14px; transition: all 0.2s; }
+        .btn-ai:active { background: rgba(255,255,255,0.2); transform: scale(0.98); }
     </style>
 </head>
 <body class="theme-coder">
@@ -105,7 +110,7 @@
 <div class="container active" id="screen-id">
     <div class="screen">
         <h1 class="main-title">职业觉醒实验室</h1>
-        <p class="sub-title">深度体验版 V16 | 这里没有标准答案，只有真实的你</p>
+        <p class="sub-title">AI 增强版 | 每一次觉醒都值得深度解读</p>
         <div class="id-grid">
             <div class="id-card" onclick="selectIdentity('student')">
                 <span class="id-icon">🎓</span>
@@ -168,211 +173,48 @@
 </div>
 
 <script>
+    // 状态初始化
     let userIdentity = 'student';
     let currentRole = '';
     let state = { energy: 50, meaning: 50, money: 50, tracks: { tech: 0, influence: 0, freedom: 0, security: 0, service: 0, challenge: 0 } };
     let currentEventIndex = 0, currentEvents = [];
+    let gameHistory = []; // 新增：记录游戏历史
     const timeStamps = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00"];
 
-    // 【修复】事件库：修复了字符串引号缺失的问题
+    // 事件库
     const allEvents = {
         coder: [
-            { 
-                text: "周五下午4点，产品经理突然发给你一份新需求文档，说“很简单，下周一上线”。你打开一看，涉及底层逻辑改动。", 
-                choices: { 
-                    do: { text: "立即找产品经理过需求，明确风险，争取延期或砍需求。", effects: {e:-10,m:5,y:0}, track: "influence" }, 
-                    reject: { text: "为了不被认为“难搞”，先答应下来，大不了周末加班赶工。", effects: {e:-15,m:-5,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "你在维护一个三年前的老项目，发现一段“祖传代码”逻辑混乱且没有注释。目前功能没报错，但随时可能崩。", 
-                choices: { 
-                    do: { text: "忍不住重构了它，并补全了单元测试，虽然这不在KPI里。", effects: {e:-20,m:15,y:0}, track: "tech" }, 
-                    reject: { text: "能跑就不动，加上 TODO 注释，假装自己没看见。", effects: {e:-5,m:-5,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "公司宣布实行“大小周”，加班费按最低工资标准算。同事们都在私下吐槽，但没人敢说话。", 
-                choices: { 
-                    do: { text: "这是我的福报，默默打开IDE开始干活。", effects: {e:-30,m:-10,y:10}, track: "challenge" }, 
-                    reject: { text: "打开招聘网站，更新简历，看看外企的机会。", effects: {e:5,m:10,y:-5}, track: "freedom" } 
-                } 
-            },
-            { 
-                text: "凌晨2点，你刚躺下，线上服务器突然报警，电话狂响。你是当值的第一责任人。", 
-                choices: { 
-                    do: { text: "秒级响应，登录VPN开始排查，哪怕明天还要开会。", effects: {e:-25,m:10,y:0}, track: "tech" }, 
-                    reject: { text: "太累了，装睡没听见，等备用负责人或者明天再说。", effects: {e:5,m:-20,y:-10}, track: "security" } 
-                } 
-            },
-            { 
-                text: "你发现一个新的开源框架很火，虽然项目目前用不上，但你觉得它代表了未来趋势。", 
-                choices: { 
-                    do: { text: "周末自己钻研，写个Demo博客，享受技术探索的乐趣。", effects: {e:-15,m:15,y:0}, track: "tech" }, 
-                    reject: { text: "现在的技术栈够用就行，不花时间去学“屠龙之技”。", effects: {e:5,m:-5,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "隔壁组的实习生带来了家里的特产正在分发，大家都在闲聊。你的代码刚写到一半。", 
-                choices: { 
-                    do: { text: "合上电脑凑过去聊聊，认识一下新朋友，放松一下。", effects: {e:10,m:5,y:0}, track: "service" }, 
-                    reject: { text: "戴上降噪耳机，在这个嘈杂的环境中继续专注编码。", effects: {e:-5,m:0,y:0}, track: "tech" } 
-                } 
-            }
+            { text: "周五下午4点，产品经理突然发给你一份新需求文档，说“很简单，下周一上线”。你打开一看，涉及底层逻辑改动。", choices: { do: { text: "立即找产品经理过需求，明确风险，争取延期。", effects: {e:-10,m:5,y:0}, track: "influence" }, reject: { text: "为了不被认为“难搞”，先答应下来，周末加班。", effects: {e:-15,m:-5,y:5}, track: "security" } } },
+            { text: "你在维护一个三年前的老项目，发现一段“祖传代码”逻辑混乱且没有注释。目前功能没报错，但随时可能崩。", choices: { do: { text: "忍不住重构了它，并补全了单元测试，虽然这不在KPI里。", effects: {e:-20,m:15,y:0}, track: "tech" }, reject: { text: "能跑就不动，加上 TODO 注释，假装自己没看见。", effects: {e:-5,m:-5,y:5}, track: "security" } } },
+            { text: "公司宣布实行“大小周”，加班费按最低工资标准算。同事们都在私下吐槽，但没人敢说话。", choices: { do: { text: "这是我的福报，默默打开IDE开始干活。", effects: {e:-30,m:-10,y:10}, track: "challenge" }, reject: { text: "打开招聘网站，更新简历，看看外企的机会。", effects: {e:5,m:10,y:-5}, track: "freedom" } } },
+            { text: "凌晨2点，你刚躺下，线上服务器突然报警，电话狂响。你是当值的第一责任人。", choices: { do: { text: "秒级响应，登录VPN开始排查，哪怕明天还要开会。", effects: {e:-25,m:10,y:0}, track: "tech" }, reject: { text: "太累了，装睡没听见，等备用负责人或者明天再说。", effects: {e:5,m:-20,y:-10}, track: "security" } } },
+            { text: "你发现一个新的开源框架很火，虽然项目目前用不上，但你觉得它代表了未来趋势。", choices: { do: { text: "周末自己钻研，写个Demo博客，享受技术探索的乐趣。", effects: {e:-15,m:15,y:0}, track: "tech" }, reject: { text: "现在的技术栈够用就行，不花时间去学“屠龙之技”。", effects: {e:5,m:-5,y:0}, track: "security" } } }
         ],
         finance: [
-            { 
-                text: "IPO冲刺期，凌晨1点，群里领导@你核对一份底稿数据。你知道今晚不搞定，明天项目就会延期。", 
-                choices: { 
-                    do: { text: "强撑着眼皮爬起来，把数据核对完再睡。", effects: {e:-35,m:-5,y:20}, track: "challenge" }, 
-                    reject: { text: "装睡，明早解释“睡太死没听见”，先保命。", effects: {e:10,m:-10,y:-10}, track: "freedom" } 
-                } 
-            },
-            { 
-                text: "你的大客户亏损了20%，情绪激动，直接打电话来骂人，质疑你的专业能力。", 
-                choices: { 
-                    do: { text: "专业安抚，发送详细的市场分析报告，用数据说话。", effects: {e:-20,m:-5,y:10}, track: "service" }, 
-                    reject: { text: "转接客服部门，我不应该直接面对这种情绪垃圾。", effects: {e:5,m:-5,y:-5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "尽调中，你发现目标公司的财务数据有疑点，但如果你指出来，这笔并购案可能黄了，团队奖金也没了。", 
-                choices: { 
-                    do: { text: "坚持原则，写进风险备忘录，哪怕得罪人。", effects: {e:-15,m:15,y:0}, track: "tech" }, 
-                    reject: { text: "尽量淡化处理，先把材料交上去，出了事再说。", effects: {e:-5,m:-15,y:10}, track: "security" } 
-                } 
-            },
-            { 
-                text: "需要为明天的重要路演准备一份极具说服力的PPT。模板现成就有，但内容平平无奇。", 
-                choices: { 
-                    do: { text: "熬夜打磨，重新梳理逻辑，追求完美呈现。", effects: {e:-20,m:10,y:10}, track: "influence" }, 
-                    reject: { text: "套用模板，数据差不多就行，结果主要看命。", effects: {e:-5,m:-5,y:5}, track: "security" } 
-                } 
-            }
+            { text: "IPO冲刺期，凌晨1点，群里领导@你核对一份底稿数据。你知道今晚不搞定，明天项目就会延期。", choices: { do: { text: "强撑着眼皮爬起来，把数据核对完再睡。", effects: {e:-35,m:-5,y:20}, track: "challenge" }, reject: { text: "装睡，明早解释“睡太死没听见”，先保命。", effects: {e:10,m:-10,y:-10}, track: "freedom" } } },
+            { text: "你的大客户亏损了20%，情绪激动，直接打电话来骂人，质疑你的专业能力。", choices: { do: { text: "专业安抚，发送详细的市场分析报告，用数据说话。", effects: {e:-20,m:-5,y:10}, track: "service" }, reject: { text: "转接客服部门，我不应该直接面对这种情绪垃圾。", effects: {e:5,m:-5,y:-5}, track: "security" } } },
+            { text: "尽调中，你发现目标公司的财务数据有疑点，但如果你指出来，这笔并购案可能黄了，团队奖金也没了。", choices: { do: { text: "坚持原则，写进风险备忘录，哪怕得罪人。", effects: {e:-15,m:15,y:0}, track: "tech" }, reject: { text: "尽量淡化处理，先把材料交上去，出了事再说。", effects: {e:-5,m:-15,y:10}, track: "security" } } }
         ],
         soe: [
-            { 
-                text: "你写的材料改了第8版，领导批示：“高度还不够，要再升华一下”。你一眼就看穿这就是形式主义。", 
-                choices: { 
-                    do: { text: "查阅过往文件，堆砌辞藻，改到领导满意为止。", effects: {e:-20,m:-15,y:0}, track: "security" }, 
-                    reject: { text: "只改了两个标点符号，换个格式交差，反正没人细看。", effects: {e:5,m:-10,y:0}, track: "freedom" } 
-                } 
-            },
-            { 
-                text: "同事是典型的“关系户”，经常把工作推给你。他刚又把一个麻烦的报表扔给你。", 
-                choices: { 
-                    do: { text: "为了维持表面和平，帮他把活干了，不想惹事。", effects: {e:-15,m:-10,y:0}, track: "security" }, 
-                    // 这里修复了引号
-                    reject: { text: "当面拒绝：“我手头也紧，这个我真帮不了。”", effects: {e:5,m:5,y:0}, track: "freedom" } 
-                } 
-            },
-            { 
-                text: "单位组织拔河比赛，要求全员参加。你知道这只是为了拍几张照片宣传。", 
-                choices: { 
-                    do: { text: "喊破喉咙，表现得非常有团队精神，争取被领导看到。", effects: {e:-20,m:-5,y:5}, track: "influence" }, 
-                    reject: { text: "站在后排最不起眼的位置，假装用力，实则摸鱼。", effects: {e:0,m:-10,y:0}, track: "freedom" } 
-                } 
-            },
-            { 
-                text: "你提了一个创新降本方案，领导说：“想法不错，但先放放，等上面有精神再说”。", 
-                choices: { 
-                    do: { text: "私下继续完善方案，找机会向更高级领导汇报。", effects: {e:-10,m:10,y:0}, track: "challenge" }, 
-                    reject: { text: "算了，多一事不如少一事，按老规矩来。", effects: {e:5,m:-15,y:0}, track: "security" } 
-                } 
-            }
+            { text: "你写的材料改了第8版，领导批示：“高度还不够，要再升华一下”。你一眼就看穿这就是形式主义。", choices: { do: { text: "查阅过往文件，堆砌辞藻，改到领导满意为止。", effects: {e:-20,m:-15,y:0}, track: "security" }, reject: { text: "只改了两个标点符号，换个格式交差，反正没人细看。", effects: {e:5,m:-10,y:0}, track: "freedom" } } },
+            { text: "同事是典型的“关系户”，经常把工作推给你。他刚又把一个麻烦的报表扔给你。", choices: { do: { text: "为了维持表面和平，帮他把活干了，不想惹事。", effects: {e:-15,m:-10,y:0}, track: "security" }, reject: { text: "当面拒绝：“我手头也紧，这个我真帮不了。”", effects: {e:5,m:5,y:0}, track: "freedom" } } },
+            { text: "单位组织拔河比赛，要求全员参加。你知道这只是为了拍几张照片宣传。", choices: { do: { text: "喊破喉咙，表现得非常有团队精神，争取被领导看到。", effects: {e:-20,m:-5,y:5}, track: "influence" }, reject: { text: "站在后排最不起眼的位置，假装用力，实则摸鱼。", effects: {e:0,m:-10,y:0}, track: "freedom" } } }
         ],
         civil: [
-            { 
-                text: "办事大厅来了一位情绪激动的群众，拍桌子大喊“有黑幕”。周围群众都在围观拍照。", 
-                choices: { 
-                    do: { text: "倒杯水递过去，耐心解释政策，安抚情绪。", effects: {e:-25,m:20,y:0}, track: "service" }, 
-                    reject: { text: "保持距离，呼叫保安维持秩序，按流程办事。", effects: {e:-5,m:-15,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "上级周五突然通知周一要报数据，时间紧，只能“统计加估计”。这明显不符合数据真实原则。", 
-                choices: { 
-                    do: { text: "加班查阅原始档案，尽量拉出接近真实的数据。", effects: {e:-20,m:5,y:0}, track: "tech" }, 
-                    reject: { text: "按经验估算填表，先交上去应付检查。", effects: {e:-5,m:-10,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "政策一刀切，明显不适合本地实际情况，执行下去会引发群众抱怨。", 
-                choices: { 
-                    do: { text: "准备书面建议和调研报告，向上级争取调整空间。", effects: {e:-15,m:15,y:0}, track: "influence" }, 
-                    reject: { text: "照搬文件执行，不说话，法无禁止即可为。", effects: {e:5,m:-10,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "春节值班表出来了，大年三十没人愿意去。领导在群里问“谁可以顶一下”。", 
-                choices: { 
-                    do: { text: "主动报名，反正回家也是闲着，还能拿三倍工资。", effects: {e:-10,m:5,y:15}, track: "service" }, 
-                    reject: { text: "假装没看见群消息，等别人接话。", effects: {e:5,m:-5,y:0}, track: "security" } 
-                } 
-            }
+            { text: "办事大厅来了一位情绪激动的群众，拍桌子大喊“有黑幕”。周围群众都在围观拍照。", choices: { do: { text: "倒杯水递过去，耐心解释政策，安抚情绪。", effects: {e:-25,m:20,y:0}, track: "service" }, reject: { text: "保持距离，呼叫保安维持秩序，按流程办事。", effects: {e:-5,m:-15,y:0}, track: "security" } } },
+            { text: "上级周五突然通知周一要报数据，时间紧，只能“统计加估计”。这明显不符合数据真实原则。", choices: { do: { text: "加班查阅原始档案，尽量拉出接近真实的数据。", effects: {e:-20,m:5,y:0}, track: "tech" }, reject: { text: "按经验估算填表，先交上去应付检查。", effects: {e:-5,m:-10,y:0}, track: "security" } } }
         ],
         academic: [
-            { 
-                text: "收到拒稿邮件，审稿意见是“创新性不足”。你投了这个刊已经折腾了半年。", 
-                choices: { 
-                    do: { text: "调整实验方案，换个刊重投，科研就是打不死的小强。", effects: {e:-15,m:-10,y:0}, track: "tech" }, 
-                    reject: { text: "先放一放，换个容易发的方向，保命要紧。", effects: {e:5,m:-20,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "学校要求“非升即走”，三年发三篇核心，还要承担新课教学。", 
-                choices: { 
-                    do: { text: "拼命挤时间，把课备好、论文写完，拼一把编制。", effects: {e:-30,m:-15,y:0}, track: "challenge" }, 
-                    reject: { text: "课能水就水，精力主要放在论文上，先过考核。", effects: {e:-5,m:-5,y:0}, track: "tech" } 
-                } 
-            },
-            { 
-                text: "学生上课玩手机，你提醒后他依然在刷。", 
-                choices: { 
-                    do: { text: "课后找他谈话，严肃课堂纪律，试图纠正学风。", effects: {e:-15,m:5,y:0}, track: "influence" }, 
-                    reject: { text: "只要不影响别人，装没看见，把课上完就行。", effects: {e:0,m:-5,y:0}, track: "freedom" } 
-                } 
-            },
-            { 
-                text: "有本科生想进你的实验室“打杂”，但他基础很差，教他比自己做还累。", 
-                choices: { 
-                    do: { text: "收下他，手把手带，培养新人是老师的责任。", effects: {e:-10,m:5,y:0}, track: "service" }, 
-                    reject: { text: "婉拒，这会影响我的科研进度。", effects: {e:5,m:-5,y:0}, track: "tech" } 
-                } 
-            }
+            { text: "收到拒稿邮件，审稿意见是“创新性不足”。你投了这个刊已经折腾了半年。", choices: { do: { text: "调整实验方案，换个刊重投，科研就是打不死的小强。", effects: {e:-15,m:-10,y:0}, track: "tech" }, reject: { text: "先放一放，换个容易发的方向，保命要紧。", effects: {e:5,m:-20,y:0}, track: "security" } } },
+            { text: "学校要求“非升即走”，三年发三篇核心，还要承担新课教学。", choices: { do: { text: "拼命挤时间，把课备好、论文写完，拼一把编制。", effects: {e:-30,m:-15,y:0}, track: "challenge" }, reject: { text: "课能水就水，精力主要放在论文上，先过考核。", effects: {e:-5,m:-5,y:0}, track: "tech" } } }
         ],
         medical: [
-            { 
-                text: "凌晨3点，你想在值班室眯十分钟，家属堵门投诉说护士态度不好。", 
-                choices: { 
-                    do: { text: "起身道歉，解释情况，争取理解。", effects: {e:-20,m:5,y:0}, track: "service" }, 
-                    reject: { text: "沉默起身，继续守在监护仪旁，不想卷入是非。", effects: {e:-5,m:-10,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "患者嫌换药收费贵，网上吐槽“没技术含量，就几块钱纱布”。", 
-                choices: { 
-                    do: { text: "耐心解释操作规范、感染风险和成本。", effects: {e:-15,m:5,y:0}, track: "service" }, 
-                    reject: { text: "“按规定收费”，不再多言，让医保办去解释。", effects: {e:-5,m:-5,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "你发现病历复制粘贴时，带进了上一位患者的姓名。", 
-                choices: { 
-                    do: { text: "立即报告科室，主动承认错误并整改。", effects: {e:-25,m:10,y:0}, track: "tech" }, 
-                    reject: { text: "悄悄改掉，祈祷没人发现。", effects: {e:-5,m:-15,y:0}, track: "security" } 
-                } 
-            },
-            { 
-                text: "病人康复出院，家属写来感谢信，还塞给你一个红包。", 
-                choices: { 
-                    do: { text: "收下红包，事后交到科里充公，并回复感谢信。", effects: {e:0,m:10,y:10}, track: "security" }, 
-                    reject: { text: "坚决拒收红包，把感谢信贴在科室墙上。", effects: {e:0,m:15,y:0}, track: "service" } 
-                } 
-            }
+            { text: "凌晨3点，你想在值班室眯十分钟，家属堵门投诉说护士态度不好。", choices: { do: { text: "起身道歉，解释情况，争取理解。", effects: {e:-20,m:5,y:0}, track: "service" }, reject: { text: "沉默起身，继续守在监护仪旁，不想卷入是非。", effects: {e:-5,m:-10,y:0}, track: "security" } } },
+            { text: "你发现病历复制粘贴时，带进了上一位患者的姓名。", choices: { do: { text: "立即报告科室，主动承认错误并整改。", effects: {e:-25,m:10,y:0}, track: "tech" }, reject: { text: "悄悄改掉，祈祷没人发现。", effects: {e:-5,m:-15,y:0}, track: "security" } } }
         ]
     };
 
+    // 核心函数
     function selectIdentity(type) {
         userIdentity = type;
         showScreen('screen-role');
@@ -388,10 +230,8 @@
         currentRole = role;
         
         let pool = allEvents[role] ? [...allEvents[role]] : [];
-        // 兜底逻辑
         if(pool.length < 5) pool = pool.concat(allEvents.coder.slice(0, 5 - pool.length));
 
-        // 洗牌
         for (let i = pool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -400,6 +240,7 @@
 
         state = { energy: 50, meaning: 50, money: 50, tracks: { tech: 0, influence: 0, freedom: 0, security: 0, service: 0, challenge: 0 } };
         currentEventIndex = 0;
+        gameHistory = []; // 重置历史
         
         showScreen('screen-game');
         loadEvent(0);
@@ -429,6 +270,14 @@
         document.getElementById('val-meaning').innerText = state.meaning;
         document.getElementById('val-money').innerText = state.money;
 
+        // 记录历史
+        gameHistory.push({
+            round: currentEventIndex + 1,
+            event: event.text,
+            choice: choice.text,
+            track: choice.track
+        });
+
         currentEventIndex++;
         if (currentEventIndex >= 5) {
             showResult();
@@ -449,10 +298,32 @@
         };
         const topTrackName = trackNames[topTrack];
         
+        // 生成AI提示词
+        const historyText = gameHistory.map(h => 
+            `第${h.round}轮:\n情境: ${h.event}\n选择: ${h.choice}\n倾向: ${trackNames[h.track] || '无'}`
+        ).join('\n\n');
+
+        const aiPromptData = `
+我刚刚玩了一个叫《职业觉醒实验室》的职业模拟游戏，请帮我做一个深度职业诊断。
+我的身份：${userIdentity === 'student' ? '在校学生/准毕业生' : '工作1-5年的职场人'}
+扮演角色：${currentRole}
+最终状态：能量 ${state.energy}%，意义 ${state.meaning}%，收益 ${state.money}%
+核心特质：${topTrackName}
+
+我的游戏历程：
+${historyText}
+
+请根据以上信息：
+1. 分析我目前的职业状态（是否倦怠？是否迷茫？）。
+2. 结合我的核心特质，给我两条具体的、可执行的建议。
+        `.trim();
+
+        // 将提示词存入全局变量供复制使用
+        window.currentAIPrompt = aiPromptData;
+
         let html = '';
 
         if (userIdentity === 'student') {
-            // --- 学生版：潜力地图 ---
             html = `
             <div class="report-card">
                 <div class="report-header">
@@ -486,16 +357,15 @@
                     <div class="rec-desc">建议你在实习或第一份工作中，优先寻找能接触该核心职能的岗位。</div>
                 </div>
             </div>
+            
+            <!-- AI 增强按钮 -->
+            <button class="btn-ai" onclick="copyAIPrompt()">🔍 一键生成 AI 深度解读 (免费)</button>
             <button class="btn-restart" onclick="location.reload()">重新探索</button>
             `;
         } else {
-            // --- 打工人版：体检报告 ---
-            
-            // 判断状态颜色
             const energyColor = state.energy < 30 ? 'bad' : (state.energy < 60 ? 'warn' : 'good');
             const meaningColor = state.meaning < 30 ? 'bad' : (state.meaning < 60 ? 'warn' : 'good');
             
-            // 职业匹配度分析
             const roleMap = { coder: 'tech', finance: 'challenge', soe: 'security', civil: 'service', academic: 'tech', medical: 'service' };
             const roleNeed = roleMap[currentRole];
             const matchScore = state.tracks[roleNeed] || 0;
@@ -542,11 +412,32 @@
                     <div class="diag-text" style="white-space: pre-wrap;">${getAdvice(state, matchScore, topTrackName)}</div>
                 </div>
             </div>
+            
+            <!-- AI 增强按钮 -->
+            <button class="btn-ai" onclick="copyAIPrompt()">🔍 一键生成 AI 深度解读 (免费)</button>
             <button class="btn-restart" onclick="location.reload()">重新体检</button>
             `;
         }
 
         document.getElementById('result-content').innerHTML = html;
+    }
+
+    // 新增：复制AI提示词功能
+    function copyAIPrompt() {
+        if (!window.currentAIPrompt) return;
+        
+        navigator.clipboard.writeText(window.currentAIPrompt).then(() => {
+            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
+        }).catch(err => {
+            // 兼容性处理
+            const textArea = document.createElement("textarea");
+            textArea.value = window.currentAIPrompt;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
+        });
     }
 
     function getCareerSuggestion(track) {
@@ -571,4 +462,3 @@
 </script>
 </body>
 </html>
-
