@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>职业觉醒实验室 V16 - AI增强版</title>
+    <title>职业觉醒实验室 V16 - 深度剖析版</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -110,7 +110,7 @@
 <div class="container active" id="screen-id">
     <div class="screen">
         <h1 class="main-title">职业觉醒实验室</h1>
-        <p class="sub-title">AI 增强版 | 每一次觉醒都值得深度解读</p>
+        <p class="sub-title">深度剖析版 | 每一次选择都是灵魂的拷问</p>
         <div class="id-grid">
             <div class="id-card" onclick="selectIdentity('student')">
                 <span class="id-icon">🎓</span>
@@ -178,39 +178,134 @@
     let currentRole = '';
     let state = { energy: 50, meaning: 50, money: 50, tracks: { tech: 0, influence: 0, freedom: 0, security: 0, service: 0, challenge: 0 } };
     let currentEventIndex = 0, currentEvents = [];
-    let gameHistory = []; // 新增：记录游戏历史
+    let gameHistory = [];
     const timeStamps = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00"];
 
-    // 事件库
+    // === 深度剖析版事件库 (已替换) ===
     const allEvents = {
         coder: [
-            { text: "周五下午4点，产品经理突然发给你一份新需求文档，说“很简单，下周一上线”。你打开一看，涉及底层逻辑改动。", choices: { do: { text: "立即找产品经理过需求，明确风险，争取延期。", effects: {e:-10,m:5,y:0}, track: "influence" }, reject: { text: "为了不被认为“难搞”，先答应下来，周末加班。", effects: {e:-15,m:-5,y:5}, track: "security" } } },
-            { text: "你在维护一个三年前的老项目，发现一段“祖传代码”逻辑混乱且没有注释。目前功能没报错，但随时可能崩。", choices: { do: { text: "忍不住重构了它，并补全了单元测试，虽然这不在KPI里。", effects: {e:-20,m:15,y:0}, track: "tech" }, reject: { text: "能跑就不动，加上 TODO 注释，假装自己没看见。", effects: {e:-5,m:-5,y:5}, track: "security" } } },
-            { text: "公司宣布实行“大小周”，加班费按最低工资标准算。同事们都在私下吐槽，但没人敢说话。", choices: { do: { text: "这是我的福报，默默打开IDE开始干活。", effects: {e:-30,m:-10,y:10}, track: "challenge" }, reject: { text: "打开招聘网站，更新简历，看看外企的机会。", effects: {e:5,m:10,y:-5}, track: "freedom" } } },
-            { text: "凌晨2点，你刚躺下，线上服务器突然报警，电话狂响。你是当值的第一责任人。", choices: { do: { text: "秒级响应，登录VPN开始排查，哪怕明天还要开会。", effects: {e:-25,m:10,y:0}, track: "tech" }, reject: { text: "太累了，装睡没听见，等备用负责人或者明天再说。", effects: {e:5,m:-20,y:-10}, track: "security" } } },
-            { text: "你发现一个新的开源框架很火，虽然项目目前用不上，但你觉得它代表了未来趋势。", choices: { do: { text: "周末自己钻研，写个Demo博客，享受技术探索的乐趣。", effects: {e:-15,m:15,y:0}, track: "tech" }, reject: { text: "现在的技术栈够用就行，不花时间去学“屠龙之技”。", effects: {e:5,m:-5,y:0}, track: "security" } } }
+            { 
+                text: "你花了一周重构核心模块，代码优雅、性能提升 50%。演示会上，产品经理沉默了一会儿说：“但这周没有新功能上线，老板会觉得你没产出。”", 
+                choices: { 
+                    do: { text: "据理力争，试图用技术价值说服他们，哪怕显得不懂人情世故。", effects: {e:-10,m:15,y:-5}, track: "tech" }, 
+                    reject: { text: "沉默接受，下次不再做这种“为了情怀”的傻事，学会向 KPI 低头。", effects: {e:-5,m:-20,y:5}, track: "security" } 
+                } 
+            },
+            { 
+                text: "AI 编程助手越来越强，公司开始用“人机比”考核团队。隔壁组裁掉了两个初级员工，留下的一个用 AI 产出翻倍。你看着自己手写的代码。", 
+                choices: { 
+                    do: { text: "拥抱变化，学习 Prompt Engineering，做驾驭 AI 的新物种，哪怕这意味着要淘汰掉带过的徒弟。", effects: {e:5,m:-10,y:10}, track: "influence" }, 
+                    reject: { text: "坚持手写和思考，你相信“理解”是 AI 无法替代的护城河，哪怕效率数据不漂亮。", effects: {e:-10,m:10,y:-5}, track: "tech" } 
+                } 
+            },
+            { 
+                text: "这是一个千万级用户的产品，但你发现为了赶进度，底层架构埋下了严重的安全隐患。修好它需要停服三天，不修也许永远不出事，出了事就是用户数据泄露。", 
+                choices: { 
+                    do: { text: "写邮件向高层预警并申请停服，做好被问责“制造麻烦”的准备。", effects: {e:-20,m:20,y:-10}, track: "challenge" }, 
+                    reject: { text: "赌一把概率，加上监控补丁，祈祷在自己跳槽前别暴雷。", effects: {e:5,m:-30,y:5}, track: "security" } 
+                } 
+            },
+            { 
+                text: "35岁“红线”将至。猎头给你推了一个初创公司 CTO 的职位，股权诱人但随时可能倒闭；现在的巨头公司给你升职加薪，但你将永远告别代码，转做纯管理。", 
+                choices: { 
+                    do: { text: "去初创公司，哪怕风餐露宿，我也要继续写代码，拒绝成为“PPT 管理者”。", effects: {e:-15,m:20,y:-10}, track: "freedom" }, 
+                    reject: { text: "留在巨头，接受“35岁必须转管理”的规则，换取家庭房贷的安全感。", effects: {e:-10,m:-15,y:15}, track: "security" } 
+                } 
+            }
         ],
         finance: [
-            { text: "IPO冲刺期，凌晨1点，群里领导@你核对一份底稿数据。你知道今晚不搞定，明天项目就会延期。", choices: { do: { text: "强撑着眼皮爬起来，把数据核对完再睡。", effects: {e:-35,m:-5,y:20}, track: "challenge" }, reject: { text: "装睡，明早解释“睡太死没听见”，先保命。", effects: {e:10,m:-10,y:-10}, track: "freedom" } } },
-            { text: "你的大客户亏损了20%，情绪激动，直接打电话来骂人，质疑你的专业能力。", choices: { do: { text: "专业安抚，发送详细的市场分析报告，用数据说话。", effects: {e:-20,m:-5,y:10}, track: "service" }, reject: { text: "转接客服部门，我不应该直接面对这种情绪垃圾。", effects: {e:5,m:-5,y:-5}, track: "security" } } },
-            { text: "尽调中，你发现目标公司的财务数据有疑点，但如果你指出来，这笔并购案可能黄了，团队奖金也没了。", choices: { do: { text: "坚持原则，写进风险备忘录，哪怕得罪人。", effects: {e:-15,m:15,y:0}, track: "tech" }, reject: { text: "尽量淡化处理，先把材料交上去，出了事再说。", effects: {e:-5,m:-15,y:10}, track: "security" } } }
+            { 
+                text: "IPO 项目关键时刻，你发现客户公司有一笔关键现金流存疑。如果指出，项目大概率黄了，团队半年奖金泡汤；如果闭嘴，以你的专业能力能“圆”过去，大概率没人发现。", 
+                choices: { 
+                    do: { text: "在底稿中如实记录，哪怕得罪领导，这是金融人的底线。", effects: {e:-10,m:15,y:-10}, track: "tech" }, 
+                    reject: { text: "看破不说破，大家都是为了赚钱，何必做那个“不懂事”的人。", effects: {e:-5,m:-20,y:15}, track: "security" } 
+                } 
+            },
+            { 
+                text: "你操盘的资金亏了 30%，但恰好市场风格切换，只要隐瞒真实持仓，再坚持一周就可能回本。客户正在问询，你必须在“诚实亏损”和“欺诈赌一把”间做决定。", 
+                choices: { 
+                    do: { text: "如实向客户披露风险，哪怕被赎回，也要守住职业尊严。", effects: {e:-20,m:10,y:-20}, track: "influence" }, 
+                    reject: { text: "先拖一周，赌这波反弹，这是唯一的翻盘机会，输了就什么都没了。", effects: {e:5,m:-30,y:10}, track: "challenge" } 
+                } 
+            },
+            { 
+                text: "你发现自己经手的几十亿资金流转，最终流向了房地产泡沫。你的工作本质上是在把普通人的储蓄变成富人的泡沫游戏。这让你感到虚无。", 
+                choices: { 
+                    do: { text: "申请转岗去做一级市场研究或行研，哪怕钱少一点，也要离“创造价值”近一点。", effects: {e:-5,m:20,y:-10}, track: "service" }, 
+                    reject: { text: "别想太多，这就是金融的本质。我只是个打工的，赚钱才是正义。", effects: {e:-5,m:-20,y:15}, track: "security" } 
+                } 
+            }
         ],
         soe: [
-            { text: "你写的材料改了第8版，领导批示：“高度还不够，要再升华一下”。你一眼就看穿这就是形式主义。", choices: { do: { text: "查阅过往文件，堆砌辞藻，改到领导满意为止。", effects: {e:-20,m:-15,y:0}, track: "security" }, reject: { text: "只改了两个标点符号，换个格式交差，反正没人细看。", effects: {e:5,m:-10,y:0}, track: "freedom" } } },
-            { text: "同事是典型的“关系户”，经常把工作推给你。他刚又把一个麻烦的报表扔给你。", choices: { do: { text: "为了维持表面和平，帮他把活干了，不想惹事。", effects: {e:-15,m:-10,y:0}, track: "security" }, reject: { text: "当面拒绝：“我手头也紧，这个我真帮不了。”", effects: {e:5,m:5,y:0}, track: "freedom" } } },
-            { text: "单位组织拔河比赛，要求全员参加。你知道这只是为了拍几张照片宣传。", choices: { do: { text: "喊破喉咙，表现得非常有团队精神，争取被领导看到。", effects: {e:-20,m:-5,y:5}, track: "influence" }, reject: { text: "站在后排最不起眼的位置，假装用力，实则摸鱼。", effects: {e:0,m:-10,y:0}, track: "freedom" } } }
+            { 
+                text: "单位要提拔干部，你业绩第一，但那是“业务过硬”；另一个同事业绩平平，但他经常陪领导打球、办事，那是“政治过硬”。名额只有一个。", 
+                choices: { 
+                    do: { text: "继续闷头干活，相信“实干兴邦”，哪怕这次吃亏，也不愿经营关系。", effects: {e:-5,m:5,y:-5}, track: "tech" }, 
+                    reject: { text: "开始学着“懂事”，主动接近领导圈子，融入这套规则。", effects: {e:-10,m:-15,y:10}, track: "influence" } 
+                } 
+            },
+            { 
+                text: "为了应付上级检查，部门需要编造一份“创新成果”汇报。领导暗示你“笔杆子好，你知道怎么写”。你知道这是造假，但拒绝会得罪整个部门。", 
+                choices: { 
+                    do: { text: "婉拒，申请去一线干最苦的差事，也不愿做这种“笔上文章”。", effects: {e:-10,m:5,y:-5}, track: "freedom" }, 
+                    reject: { text: "接受任务，写得天花乱缝，反正大家都在演，何必当那个“异类”。", effects: {e:-5,m:-25,y:5}, track: "security" } 
+                } 
+            },
+            { 
+                text: "你是技术骨干，但现在的岗位让你负责“会务接待”和“党建宣传”。你的专业技能正在以肉眼可见的速度退化。", 
+                choices: { 
+                    do: { text: "利用业余时间接私活或考证，绝不让废掉，哪怕累一点。", effects: {e:-15,m:5,y:0}, track: "tech" }, 
+                    reject: { text: "认命，在体制内，站对队比技术好更重要，慢慢转型做行政管理。", effects: {e:-5,m:-10,y:5}, track: "security" } 
+                } 
+            }
         ],
         civil: [
-            { text: "办事大厅来了一位情绪激动的群众，拍桌子大喊“有黑幕”。周围群众都在围观拍照。", choices: { do: { text: "倒杯水递过去，耐心解释政策，安抚情绪。", effects: {e:-25,m:20,y:0}, track: "service" }, reject: { text: "保持距离，呼叫保安维持秩序，按流程办事。", effects: {e:-5,m:-15,y:0}, track: "security" } } },
-            { text: "上级周五突然通知周一要报数据，时间紧，只能“统计加估计”。这明显不符合数据真实原则。", choices: { do: { text: "加班查阅原始档案，尽量拉出接近真实的数据。", effects: {e:-20,m:5,y:0}, track: "tech" }, reject: { text: "按经验估算填表，先交上去应付检查。", effects: {e:-5,m:-10,y:0}, track: "security" } } }
+            { 
+                text: "办事大厅来了一位老人，手续不全无法办理。按照规定必须拒绝，但他跑了大半天，情绪激动。后面排队的人开始抱怨你效率低。", 
+                choices: { 
+                    do: { text: "“原则上不行”但“想办法办”。利用午休帮他补齐材料，哪怕自己加班。", effects: {e:-15,m:15,y:-5}, track: "service" }, 
+                    reject: { text: "公事公办，温和但坚定地拒绝。为了效率，必须牺牲掉少数人的便利。", effects: {e:5,m:-15,y:5}, track: "security" } 
+                } 
+            },
+            { 
+                text: "上级下达了一项“必须完成”的指标，但指标本身不合逻辑，强制执行会损害基层利益。你是执行者，你知道怎么做才能“完成率好看”。", 
+                choices: { 
+                    do: { text: "如实反馈困难，提出修改指标的建议，哪怕被视为“执行力不强”。", effects: {e:-10,m:10,y:-5}, track: "influence" }, 
+                    reject: { text: "照单全收，压力下传。只要我不背锅，基层的苦是必须付出的代价。", effects: {e:5,m:-20,y:5}, track: "security" } 
+                } 
+            }
         ],
         academic: [
-            { text: "收到拒稿邮件，审稿意见是“创新性不足”。你投了这个刊已经折腾了半年。", choices: { do: { text: "调整实验方案，换个刊重投，科研就是打不死的小强。", effects: {e:-15,m:-10,y:0}, track: "tech" }, reject: { text: "先放一放，换个容易发的方向，保命要紧。", effects: {e:5,m:-20,y:0}, track: "security" } } },
-            { text: "学校要求“非升即走”，三年发三篇核心，还要承担新课教学。", choices: { do: { text: "拼命挤时间，把课备好、论文写完，拼一把编制。", effects: {e:-30,m:-15,y:0}, track: "challenge" }, reject: { text: "课能水就水，精力主要放在论文上，先过考核。", effects: {e:-5,m:-5,y:0}, track: "tech" } } }
+            { 
+                text: "为了评职称，你面临选择：A. 追逐热点，发几篇容易中但意义不大的“水刊”；B. 继续死磕那个冷门但重要的基础课题，很可能三年无果。", 
+                choices: { 
+                    do: { text: "选择冷门课题，学术是一场马拉松，我不为“帽子”折腰。", effects: {e:-15,m:20,y:-10}, track: "tech" }, 
+                    reject: { text: "现实一点，先评上职称再说。发了水刊，也是为了以后能更好地做研究。", effects: {e:-5,m:-15,y:10}, track: "security" } 
+                } 
+            },
+            { 
+                text: "导师让你帮他的“关系户”学生代写毕业论文。这是学术不端，但如果你拒绝，导师可能会延毕你。", 
+                choices: { 
+                    do: { text: "严词拒绝，大不了延期，我不能玷污学术的尊严。", effects: {e:-20,m:15,y:-10}, track: "freedom" }, 
+                    reject: { text: "忍气吞声，帮了这一次。在学术圈，导师的资源决定我的未来。", effects: {e:-5,m:-25,y:5}, track: "security" } 
+                } 
+            }
         ],
         medical: [
-            { text: "凌晨3点，你想在值班室眯十分钟，家属堵门投诉说护士态度不好。", choices: { do: { text: "起身道歉，解释情况，争取理解。", effects: {e:-20,m:5,y:0}, track: "service" }, reject: { text: "沉默起身，继续守在监护仪旁，不想卷入是非。", effects: {e:-5,m:-10,y:0}, track: "security" } } },
-            { text: "你发现病历复制粘贴时，带进了上一位患者的姓名。", choices: { do: { text: "立即报告科室，主动承认错误并整改。", effects: {e:-25,m:10,y:0}, track: "tech" }, reject: { text: "悄悄改掉，祈祷没人发现。", effects: {e:-5,m:-15,y:0}, track: "security" } } }
+            { 
+                text: "患者家属跪在地上求你用“最好的药”，其实你知道那只是进口安慰剂，对病情无效且昂贵；而有效的是国产廉价药，但家属会质疑你没尽力。", 
+                choices: { 
+                    do: { text: "坚持用廉价药，并花半小时解释原理，哪怕家属可能会投诉你态度不好。", effects: {e:-20,m:15,y:-5}, track: "tech" }, 
+                    reject: { text: "顺家属意开进口药，皆大欢喜，避免了纠纷，哪怕良心有愧。", effects: {e:5,m:-20,y:5}, track: "security" } 
+                } 
+            },
+            { 
+                text: "连轴转了30小时，你头晕眼花。这时候来了一个重症病人，需要高难度手术。你现在的状态，成功率只有80%；如果休息4小时再做，成功率95%，但可能错过黄金窗口。", 
+                choices: { 
+                    do: { text: "坚持上手术台，我是医生，哪怕拼了命也要给病人这一线生机。", effects: {e:-35,m:10,y:-5}, track: "service" }, 
+                    reject: { text: "交班给状态更好的同事，承认自己的生理极限，哪怕会被人说“推脱责任”。", effects: {e:10,m:-5,y:-5}, track: "security" } 
+                } 
+            }
         ]
     };
 
@@ -230,8 +325,13 @@
         currentRole = role;
         
         let pool = allEvents[role] ? [...allEvents[role]] : [];
-        if(pool.length < 5) pool = pool.concat(allEvents.coder.slice(0, 5 - pool.length));
+        // 兜底逻辑：如果事件不够，借用程序员事件补足
+        if(pool.length < 5){
+            const need = 5 - pool.length;
+            pool = pool.concat(allEvents.coder.slice(0, need));
+        }
 
+        // 随机打乱顺序
         for (let i = pool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -422,7 +522,7 @@ ${historyText}
         document.getElementById('result-content').innerHTML = html;
     }
 
-    // 新增：复制AI提示词功能
+    // 复制AI提示词功能
     function copyAIPrompt() {
         if (!window.currentAIPrompt) return;
         
@@ -434,7 +534,7 @@ ${historyText}
             textArea.value = window.currentAIPrompt;
             document.body.appendChild(textArea);
             textArea.select();
-            document.execCommand('copy');
+            document.execCommand("copy");
             document.body.removeChild(textArea);
             alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
         });
