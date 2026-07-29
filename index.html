@@ -3,121 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>职业觉醒实验室 V16 - 深度剖析版</title>
+    <title>职业觉醒实验室 V22 - 分离版</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0f0f11;
-            --card-bg: rgba(255, 255, 255, 0.06);
-            --accent-color: #00ff88;
-            --text-main: #ffffff;
-            --font-main: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        /* 主题配色 */
-        .theme-coder { --accent-color: #00ff88; --glow: rgba(0, 255, 136, 0.15); }
-        .theme-finance { --accent-color: #ffd700; --glow: rgba(255, 215, 0, 0.15); }
-        .theme-soe { --accent-color: #ff6b6b; --glow: rgba(255, 107, 107, 0.15); }
-        .theme-civil { --accent-color: #48dbfb; --glow: rgba(72, 219, 251, 0.15); }
-        .theme-academic { --accent-color: #a55eea; --glow: rgba(165, 94, 234, 0.15); }
-        .theme-medical { --accent-color: #2ecc71; --glow: rgba(46, 204, 113, 0.15); }
-
-        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-main); overflow-x: hidden; min-height: 100vh; }
-        .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; background: radial-gradient(circle at 50% 0%, var(--glow) 0%, transparent 50%); opacity: 0.6; }
-        
-        /* 布局 */
-        .container { max-width: 640px; margin: 0 auto; padding: 20px; box-sizing: border-box; min-height: 100vh; display: none; flex-direction: column; justify-content: center; }
-        .container.active { display: flex; }
-        .screen { width: 100%; text-align: center; }
-
-        /* 首页 */
-        .main-title { font-size: 34px; font-weight: 900; margin-bottom: 10px; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; color: transparent; }
-        .sub-title { font-size: 13px; color: #666; margin-bottom: 50px; letter-spacing: 1px; }
-        
-        .id-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .id-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 40px 20px; cursor: pointer; transition: all 0.3s; }
-        .id-card:active { border-color: var(--accent-color); background: rgba(255,255,255,0.08); }
-        .id-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-        .id-name { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
-        .id-desc { font-size: 12px; color: #888; line-height: 1.5; }
-
-        /* 角色选择 */
-        .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .role-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 25px 10px; cursor: pointer; transition: all 0.2s; }
-        .role-card:active { transform: scale(0.98); border-color: var(--accent-color); }
-        .role-icon { font-size: 32px; margin-bottom: 10px; display: block; }
-        .role-name { font-size: 16px; font-weight: bold; }
-
-        /* 游戏界面 */
-        .game-hud { position: fixed; top: 0; left: 0; right: 0; padding: 15px 20px; background: rgba(0,0,0,0.85); display: flex; justify-content: space-between; z-index: 100; font-size: 13px; color: #aaa; backdrop-filter: blur(10px); }
-        .stats-row { display: flex; justify-content: space-around; margin-bottom: 30px; padding-top: 50px; }
-        .stat-orb { width: 80px; height: 80px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
-        .stat-val { font-size: 22px; font-weight: 900; color: #fff; }
-        .stat-lbl { font-size: 10px; color: #888; margin-top: 2px; }
-
-        .event-container { background: var(--card-bg); border-radius: 24px; padding: 35px 30px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .event-desc { font-size: 18px; line-height: 1.8; margin-bottom: 35px; min-height: 80px; color: #eee; }
-        .action-btns { display: flex; flex-direction: column; gap: 15px; }
-        .act-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #ccc; padding: 18px 20px; border-radius: 14px; text-align: left; cursor: pointer; font-size: 15px; transition: all 0.2s; line-height: 1.4; }
-        .act-btn:active { background: rgba(255,255,255,0.1); border-color: var(--accent-color); color: #fff; }
-
-        /* 结果页通用 */
-        .result-screen { text-align: left; }
-        .report-card { background: linear-gradient(145deg, #1a1a1c 0%, #222226 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px; margin-bottom: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
-        .report-header { display: flex; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
-        .report-icon { font-size: 36px; margin-right: 15px; }
-        .report-title { font-size: 20px; font-weight: 900; color: #fff; }
-        .report-sub { font-size: 12px; color: #666; display: block; margin-top: 4px; }
-
-        /* 雷达图模拟 */
-        .radar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .radar-item { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .radar-name { font-size: 12px; color: #aaa; }
-        .radar-score { font-size: 14px; font-weight: bold; color: var(--accent-color); }
-        
-        /* 状态条 */
-        .status-item { margin-bottom: 15px; }
-        .status-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #ccc; }
-        .status-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-        .status-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
-        .fill-good { background: #2ecc71; }
-        .fill-warn { background: #f1c40f; }
-        .fill-bad { background: #e74c3c; }
-
-        /* 诊断卡片 */
-        .diag-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px; margin-top: 20px; border-left: 4px solid var(--accent-color); }
-        .diag-title { font-size: 14px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
-        .diag-text { font-size: 13px; line-height: 1.6; color: #ddd; }
-
-        /* 推荐卡片 */
-        .rec-card { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 15px; margin-top: 15px; }
-        .rec-title { font-size: 12px; color: #888; margin-bottom: 5px; }
-        .rec-role { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 5px; }
-        .rec-desc { font-size: 12px; color: #aaa; }
-
-        /* 按钮样式 */
-        .btn-restart { background: var(--accent-color); color: #000; font-weight: bold; border: none; padding: 15px 30px; border-radius: 30px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 16px; transition: transform 0.1s; }
-        .btn-restart:active { transform: scale(0.98); }
-        
-        /* AI增强按钮 */
-        .btn-ai { background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 30px; margin-top: 15px; cursor: pointer; width: 100%; font-size: 14px; transition: all 0.2s; }
-        .btn-ai:active { background: rgba(255,255,255,0.2); transform: scale(0.98); }
-    </style>
 </head>
 <body class="theme-coder">
+
+<!-- 背景层 -->
 <div class="bg-layer"></div>
 
 <!-- 1. 身份选择页 -->
 <div class="container active" id="screen-id">
     <div class="screen">
         <h1 class="main-title">职业觉醒实验室</h1>
-        <p class="sub-title">深度剖析版 | 每一次选择都是灵魂的拷问</p>
+        <p class="sub-title">架构分离版 | 点击即可运行</p>
         <div class="id-grid">
-            <div class="id-card" onclick="selectIdentity('student')">
+            <div class="id-card" onclick="Game.selectIdentity('student')">
                 <span class="id-icon">🎓</span>
                 <div class="id-name">我是学生</div>
                 <div class="id-desc">面对未来，我想知道自己适合走向何方</div>
             </div>
-            <div class="id-card" onclick="selectIdentity('worker')">
+            <div class="id-card" onclick="Game.selectIdentity('worker')">
                 <span class="id-icon">💼</span>
                 <div class="id-name">我是打工人</div>
                 <div class="id-desc">面对当下，我想确认此刻的状态是否健康</div>
@@ -129,15 +37,9 @@
 <!-- 2. 角色选择页 -->
 <div class="container" id="screen-role">
     <div class="screen">
-        <h2 style="font-size:18px; margin-bottom:30px; color:#aaa;">选择一个你想代入的角色剧本：</h2>
-        <div class="role-grid">
-            <div class="role-card" onclick="startGame('coder')"><span class="role-icon">💻</span><div class="role-name">程序员</div></div>
-            <div class="role-card" onclick="startGame('finance')"><span class="role-icon">💰</span><div class="role-name">金融民工</div></div>
-            <div class="role-card" onclick="startGame('soe')"><span class="role-icon">🏭</span><div class="role-name">央企职员</div></div>
-            <div class="role-card" onclick="startGame('civil')"><span class="role-icon">🏛️</span><div class="role-name">体制内</div></div>
-            <div class="role-card" onclick="startGame('academic')"><span class="role-icon">📚</span><div class="role-name">高校青椒</div></div>
-            <div class="role-card" onclick="startGame('medical')"><span class="role-icon">⚕️</span><div class="role-name">医务工作者</div></div>
-        </div>
+        <h2 style="font-size:18px; margin-bottom:30px; color:#aaa;">选择剧本：</h2>
+        <!-- 动态生成区域 -->
+        <div class="role-grid" id="role-container"></div>
     </div>
 </div>
 
@@ -154,10 +56,10 @@
             <div class="stat-orb"><span class="stat-val" id="val-money">50</span><span class="stat-lbl">💰 收益</span></div>
         </div>
         <div class="event-container">
-            <div class="event-desc" id="event-text">正在加载情境...</div>
+            <div class="event-desc" id="event-text">正在加载...</div>
             <div class="action-btns">
-                <button class="act-btn" id="btn-a" onclick="handleAction('do')">A</button>
-                <button class="act-btn" id="btn-b" onclick="handleAction('reject')">B</button>
+                <button class="act-btn" id="btn-a" onclick="Game.handleAction('do')">A</button>
+                <button class="act-btn" id="btn-b" onclick="Game.handleAction('reject')">B</button>
             </div>
         </div>
     </div>
@@ -166,399 +68,13 @@
 <!-- 4. 结果页 -->
 <div class="container" id="screen-result">
     <div class="screen">
-        <div class="result-screen" id="result-content">
-            <!-- 动态生成 -->
-        </div>
+        <div class="result-screen" id="result-content"></div>
     </div>
 </div>
 
-<script>
-    // 状态初始化
-    let userIdentity = 'student';
-    let currentRole = '';
-    let state = { energy: 50, meaning: 50, money: 50, tracks: { tech: 0, influence: 0, freedom: 0, security: 0, service: 0, challenge: 0 } };
-    let currentEventIndex = 0, currentEvents = [];
-    let gameHistory = [];
-    const timeStamps = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00"];
+<!-- 引入脚本：注意顺序，数据在前，逻辑在后 -->
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
 
-    // === 深度剖析版事件库 (已替换) ===
-    const allEvents = {
-        coder: [
-            { 
-                text: "你花了一周重构核心模块，代码优雅、性能提升 50%。演示会上，产品经理沉默了一会儿说：“但这周没有新功能上线，老板会觉得你没产出。”", 
-                choices: { 
-                    do: { text: "据理力争，试图用技术价值说服他们，哪怕显得不懂人情世故。", effects: {e:-10,m:15,y:-5}, track: "tech" }, 
-                    reject: { text: "沉默接受，下次不再做这种“为了情怀”的傻事，学会向 KPI 低头。", effects: {e:-5,m:-20,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "AI 编程助手越来越强，公司开始用“人机比”考核团队。隔壁组裁掉了两个初级员工，留下的一个用 AI 产出翻倍。你看着自己手写的代码。", 
-                choices: { 
-                    do: { text: "拥抱变化，学习 Prompt Engineering，做驾驭 AI 的新物种，哪怕这意味着要淘汰掉带过的徒弟。", effects: {e:5,m:-10,y:10}, track: "influence" }, 
-                    reject: { text: "坚持手写和思考，你相信“理解”是 AI 无法替代的护城河，哪怕效率数据不漂亮。", effects: {e:-10,m:10,y:-5}, track: "tech" } 
-                } 
-            },
-            { 
-                text: "这是一个千万级用户的产品，但你发现为了赶进度，底层架构埋下了严重的安全隐患。修好它需要停服三天，不修也许永远不出事，出了事就是用户数据泄露。", 
-                choices: { 
-                    do: { text: "写邮件向高层预警并申请停服，做好被问责“制造麻烦”的准备。", effects: {e:-20,m:20,y:-10}, track: "challenge" }, 
-                    reject: { text: "赌一把概率，加上监控补丁，祈祷在自己跳槽前别暴雷。", effects: {e:5,m:-30,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "35岁“红线”将至。猎头给你推了一个初创公司 CTO 的职位，股权诱人但随时可能倒闭；现在的巨头公司给你升职加薪，但你将永远告别代码，转做纯管理。", 
-                choices: { 
-                    do: { text: "去初创公司，哪怕风餐露宿，我也要继续写代码，拒绝成为“PPT 管理者”。", effects: {e:-15,m:20,y:-10}, track: "freedom" }, 
-                    reject: { text: "留在巨头，接受“35岁必须转管理”的规则，换取家庭房贷的安全感。", effects: {e:-10,m:-15,y:15}, track: "security" } 
-                } 
-            }
-        ],
-        finance: [
-            { 
-                text: "IPO 项目关键时刻，你发现客户公司有一笔关键现金流存疑。如果指出，项目大概率黄了，团队半年奖金泡汤；如果闭嘴，以你的专业能力能“圆”过去，大概率没人发现。", 
-                choices: { 
-                    do: { text: "在底稿中如实记录，哪怕得罪领导，这是金融人的底线。", effects: {e:-10,m:15,y:-10}, track: "tech" }, 
-                    reject: { text: "看破不说破，大家都是为了赚钱，何必做那个“不懂事”的人。", effects: {e:-5,m:-20,y:15}, track: "security" } 
-                } 
-            },
-            { 
-                text: "你操盘的资金亏了 30%，但恰好市场风格切换，只要隐瞒真实持仓，再坚持一周就可能回本。客户正在问询，你必须在“诚实亏损”和“欺诈赌一把”间做决定。", 
-                choices: { 
-                    do: { text: "如实向客户披露风险，哪怕被赎回，也要守住职业尊严。", effects: {e:-20,m:10,y:-20}, track: "influence" }, 
-                    reject: { text: "先拖一周，赌这波反弹，这是唯一的翻盘机会，输了就什么都没了。", effects: {e:5,m:-30,y:10}, track: "challenge" } 
-                } 
-            },
-            { 
-                text: "你发现自己经手的几十亿资金流转，最终流向了房地产泡沫。你的工作本质上是在把普通人的储蓄变成富人的泡沫游戏。这让你感到虚无。", 
-                choices: { 
-                    do: { text: "申请转岗去做一级市场研究或行研，哪怕钱少一点，也要离“创造价值”近一点。", effects: {e:-5,m:20,y:-10}, track: "service" }, 
-                    reject: { text: "别想太多，这就是金融的本质。我只是个打工的，赚钱才是正义。", effects: {e:-5,m:-20,y:15}, track: "security" } 
-                } 
-            }
-        ],
-        soe: [
-            { 
-                text: "单位要提拔干部，你业绩第一，但那是“业务过硬”；另一个同事业绩平平，但他经常陪领导打球、办事，那是“政治过硬”。名额只有一个。", 
-                choices: { 
-                    do: { text: "继续闷头干活，相信“实干兴邦”，哪怕这次吃亏，也不愿经营关系。", effects: {e:-5,m:5,y:-5}, track: "tech" }, 
-                    reject: { text: "开始学着“懂事”，主动接近领导圈子，融入这套规则。", effects: {e:-10,m:-15,y:10}, track: "influence" } 
-                } 
-            },
-            { 
-                text: "为了应付上级检查，部门需要编造一份“创新成果”汇报。领导暗示你“笔杆子好，你知道怎么写”。你知道这是造假，但拒绝会得罪整个部门。", 
-                choices: { 
-                    do: { text: "婉拒，申请去一线干最苦的差事，也不愿做这种“笔上文章”。", effects: {e:-10,m:5,y:-5}, track: "freedom" }, 
-                    reject: { text: "接受任务，写得天花乱缝，反正大家都在演，何必当那个“异类”。", effects: {e:-5,m:-25,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "你是技术骨干，但现在的岗位让你负责“会务接待”和“党建宣传”。你的专业技能正在以肉眼可见的速度退化。", 
-                choices: { 
-                    do: { text: "利用业余时间接私活或考证，绝不让废掉，哪怕累一点。", effects: {e:-15,m:5,y:0}, track: "tech" }, 
-                    reject: { text: "认命，在体制内，站对队比技术好更重要，慢慢转型做行政管理。", effects: {e:-5,m:-10,y:5}, track: "security" } 
-                } 
-            }
-        ],
-        civil: [
-            { 
-                text: "办事大厅来了一位老人，手续不全无法办理。按照规定必须拒绝，但他跑了大半天，情绪激动。后面排队的人开始抱怨你效率低。", 
-                choices: { 
-                    do: { text: "“原则上不行”但“想办法办”。利用午休帮他补齐材料，哪怕自己加班。", effects: {e:-15,m:15,y:-5}, track: "service" }, 
-                    reject: { text: "公事公办，温和但坚定地拒绝。为了效率，必须牺牲掉少数人的便利。", effects: {e:5,m:-15,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "上级下达了一项“必须完成”的指标，但指标本身不合逻辑，强制执行会损害基层利益。你是执行者，你知道怎么做才能“完成率好看”。", 
-                choices: { 
-                    do: { text: "如实反馈困难，提出修改指标的建议，哪怕被视为“执行力不强”。", effects: {e:-10,m:10,y:-5}, track: "influence" }, 
-                    reject: { text: "照单全收，压力下传。只要我不背锅，基层的苦是必须付出的代价。", effects: {e:5,m:-20,y:5}, track: "security" } 
-                } 
-            }
-        ],
-        academic: [
-            { 
-                text: "为了评职称，你面临选择：A. 追逐热点，发几篇容易中但意义不大的“水刊”；B. 继续死磕那个冷门但重要的基础课题，很可能三年无果。", 
-                choices: { 
-                    do: { text: "选择冷门课题，学术是一场马拉松，我不为“帽子”折腰。", effects: {e:-15,m:20,y:-10}, track: "tech" }, 
-                    reject: { text: "现实一点，先评上职称再说。发了水刊，也是为了以后能更好地做研究。", effects: {e:-5,m:-15,y:10}, track: "security" } 
-                } 
-            },
-            { 
-                text: "导师让你帮他的“关系户”学生代写毕业论文。这是学术不端，但如果你拒绝，导师可能会延毕你。", 
-                choices: { 
-                    do: { text: "严词拒绝，大不了延期，我不能玷污学术的尊严。", effects: {e:-20,m:15,y:-10}, track: "freedom" }, 
-                    reject: { text: "忍气吞声，帮了这一次。在学术圈，导师的资源决定我的未来。", effects: {e:-5,m:-25,y:5}, track: "security" } 
-                } 
-            }
-        ],
-        medical: [
-            { 
-                text: "患者家属跪在地上求你用“最好的药”，其实你知道那只是进口安慰剂，对病情无效且昂贵；而有效的是国产廉价药，但家属会质疑你没尽力。", 
-                choices: { 
-                    do: { text: "坚持用廉价药，并花半小时解释原理，哪怕家属可能会投诉你态度不好。", effects: {e:-20,m:15,y:-5}, track: "tech" }, 
-                    reject: { text: "顺家属意开进口药，皆大欢喜，避免了纠纷，哪怕良心有愧。", effects: {e:5,m:-20,y:5}, track: "security" } 
-                } 
-            },
-            { 
-                text: "连轴转了30小时，你头晕眼花。这时候来了一个重症病人，需要高难度手术。你现在的状态，成功率只有80%；如果休息4小时再做，成功率95%，但可能错过黄金窗口。", 
-                choices: { 
-                    do: { text: "坚持上手术台，我是医生，哪怕拼了命也要给病人这一线生机。", effects: {e:-35,m:10,y:-5}, track: "service" }, 
-                    reject: { text: "交班给状态更好的同事，承认自己的生理极限，哪怕会被人说“推脱责任”。", effects: {e:10,m:-5,y:-5}, track: "security" } 
-                } 
-            }
-        ]
-    };
-
-    // 核心函数
-    function selectIdentity(type) {
-        userIdentity = type;
-        showScreen('screen-role');
-    }
-
-    function showScreen(id) {
-        document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    function startGame(role) {
-        document.body.className = `theme-${role}`;
-        currentRole = role;
-        
-        let pool = allEvents[role] ? [...allEvents[role]] : [];
-        // 兜底逻辑：如果事件不够，借用程序员事件补足
-        if(pool.length < 5){
-            const need = 5 - pool.length;
-            pool = pool.concat(allEvents.coder.slice(0, need));
-        }
-
-        // 随机打乱顺序
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        currentEvents = pool.slice(0, 5);
-
-        state = { energy: 50, meaning: 50, money: 50, tracks: { tech: 0, influence: 0, freedom: 0, security: 0, service: 0, challenge: 0 } };
-        currentEventIndex = 0;
-        gameHistory = []; // 重置历史
-        
-        showScreen('screen-game');
-        loadEvent(0);
-    }
-
-    function loadEvent(index) {
-        document.getElementById('hud-time').innerText = timeStamps[index];
-        const event = currentEvents[index];
-        document.getElementById("event-text").innerText = event.text;
-        document.getElementById("btn-a").innerText = event.choices.do.text;
-        document.getElementById("btn-b").innerText = event.choices.reject.text;
-    }
-
-    function handleAction(type) {
-        const event = currentEvents[currentEventIndex];
-        const choice = event.choices[type];
-
-        state.energy += choice.effects.e;
-        state.meaning += choice.effects.m;
-        state.money += choice.effects.y;
-        state.energy = Math.max(0, Math.min(100, state.energy));
-        state.meaning = Math.max(0, Math.min(100, state.meaning));
-        state.money = Math.max(0, Math.min(100, state.money));
-        if (choice.track) state.tracks[choice.track]++;
-
-        document.getElementById('val-energy').innerText = state.energy;
-        document.getElementById('val-meaning').innerText = state.meaning;
-        document.getElementById('val-money').innerText = state.money;
-
-        // 记录历史
-        gameHistory.push({
-            round: currentEventIndex + 1,
-            event: event.text,
-            choice: choice.text,
-            track: choice.track
-        });
-
-        currentEventIndex++;
-        if (currentEventIndex >= 5) {
-            showResult();
-        } else {
-            loadEvent(currentEventIndex);
-        }
-    }
-
-    function showResult() {
-        showScreen('screen-result');
-        
-        const sorted = Object.entries(state.tracks).sort((a, b) => b[1] - a[1]);
-        const topTrack = sorted[0][0];
-
-        const trackNames = { 
-            tech: "技术创造", influence: "影响引领", freedom: "自由自主", 
-            security: "安全稳定", service: "服务贡献", challenge: "挑战突破" 
-        };
-        const topTrackName = trackNames[topTrack];
-        
-        // 生成AI提示词
-        const historyText = gameHistory.map(h => 
-            `第${h.round}轮:\n情境: ${h.event}\n选择: ${h.choice}\n倾向: ${trackNames[h.track] || '无'}`
-        ).join('\n\n');
-
-        const aiPromptData = `
-我刚刚玩了一个叫《职业觉醒实验室》的职业模拟游戏，请帮我做一个深度职业诊断。
-我的身份：${userIdentity === 'student' ? '在校学生/准毕业生' : '工作1-5年的职场人'}
-扮演角色：${currentRole}
-最终状态：能量 ${state.energy}%，意义 ${state.meaning}%，收益 ${state.money}%
-核心特质：${topTrackName}
-
-我的游戏历程：
-${historyText}
-
-请根据以上信息：
-1. 分析我目前的职业状态（是否倦怠？是否迷茫？）。
-2. 结合我的核心特质，给我两条具体的、可执行的建议。
-        `.trim();
-
-        // 将提示词存入全局变量供复制使用
-        window.currentAIPrompt = aiPromptData;
-
-        let html = '';
-
-        if (userIdentity === 'student') {
-            html = `
-            <div class="report-card">
-                <div class="report-header">
-                    <span class="report-icon">🗺️</span>
-                    <div>
-                        <div class="report-title">职业潜力地图</div>
-                        <span class="report-sub">基于你的本能偏好分析</span>
-                    </div>
-                </div>
-                
-                <div class="radar-grid">
-                    ${sorted.map(([key, value]) => `
-                        <div class="radar-item">
-                            <span class="radar-name">${trackNames[key]}</span>
-                            <span class="radar-score">${value} 分</span>
-                        </div>
-                    `).join('')}
-                </div>
-
-                <div class="diag-box">
-                    <div class="diag-title">💡 核心特质解读</div>
-                    <div class="diag-text">
-                        你在模拟中展现出的最高特质是 <strong>「${topTrackName}」</strong>。<br>
-                        这意味着在真实职场中，当你处于能发挥该特质的环境时，你最容易产生“心流”体验，成长速度也会最快。你的能量值（${state.energy}%）显示了你目前对压力的耐受力。
-                    </div>
-                </div>
-
-                <div class="rec-card">
-                    <div class="rec-title">🚀 推荐起步方向</div>
-                    <div class="rec-role">${getCareerSuggestion(topTrack).split('/')[0]}</div>
-                    <div class="rec-desc">建议你在实习或第一份工作中，优先寻找能接触该核心职能的岗位。</div>
-                </div>
-            </div>
-            
-            <!-- AI 增强按钮 -->
-            <button class="btn-ai" onclick="copyAIPrompt()">🔍 一键生成 AI 深度解读 (免费)</button>
-            <button class="btn-restart" onclick="location.reload()">重新探索</button>
-            `;
-        } else {
-            const energyColor = state.energy < 30 ? 'bad' : (state.energy < 60 ? 'warn' : 'good');
-            const meaningColor = state.meaning < 30 ? 'bad' : (state.meaning < 60 ? 'warn' : 'good');
-            
-            const roleMap = { coder: 'tech', finance: 'challenge', soe: 'security', civil: 'service', academic: 'tech', medical: 'service' };
-            const roleNeed = roleMap[currentRole];
-            const matchScore = state.tracks[roleNeed] || 0;
-            const matchColor = matchScore >= 3 ? 'good' : (matchScore >= 1 ? 'warn' : 'bad');
-            const matchText = matchScore >= 3 ? '高度匹配' : (matchScore >= 1 ? '存在错位' : '严重错位');
-
-            html = `
-            <div class="report-card">
-                <div class="report-header">
-                    <span class="report-icon">🏥</span>
-                    <div>
-                        <div class="report-title">职业状态体检报告</div>
-                        <span class="report-sub">生成时间：${new Date().toLocaleDateString()}</span>
-                    </div>
-                </div>
-
-                <div class="status-item">
-                    <div class="status-header"><span>⚡️ 能量储备</span><span>${state.energy}%</span></div>
-                    <div class="status-track"><div class="status-fill fill-${energyColor}" style="width: ${state.energy}%"></div></div>
-                </div>
-                <div class="status-item">
-                    <div class="status-header"><span>🌟 意义感</span><span>${state.meaning}%</span></div>
-                    <div class="status-track"><div class="status-fill fill-${meaningColor}" style="width: ${state.meaning}%"></div></div>
-                </div>
-
-                <div class="diag-box" style="border-left-color: var(--accent-color);">
-                    <div class="diag-title">⚖️ 人岗匹配度分析</div>
-                    <div class="diag-text">
-                        当前角色：<strong>${document.querySelector(`.role-card[onclick="startGame('${currentRole}')"] .role-name`).innerText}</strong><br>
-                        你的内核：<strong>「${topTrackName}」</strong><br>
-                        <div style="margin-top:10px;">
-                            <div class="status-track" style="height:12px; border-radius:6px;">
-                                <div class="status-fill fill-${matchColor}" style="width: ${matchScore * 20}%"></div>
-                            </div>
-                            <div style="font-size:12px; margin-top:5px; color:${matchColor === 'good' ? '#2ecc71' : (matchColor === 'warn' ? '#f1c40f' : '#e74c3c')};">
-                                ${matchText}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="diag-box" style="border-left-color: #ffa502;">
-                    <div class="diag-title">💊 诊断建议</div>
-                    <div class="diag-text" style="white-space: pre-wrap;">${getAdvice(state, matchScore, topTrackName)}</div>
-                </div>
-            </div>
-            
-            <!-- AI 增强按钮 -->
-            <button class="btn-ai" onclick="copyAIPrompt()">🔍 一键生成 AI 深度解读 (免费)</button>
-            <button class="btn-restart" onclick="location.reload()">重新体检</button>
-            `;
-        }
-
-        document.getElementById('result-content').innerHTML = html;
-    }
-
-    // 复制AI提示词功能
-    function copyAIPrompt() {
-        if (!window.currentAIPrompt) return;
-        
-        navigator.clipboard.writeText(window.currentAIPrompt).then(() => {
-            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
-        }).catch(err => {
-            // 兼容性处理
-            const textArea = document.createElement("textarea");
-            textArea.value = window.currentAIPrompt;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
-        });
-    }
-
-    function getCareerSuggestion(track) {
-        const map = {
-            tech: "研发工程师/数据科学家/技术专家",
-            influence: "产品经理/项目管理/创业者",
-            freedom: "自由职业/独立开发者/远程工作",
-            security: "体制内/国企/大型集团职能岗",
-            service: "客户成功/教育/咨询/运营",
-            challenge: "早期创业核心成员/销售冠军/攻坚负责人"
-        };
-        return map[track] || "综合型岗位";
-    }
-
-    function getAdvice(s, match, topTrack) {
-        if (match >= 3) {
-            return `恭喜你！你的内核特质与当前职业高度契合。你找对了赛道。\n建议：\n1. 蓄力：多做一些能发挥「${topTrack}」优势的项目，打造核心竞争力。\n2. 平衡：注意能量值(${s.energy}%)，保持可持续的节奏。`;
-        } else {
-            return `警报：你的内核与当前工作存在错位。这可能是你感到“累”或“没意思”的根源。\n建议：\n1. 微调：在现有工作中，主动申请偏向「${topTrack}」的任务。\n2. 副业：下班后开启一个符合你特质的小项目，找回掌控感。\n3. 换行：如果能量值过低，不要裸辞，先做职业访谈。`;
-        }
-    }
-</script>
 </body>
 </html>
