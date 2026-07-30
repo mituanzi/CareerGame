@@ -1,4 +1,4 @@
-/* 逻辑层：极速流畅版 (移除人为延迟，保留视觉过渡) */
+/* 逻辑层：最终修复版 (修复身份丢失问题) */
 const Game = {
     state: {},
     history: [],
@@ -53,7 +53,16 @@ const Game = {
 
         this.currentEvents = [...universalPool.slice(0, 5), ...rolePool.slice(0, 5)];
 
-        this.state = { energy: 50, meaning: 50, money: 50, tracks: {} };
+        // === 关键修复：重置数值时，保留身份信息 ===
+        const identity = this.state.identity; // 先取出来
+        this.state = { 
+            identity: identity, // 再放回去
+            energy: 50, 
+            meaning: 50, 
+            money: 50, 
+            tracks: {} 
+        };
+        
         this.history = [];
         this.currentIndex = 0;
 
@@ -71,12 +80,10 @@ const Game = {
         document.getElementById("btn-b").innerText = event.choices.reject.text;
     },
 
-    // === 优化：点击立刻响应，无延迟 ===
     handleAction(type) {
         const event = this.currentEvents[this.currentIndex];
         const choice = event.choices[type];
 
-        // 1. 立刻计算数值 (不等待)
         this.state.energy += choice.effects.e;
         this.state.meaning += choice.effects.m;
         this.state.money += choice.effects.y;
@@ -88,12 +95,10 @@ const Game = {
         if (choice.track) this.state.tracks[choice.track] = (this.state.tracks[choice.track] || 0) + 1;
         this.history.push({ round: this.currentIndex + 1, event: event.text, choice: choice.text, track: choice.track });
 
-        // 2. 触发UI更新 (带动画)
         this.updateStat('val-energy', this.state.energy);
         this.updateStat('val-meaning', this.state.meaning);
         this.updateStat('val-money', this.state.money);
 
-        // 3. 立刻判断下一步 (无延迟)
         this.currentIndex++;
         if (this.currentIndex >= 10) {
             this.showResult();
@@ -102,20 +107,15 @@ const Game = {
         }
     },
 
-    // 辅助：更新UI并触发动画
     updateStat(id, val) {
         const el = document.getElementById(id);
         el.innerText = val;
-        // 添加动画类
         el.classList.add('pulse');
-        // 动画结束后自动移除，不影响下一次
         setTimeout(() => el.classList.remove('pulse'), 300);
     },
 
-    // === 优化：直接生成结果，不看骨架屏 ===
     showResult() {
         this.showScreen('screen-result');
-        // 直接渲染结果，不搞假的加载动画
         this.renderResult();
     },
 
@@ -131,6 +131,7 @@ const Game = {
 
         let html = '';
         
+        // 这里的判断现在会生效了
         if (this.state.identity === 'student') {
             const recRole = this.getCareerSuggestion(topTrack);
             html = `
