@@ -1,4 +1,4 @@
-/* 逻辑层：游戏引擎与交互 (区分身份版) */
+/* 逻辑层：混合模型引擎 (通用+职业) */
 const Game = {
     state: {},
     history: [],
@@ -23,12 +23,12 @@ const Game = {
         this.state.identity = type;
         this.showScreen('screen-role');
         
-        // 关键修改：根据身份显示不同的开场白，建立不同的心理预期
+        // 根据身份显示不同的开场白
         const introEl = document.getElementById('role-intro');
         if (type === 'student') {
-            introEl.innerHTML = "这将是一次<strong style='color:#fff'>未来模拟</strong>。<br>你不需要有工作经验，只需跟随直觉做出选择。<br>我们将帮你预判：你是否真的适合那个职业？";
+            introEl.innerHTML = "这将是一次<strong style='color:#fff'>深度模拟</strong>。<br>包含价值观测试与职业情境，请跟随直觉。<br>我们将帮你预判：你是否真的适合那个职业？";
         } else {
-            introEl.innerHTML = "这将是一次<strong style='color:#fff'>现状体检</strong>。<br>你不需要伪装完美，请选择你真实的应对方式。<br>我们将帮你诊断：当下的工作是否正在消耗你？";
+            introEl.innerHTML = "这将是一次<strong style='color:#fff'>全面体检</strong>。<br>包含性格复盘与现状诊断，请选择真实反应。<br>我们将帮你分析：当下的工作是否正在消耗你？";
         }
     },
 
@@ -37,38 +37,33 @@ const Game = {
         document.getElementById(id).classList.add('active');
     },
 
+    // === 核心修改：混合题库生成逻辑 ===
     start(role) {
         document.body.className = `theme-${role}`;
         this.currentRole = role;
         
-        // 1. 先拿 5 道通用性格题
+        // 1. 获取通用题库并洗牌
         let universalPool = GameData.universal ? [...GameData.universal] : [];
-        // 2. 再拿 5 道职业题 (从 8 道里随机抽)
+        for (let i = universalPool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [universalPool[i], universalPool[j]] = [universalPool[j], universalPool[i]];
+        }
+
+        // 2. 获取职业题库并洗牌
         let rolePool = GameData.scenarios[role] ? [...GameData.scenarios[role]] : [];
+        for (let i = rolePool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]];
+        }
 
-        // 洗牌算法
-        const shuffle = (arr) => {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        };
+        // 3. 组合题库：先测性格(5题)，再测职业(5题)
+        // 总量 10 题，保证数据采样准确，又不会太累
+        this.currentEvents = [
+            ...universalPool.slice(0, 5), // 前 5 题：性格价值观
+            ...rolePool.slice(0, 5)       // 后 5 题：职业情境
+        ];
 
-        // 各自洗牌并截取
-        universalPool = shuffle(universalPool).slice(0, 5);
-        rolePool = shuffle(rolePool).slice(0, 5);
-
-        // 合并：先做性格题，再做职业题
-        this.currentEvents = [...universalPool, ...rolePool];
-        
-        // 如果你想打乱顺序，可以用这句（但我建议保持顺序，体验更好）：
-        // this.currentEvents = shuffle([...universalPool, ...rolePool]);
-
-        // 修正时间轴以适应 10 题
-        const times = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00", 
-                       "第二周 周一", "第二周 周三", "第二周 周五", "月底总结", "季度汇报"];
-
+        // 4. 初始化状态
         this.state = { energy: 50, meaning: 50, money: 50, tracks: {} };
         this.history = [];
         this.currentIndex = 0;
@@ -78,12 +73,14 @@ const Game = {
     },
 
     loadEvent(index) {
-        const event = this.currentEvents[index];
-        // 使用新的时间轴
-        const times = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00", 
-                       "下周一", "下周三", "下周五", "月底", "季度末"];
-        document.getElementById('hud-time').innerText = times[index] || "决策中";
+        // 扩展时间轴以适应 10 题
+        const times = [
+            "价值观测试 1", "价值观测试 2", "价值观测试 3", "价值观测试 4", "价值观测试 5",
+            "职业情境 1", "职业情境 2", "职业情境 3", "职业情境 4", "职业情境 5"
+        ];
         
+        const event = this.currentEvents[index];
+        document.getElementById('hud-time').innerText = times[index];
         document.getElementById("event-text").innerText = event.text;
         document.getElementById("btn-a").innerText = event.choices.do.text;
         document.getElementById("btn-b").innerText = event.choices.reject.text;
@@ -93,29 +90,35 @@ const Game = {
         const event = this.currentEvents[this.currentIndex];
         const choice = event.choices[type];
 
+        // 更新数值
         this.state.energy += choice.effects.e;
         this.state.meaning += choice.effects.m;
         this.state.money += choice.effects.y;
         
+        // 边界检查
         ['energy', 'meaning', 'money'].forEach(k => {
             this.state[k] = Math.max(0, Math.min(100, this.state[k]));
         });
 
+        // 记录轨迹
         if (choice.track) this.state.tracks[choice.track] = (this.state.tracks[choice.track] || 0) + 1;
         this.history.push({ round: this.currentIndex + 1, event: event.text, choice: choice.text, track: choice.track });
 
+        // 更新UI
         document.getElementById('val-energy').innerText = this.state.energy;
         document.getElementById('val-meaning').innerText = this.state.meaning;
         document.getElementById('val-money').innerText = this.state.money;
 
         this.currentIndex++;
-        if (this.currentIndex >= 5) {
+        // 修改判定条件为 10 题
+        if (this.currentIndex >= 10) {
             this.showResult();
         } else {
             this.loadEvent(this.currentIndex);
         }
     },
 
+    // 结果生成逻辑 (保持之前的完整逻辑)
     showResult() {
         this.showScreen('screen-result');
         
@@ -130,15 +133,13 @@ const Game = {
 
         let html = '';
         
-        // === 关键修改：根据身份生成完全不同的报告 ===
         if (this.state.identity === 'student') {
-            // --- 学生版报告：侧重潜力与匹配度 ---
             const recRole = this.getCareerSuggestion(topTrack);
             html = `
             <div class="report-card">
-                <div class="report-header"><span class="report-icon">🗺️</span><div><div class="report-title">职业潜力地图</div><span class="report-sub">模拟推演结果 | 仅供参考</span></div></div>
+                <div class="report-header"><span class="report-icon">🗺️</span><div><div class="report-title">职业潜力地图</div><span class="report-sub">深度分析 | 包含性格与情境</span></div></div>
                 <div style="margin-bottom:20px; font-size:13px; color:#aaa; line-height:1.6;">
-                    你在模拟中展现出的特质是 <strong style="color:var(--accent-color)">${GameData.traits[topTrack].name}</strong>。这意味着在未来的职场中，当你处于能发挥该特质的环境时，你最容易产生“心流”体验。
+                    经过 10 轮测试，你的底层特质是 <strong style="color:var(--accent-color)">${GameData.traits[topTrack].name}</strong>。这意味着在未来的职场中，当你处于能发挥该特质的环境时，你最容易产生“心流”体验。
                 </div>
                 <div class="mirror-grid">
                     <div class="mirror-box mirror-good"><div class="mirror-title">✨ 你的天赋点</div><div class="mirror-desc">${GameData.traits[topTrack].pros}</div></div>
@@ -153,7 +154,6 @@ const Game = {
             <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读</button>
             <button class="btn-restart" onclick="location.reload()">重新探索</button>`;
         } else {
-            // --- 打工人版报告：侧重健康与生存诊断 ---
             const energyColor = this.state.energy < 30 ? 'bad' : (this.state.energy < 60 ? 'warn' : 'good');
             const meaningColor = this.state.meaning < 30 ? 'bad' : (this.state.meaning < 60 ? 'warn' : 'good');
             const roleMap = { coder: 'tech', finance: 'challenge', soe: 'security', civil: 'service', academic: 'tech', medical: 'service' };
@@ -164,7 +164,7 @@ const Game = {
 
             html = `
             <div class="report-card">
-                <div class="report-header"><span class="report-icon">🏥</span><div><div class="report-title">职业状态体检报告</div><span class="report-sub">现状诊断 | 生成时间：${new Date().toLocaleDateString()}</span></div></div>
+                <div class="report-header"><span class="report-icon">🏥</span><div><div class="report-title">职业状态体检报告</div><span class="report-sub">深度诊断 | 包含性格与情境</span></div></div>
                 
                 <div class="status-item"><div class="status-header"><span>⚡️ 能量储备</span><span>${this.state.energy}%</span></div><div class="status-track"><div class="status-fill fill-${energyColor}" style="width: ${this.state.energy}%"></div></div></div>
                 <div class="status-item"><div class="status-header"><span>🌟 意义感</span><span>${this.state.meaning}%</span></div><div class="status-track"><div class="status-fill fill-${meaningColor}" style="width: ${this.state.meaning}%"></div></div></div>
