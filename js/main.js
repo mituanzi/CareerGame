@@ -41,12 +41,33 @@ const Game = {
         document.body.className = `theme-${role}`;
         this.currentRole = role;
         
-        let pool = GameData.scenarios[role] ? [...GameData.scenarios[role]] : [];
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        this.currentEvents = pool.slice(0, 5);
+        // 1. 先拿 5 道通用性格题
+        let universalPool = GameData.universal ? [...GameData.universal] : [];
+        // 2. 再拿 5 道职业题 (从 8 道里随机抽)
+        let rolePool = GameData.scenarios[role] ? [...GameData.scenarios[role]] : [];
+
+        // 洗牌算法
+        const shuffle = (arr) => {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        };
+
+        // 各自洗牌并截取
+        universalPool = shuffle(universalPool).slice(0, 5);
+        rolePool = shuffle(rolePool).slice(0, 5);
+
+        // 合并：先做性格题，再做职业题
+        this.currentEvents = [...universalPool, ...rolePool];
+        
+        // 如果你想打乱顺序，可以用这句（但我建议保持顺序，体验更好）：
+        // this.currentEvents = shuffle([...universalPool, ...rolePool]);
+
+        // 修正时间轴以适应 10 题
+        const times = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00", 
+                       "第二周 周一", "第二周 周三", "第二周 周五", "月底总结", "季度汇报"];
 
         this.state = { energy: 50, meaning: 50, money: 50, tracks: {} };
         this.history = [];
@@ -58,7 +79,11 @@ const Game = {
 
     loadEvent(index) {
         const event = this.currentEvents[index];
-        document.getElementById('hud-time').innerText = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00"][index];
+        // 使用新的时间轴
+        const times = ["周一 09:00", "周二 14:00", "周三 10:00", "周四 20:00", "周五 16:00", 
+                       "下周一", "下周三", "下周五", "月底", "季度末"];
+        document.getElementById('hud-time').innerText = times[index] || "决策中";
+        
         document.getElementById("event-text").innerText = event.text;
         document.getElementById("btn-a").innerText = event.choices.do.text;
         document.getElementById("btn-b").innerText = event.choices.reject.text;
