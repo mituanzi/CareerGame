@@ -9,6 +9,45 @@ const GameData = {
         { id: 'academic', icon: '📚', name: '高校青椒' },
         { id: 'medical', icon: '⚕️', name: '医务工作者' }
     ],
+
+    // universal 部分
+    universal: [
+        { 
+            text: "当你面对一个复杂且模糊的问题时，你通常的反应是？", 
+            choices: { 
+                do: { text: "试图拆解逻辑，寻找规律和结构。", effects: {e:0,m:5,y:0}, track: "tech" }, 
+                reject: { text: "寻求他人意见，听听专家或朋友怎么说。", effects: {e:0,m:0,y:0}, track: "influence" } 
+            } 
+        },
+        { 
+            text: "如果一份工作能给你极高的社会地位，但需要牺牲大量的个人生活，你会？", 
+            choices: { 
+                do: { text: "接受，成王败寇，没有付出哪有回报。", effects: {e:-10,m:0,y:10}, track: "challenge" }, 
+                reject: { text: "拒绝，工作是为了生活，不能本末倒置。", effects: {e:10,m:5,y:-5}, track: "freedom" } 
+            } 
+        },
+        { 
+            text: "在一个团队中，你更倾向于扮演哪种角色？", 
+            choices: { 
+                do: { text: "那个提出新想法、指明方向的人。", effects: {e:0,m:5,y:0}, track: "influence" }, 
+                reject: { text: "那个负责落地执行、确保不亦错的人。", effects: {e:0,m:0,y:5}, track: "security" } 
+            } 
+        },
+        { 
+            text: "面对突如其来的变动（如项目取消、架构调整），你的心态通常是？", 
+            choices: { 
+                do: { text: "兴奋，变动意味着新的机会，打破僵局。", effects: {e:5,m:5,y:0}, track: "freedom" }, 
+                reject: { text: "担忧，变动带来不确定性，还是稳定一点好。", effects: {e:-5,m:0,y:0}, track: "security" } 
+            } 
+        },
+        { 
+            text: "你更愿意为什么样的成就而感到自豪？", 
+            choices: { 
+                do: { text: "帮助了具体的人，解决了他们的痛苦。", effects: {e:0,m:10,y:0}, track: "service" }, 
+                reject: { text: "攻克了难题，创造了某种纪录或作品。", effects: {e:0,m:10,y:0}, track: "tech" } 
+            } 
+        }
+    ],
     
     // 剧本库
     scenarios: {
