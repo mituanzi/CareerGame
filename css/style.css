@@ -1,12 +1,15 @@
-/* ================= 基础布局：全屏沉浸式容器 ================= */
+/* ================= 基础布局：纯净版 ================= */
 body {
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #111;
+    background-color: #121212; /* 深邃的默认背景 */
     color: #fff;
-    overflow: hidden; /* 禁止滚动 */
-    transition: background-image 1s ease; /* 背景切换动画 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
 .container {
@@ -18,7 +21,7 @@ body {
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.4s ease;
     z-index: 10;
 }
 
@@ -27,42 +30,27 @@ body {
     pointer-events: auto;
 }
 
-/* ================= 核心：真实场景背景层 ================= */
-/* 这里的 url 请填入你真实的图片路径 */
-.theme-coder { background: url('../img/bg-coder.png') center/cover no-repeat; }
-.theme-finance { background: url('../img/bg-finance.png') center/cover no-repeat; }
-.theme-soe { background: url('../img/bg-soe.png') center/cover no-repeat; }
-.theme-civil { background: url('../img/bg-civil.png') center/cover no-repeat; }
-.theme-academic { background: url('../img/bg-academic.png') center/cover no-repeat; }
-.theme-medical { background: url('../img/bg-medical.png') center/cover no-repeat; }
-
-/* 默认/学生背景 */
-.bg-default { background: url('../img/bg-default.png') center/cover no-repeat #1a1a1a; }
-
-/* ================= 游戏界面：毛玻璃卡片系统 ================= */
+/* ================= 核心界面：卡片系统 ================= */
 .screen {
-    position: relative;
     width: 90%;
-    max-width: 420px;
-    background: rgba(20, 20, 20, 0.75); /* 深色半透明背景，保证文字清晰 */
-    backdrop-filter: blur(20px); /* 模糊背后的杂物，聚焦文字 */
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    max-width: 400px;
+    background: #1e1e1e; /* 深灰卡片底色 */
+    border-radius: 20px;
     padding: 30px 25px;
     box-sizing: border-box;
-    color: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
 }
 
-/* 顶部 HUD */
+/* 顶部信息栏 */
 .hud {
     font-size: 12px;
-    letter-spacing: 1px;
-    opacity: 0.6;
+    letter-spacing: 2px;
+    opacity: 0.5;
     text-align: right;
     margin-bottom: 20px;
-    text-transform: uppercase;
+    font-weight: 600;
 }
 
 /* 状态栏 */
@@ -70,31 +58,31 @@ body {
     display: flex;
     justify-content: space-between;
     margin-bottom: 25px;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 .stat-item { text-align: center; }
-.stat-label { font-size: 10px; opacity: 0.5; margin-bottom: 4px; display: block; }
-.stat-val { font-size: 20px; font-weight: 600; color: #fff; }
+.stat-label { font-size: 10px; opacity: 0.4; margin-bottom: 4px; display: block; }
+.stat-val { font-size: 22px; font-weight: 600; color: #fff; }
 .stat-val.pulse { animation: pulse .3s ease-out; }
-@keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.2); color: #fff} 100%{transform:scale(1)} }
+@keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
 
 /* 事件卡片 */
 .event-card {
     margin-bottom: 30px;
-    min-height: 150px;
+    min-height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .event-text {
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.6;
     text-align: justify;
-    font-weight: 300;
+    color: #e0e0e0;
 }
 
-/* 按钮 */
+/* 按钮：回归经典的实心设计 */
 .action-box {
     display: flex;
     flex-direction: column;
@@ -103,27 +91,63 @@ body {
 .act-btn {
     width: 100%;
     padding: 14px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    background: #333; /* 默认灰色按钮 */
+    border: none;
     color: #fff;
     font-size: 15px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
+    font-weight: 500;
 }
 .act-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-2px);
+    background: #444; /* Hover 变亮 */
+    transform: translateY(-1px);
 }
-.act-btn:active { transform: translateY(0); opacity: 0.8; }
+.act-btn:active { 
+    transform: translateY(0); 
+    opacity: 0.8; 
+}
 
-/* ================= 首页/结果页适配 ================= */
+/* ================= 职业氛围：通过边框颜色区分 ================= */
+
+/* 程序员：科技青色 */
+body.theme-coder .screen { border-color: #00bcd4; }
+body.theme-coder .act-btn { background: #00838f; }
+body.theme-coder .act-btn:hover { background: #00acc1; }
+
+/* 金融：财富金/红 */
+body.theme-finance .screen { border-color: #ff5722; }
+body.theme-finance .act-btn { background: #bf360c; }
+body.theme-finance .act-btn:hover { background: #dd2c00; }
+body.theme-finance .stat-val { color: #ffab00; } /* 收益值特殊色 */
+
+/* 央企：稳重蓝 */
+body.theme-soe .screen { border-color: #1976d2; }
+body.theme-soe .act-btn { background: #1565c0; }
+body.theme-soe .act-btn:hover { background: #1e88e5; }
+
+/* 体制内：沉稳红 */
+body.theme-civil .screen { border-color: #d32f2f; }
+body.theme-civil .act-btn { background: #c62828; }
+body.theme-civil .act-btn:hover { background: #e53935; }
+
+/* 高校：学术绿 */
+body.theme-academic .screen { border-color: #388e3c; }
+body.theme-academic .act-btn { background: #2e7d32; }
+body.theme-academic .act-btn:hover { background: #43a047; }
+
+/* 医生：纯净白/蓝 */
+body.theme-medical .screen { border-color: #546e7a; }
+body.theme-medical .act-btn { background: #37474f; }
+body.theme-medical .act-btn:hover { background: #607d8b; }
+
+/* ================= 首页/结果页保持不变 ================= */
 .role-card {
     width: 140px;
     padding: 20px;
-    background: rgba(255,255,255,0.05);
+    background: #1e1e1e;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 16px;
     cursor: pointer;
@@ -131,19 +155,21 @@ body {
     text-align: center;
 }
 .role-card:hover {
-    background: rgba(255,255,255,0.15);
+    background: #333;
     transform: translateY(-5px);
+    border-color: #fff;
 }
 .role-icon { font-size: 40px; margin-bottom: 10px; display: block; }
 .role-name { font-size: 14px; }
 
 /* 结果页 */
 .report-card {
-    background: rgba(20, 20, 20, 0.85);
-    backdrop-filter: blur(30px);
-    border-radius: 20px;
+    background: #1e1e1e;
     padding: 25px;
-    color: #fff;
+    border-radius: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 400px;
 }
-/* ... 其他结果页样式保持不变，为了节省篇幅省略 ... */
-/* 请将之前结果页的 CSS 样式复制到这里，或者把上面替换掉原来的样式后，保留原有的结果页样式 */
+.report-title { font-size: 20px; margin-bottom: 20px; text-align: center; }
+.report-item { display: flex; justify-content: space-between; margin: 10px 0; border-bottom: 1px solid #333; padding-bottom: 5px;}
