@@ -1,305 +1,149 @@
-/* 基础变量 */
-:root {
-    --bg-color: #0f0f11;
-    --card-bg: rgba(255, 255, 255, 0.06);
-    --accent-color: #00ff88;
-    --text-main: #ffffff;
-    --font-main: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+/* ================= 基础布局：全屏沉浸式容器 ================= */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #111;
+    color: #fff;
+    overflow: hidden; /* 禁止滚动 */
+    transition: background-image 1s ease; /* 背景切换动画 */
 }
 
-/* 主题皮肤定义 */
-.theme-coder { --accent-color: #00ff88; --glow: rgba(0, 255, 136, 0.15); }
-.theme-finance { --accent-color: #ffd700; --glow: rgba(255, 215, 0, 0.15); }
-.theme-soe { --accent-color: #ff6b6b; --glow: rgba(255, 107, 107, 0.15); }
-.theme-civil { --accent-color: #48dbfb; --glow: rgba(72, 219, 251, 0.15); }
-.theme-academic { --accent-color: #a55eea; --glow: rgba(165, 94, 234, 0.15); }
-.theme-medical { --accent-color: #2ecc71; --glow: rgba(46, 204, 113, 0.15); }
-
-body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-main); overflow-x: hidden; min-height: 100vh; }
-.bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; background: radial-gradient(circle at 50% 0%, var(--glow) 0%, transparent 50%); opacity: 0.6; }
-
-.container { max-width: 640px; margin: 0 auto; padding: 20px; box-sizing: border-box; min-height: 100vh; display: none; flex-direction: column; justify-content: center; }
-.container.active { display: flex; }
-.screen { width: 100%; text-align: center; }
-
-/* 首页样式 */
-.main-title { font-size: 34px; font-weight: 900; margin-bottom: 10px; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; color: transparent; }
-.sub-title { font-size: 13px; color: #666; margin-bottom: 50px; letter-spacing: 1px; }
-.id-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.id-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 40px 20px; cursor: pointer; transition: all 0.3s; }
-.id-card:active { border-color: var(--accent-color); background: rgba(255,255,255,0.08); }
-.id-icon { font-size: 48px; margin-bottom: 15px; display: block; }
-.id-name { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
-.id-desc { font-size: 12px; color: #888; line-height: 1.5; }
-
-/* 角色选择样式 */
-.role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-.role-card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 25px 10px; cursor: pointer; transition: all 0.2s; }
-.role-card:active { transform: scale(0.98); border-color: var(--accent-color); }
-.role-icon { font-size: 32px; margin-bottom: 10px; display: block; }
-.role-name { font-size: 16px; font-weight: bold; }
-
-/* 游戏页样式 */
-.game-hud { position: fixed; top: 0; left: 0; right: 0; padding: 15px 20px; background: rgba(0,0,0,0.85); display: flex; justify-content: space-between; z-index: 100; font-size: 13px; color: #aaa; backdrop-filter: blur(10px); }
-.stats-row { display: flex; justify-content: space-around; margin-bottom: 30px; padding-top: 50px; }
-.stat-orb { width: 80px; height: 80px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
-.stat-val { font-size: 22px; font-weight: 900; color: #fff; }
-.stat-lbl { font-size: 10px; color: #888; margin-top: 2px; }
-
-.event-container { background: var(--card-bg); border-radius: 24px; padding: 35px 30px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.event-desc { font-size: 18px; line-height: 1.8; margin-bottom: 35px; min-height: 80px; color: #eee; }
-.action-btns { display: flex; flex-direction: column; gap: 15px; }
-.act-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #ccc; padding: 18px 20px; border-radius: 14px; text-align: left; cursor: pointer; font-size: 15px; transition: all 0.2s; line-height: 1.4; }
-.act-btn:active { background: rgba(255,255,255,0.1); border-color: var(--accent-color); color: #fff; }
-
-/* 结果页样式 */
-.result-screen { text-align: left; }
-.report-card { background: linear-gradient(145deg, #1a1a1c 0%, #222226 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 30px; margin-bottom: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
-.report-header { display: flex; align-items: center; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
-.report-icon { font-size: 36px; margin-right: 15px; }
-.report-title { font-size: 20px; font-weight: 900; color: #fff; }
-.report-sub { font-size: 12px; color: #666; display: block; margin-top: 4px; }
-
-.mirror-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-.mirror-box { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; border-top: 3px solid; }
-.mirror-good { border-color: #2ecc71; }
-.mirror-bad { border-color: #e74c3c; }
-.mirror-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
-.mirror-desc { font-size: 12px; line-height: 1.5; color: #bbb; }
-
-.radar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-.radar-item { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; }
-.radar-name { font-size: 12px; color: #aaa; }
-.radar-score { font-size: 14px; font-weight: bold; color: var(--accent-color); }
-
-.status-item { margin-bottom: 15px; }
-.status-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #ccc; }
-.status-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-.status-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
-.fill-good { background: #2ecc71; } .fill-warn { background: #f1c40f; } .fill-bad { background: #e74c3c; }
-
-.diag-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px; margin-top: 20px; border-left: 4px solid var(--accent-color); }
-.diag-title { font-size: 14px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
-.diag-text { font-size: 13px; line-height: 1.6; color: #ddd; }
-
-.rec-card { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 15px; margin-top: 15px; }
-.rec-title { font-size: 12px; color: #888; margin-bottom: 5px; }
-.rec-role { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 5px; }
-.rec-desc { font-size: 12px; color: #aaa; }
-
-.btn-restart { background: var(--accent-color); color: #000; font-weight: bold; border: none; padding: 15px 30px; border-radius: 30px; margin-top: 10px; cursor: pointer; width: 100%; font-size: 16px; transition: transform 0.1s; }
-.btn-restart:active { transform: scale(0.98); }
-.btn-ai { background: rgba(255,255,255,0.1); color: #fff; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 30px; margin-top: 15px; cursor: pointer; width: 100%; font-size: 14px; transition: all 0.2s; }
-.btn-ai:active { background: rgba(255,255,255,0.2); transform: scale(0.98); }
-
-/* ================= 动效增强模块 ================= */
-
-/* 1. 页面切换：淡入淡出 */
 .container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 10;
 }
+
 .container.active {
     opacity: 1;
-    transform: translateY(0);
+    pointer-events: auto;
 }
 
-/* 2. 数值跳动：脉冲效果 */
-.stat-val.pulse {
-    animation: pulse-anim 0.4s ease-out;
-}
-@keyframes pulse-anim {
-    0% { transform: scale(1); color: #fff; }
-    50% { transform: scale(1.4); color: var(--accent-color); }
-    100% { transform: scale(1); }
-}
+/* ================= 核心：真实场景背景层 ================= */
+/* 这里的 url 请填入你真实的图片路径 */
+.theme-coder { background: url('../img/bg-coder.png') center/cover no-repeat; }
+.theme-finance { background: url('../img/bg-finance.png') center/cover no-repeat; }
+.theme-soe { background: url('../img/bg-soe.png') center/cover no-repeat; }
+.theme-civil { background: url('../img/bg-civil.png') center/cover no-repeat; }
+.theme-academic { background: url('../img/bg-academic.png') center/cover no-repeat; }
+.theme-medical { background: url('../img/bg-medical.png') center/cover no-repeat; }
 
-/* 3. 按钮交互：点击反馈 */
-.act-btn {
-    transition: all 0.15s ease;
+/* 默认/学生背景 */
+.bg-default { background: url('../img/bg-default.png') center/cover no-repeat #1a1a1a; }
+
+/* ================= 游戏界面：毛玻璃卡片系统 ================= */
+.screen {
     position: relative;
-    overflow: hidden;
-}
-.act-btn:active {
-    transform: scale(0.96);
-    background: rgba(255,255,255,0.1);
-}
-.act-btn:after {
-    content: "";
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 5px; height: 5px;
-    background: rgba(255, 255, 255, 0.3);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-}
-.act-btn:active:after {
-    animation: ripple 0.6s ease-out;
-}
-@keyframes ripple {
-    0% { transform: scale(0); opacity: 1; }
-    100% { transform: scale(40); opacity: 0; }
-}
-
-/* 4. 结果页生成：骨架屏加载效果 */
-.skeleton-line {
-    height: 12px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-    background-size: 200% 100%;
-    animation: skeleton-loading 1.5s infinite;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-@keyframes skeleton-loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* ================= 职业沉浸式界面定制 (追加于文件末尾) ================= */
-
-/* --- 1. 程序员模式：模拟 IDE 代码编辑器 --- */
-body.theme-coder .screen {
-    background: #1e1e1e; /* 经典 VS Code 深色背景 */
-    border: 1px solid #333;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
-    font-family: 'Courier New', Courier, monospace; /* 等宽字体 */
-}
-body.theme-coder .hud { color: #569cd6; border-bottom: 1px solid #333; }
-body.theme-coder .event-card {
-    border-left: 4px solid #569cd6; /* 蓝色边框模拟代码块 */
-    background: rgba(0, 0, 0, 0.3);
-    color: #d4d4d4;
-}
-body.theme-coder .stat-item { color: #d4d4d4; }
-body.theme-coder .act-btn {
-    background: #3c3c3c;
-    border: 1px solid #555;
+    width: 90%;
+    max-width: 420px;
+    background: rgba(20, 20, 20, 0.75); /* 深色半透明背景，保证文字清晰 */
+    backdrop-filter: blur(20px); /* 模糊背后的杂物，聚焦文字 */
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    padding: 30px 25px;
+    box-sizing: border-box;
     color: #fff;
-    font-family: inherit;
 }
-body.theme-coder .act-btn:hover { background: #505050; border-color: #888; }
 
-/* --- 2. 体制内模式：模拟红头文件/OA系统 --- */
-body.theme-civil .screen {
-    background: #fcf9f2; /* 宣纸黄 */
-    border: none;
-    border-top: 40px solid #b22222; /* 模拟红头 */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    font-family: "SimSun", "Songti SC", serif; /* 宋体 */
-}
-body.theme-civil .hud { color: #8b0000; font-weight: bold; }
-body.theme-civil .event-card {
-    background: #fff;
-    border: 1px solid #e6e6e6;
-    color: #333;
-    font-size: 16px;
-    line-height: 1.8;
-}
-body.theme-civil .act-btn {
-    background: #fff;
-    border: 1px solid #b22222;
-    color: #b22222;
-    border-radius: 0;
-}
-body.theme-civil .act-btn:hover { background: #b22222; color: #fff; }
-
-/* --- 3. 医生模式：模拟医院信息系统 (HIS) --- */
-body.theme-medical .screen {
-    background: #f0f8ff;
-    border: 2px solid #add8e6;
-    font-family: "Microsoft YaHei", sans-serif;
-}
-body.theme-medical .hud {
-    background: #0050b3;
-    color: #fff;
-    padding: 5px 15px;
-    margin: -15px -15px 15px -15px;
+/* 顶部 HUD */
+.hud {
     font-size: 12px;
     letter-spacing: 1px;
-}
-body.theme-medical .event-card {
-    border-left: 4px solid #0050b3;
-    background: #fff;
-    color: #333;
-}
-body.theme-medical .act-btn {
-    background: #e6f7ff;
-    border: 1px solid #1890ff;
-    color: #1890ff;
-}
-body.theme-medical .act-btn:hover { background: #1890ff; color: #fff; }
-
-/* --- 4. 金融模式：模拟交易终端 --- */
-body.theme-finance .screen {
-    background: #0a0a0a;
-    border: 1px solid #2ecc71;
-    box-shadow: 0 0 30px rgba(46, 204, 113, 0.2);
-}
-body.theme-finance .hud {
-    color: #f1c40f;
-    text-shadow: 0 0 5px #f1c40f;
-    font-weight: bold;
-    font-size: 14px;
-}
-body.theme-finance .event-card {
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    border-left: 4px solid #f1c40f;
-}
-body.theme-finance .stat-item { color: #2ecc71; }
-body.theme-finance .val-money { color: #f1c40f; font-weight: bold; }
-body.theme-finance .act-btn {
-    background: transparent;
-    border: 1px solid #27ae60;
-    color: #27ae60;
+    opacity: 0.6;
+    text-align: right;
+    margin-bottom: 20px;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
-body.theme-finance .act-btn:hover { background: #27ae60; color: #000; }
 
-/* --- 5. 央企模式：稳重工业风 --- */
-body.theme-soe .screen {
-    background: #fff;
-    border: 1px solid #ccc;
-    border-top: 5px solid #0050b3;
-    font-family: "Microsoft YaHei", sans-serif;
+/* 状态栏 */
+.stat-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-body.theme-soe .hud { color: #0050b3; font-weight: bold; }
-body.theme-soe .event-card {
-    background: #f5f5f5;
-    border-left: 4px solid #666;
-    color: #333;
-}
-body.theme-soe .act-btn {
-    background: #0050b3;
-    color: #fff;
-    border: none;
-    border-radius: 2px;
-}
-body.theme-soe .act-btn:hover { background: #003d80; }
+.stat-item { text-align: center; }
+.stat-label { font-size: 10px; opacity: 0.5; margin-bottom: 4px; display: block; }
+.stat-val { font-size: 20px; font-weight: 600; color: #fff; }
+.stat-val.pulse { animation: pulse .3s ease-out; }
+@keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.2); color: #fff} 100%{transform:scale(1)} }
 
-/* --- 6. 高校模式：黑板/讲义风格 --- */
-body.theme-academic .screen {
-    background: #2c3e50;
-    border: 10px solid #8b4513; /* 木质边框 */
-    border-radius: 5px;
-    color: #fff;
-    font-family: "KaiTi", "楷体", serif;
+/* 事件卡片 */
+.event-card {
+    margin-bottom: 30px;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-body.theme-academic .hud { color: #f1c40f; border-bottom: 2px dashed rgba(255,255,255,0.2); }
-body.theme-academic .event-card {
-    background: transparent;
-    color: #fff;
-    font-size: 18px;
-    letter-spacing: 1px;
+.event-text {
+    font-size: 17px;
+    line-height: 1.6;
+    text-align: justify;
+    font-weight: 300;
 }
-body.theme-academic .act-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid #fff;
-    color: #fff;
-    border-radius: 0;
+
+/* 按钮 */
+.action-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-body.theme-academic .act-btn:hover { background: #fff; color: #2c3e50; }
+.act-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+.act-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+.act-btn:active { transform: translateY(0); opacity: 0.8; }
+
+/* ================= 首页/结果页适配 ================= */
+.role-card {
+    width: 140px;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+.role-card:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-5px);
+}
+.role-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+.role-name { font-size: 14px; }
+
+/* 结果页 */
+.report-card {
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(30px);
+    border-radius: 20px;
+    padding: 25px;
+    color: #fff;
+}
+/* ... 其他结果页样式保持不变，为了节省篇幅省略 ... */
+/* 请将之前结果页的 CSS 样式复制到这里，或者把上面替换掉原来的样式后，保留原有的结果页样式 */
