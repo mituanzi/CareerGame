@@ -1,4 +1,4 @@
-/* 逻辑层：混合模型引擎 (通用+职业) */
+/* 逻辑层：完整版 (包含动效与混合题库) */
 const Game = {
     state: {},
     history: [],
@@ -6,8 +6,8 @@ const Game = {
     currentIndex: 0,
     currentEvents: [],
 
+    // 1. 初始化：生成角色列表
     init() {
-        // 动态渲染角色列表
         const container = document.getElementById('role-container');
         if(container) {
             container.innerHTML = GameData.roles.map(r => `
@@ -19,11 +19,11 @@ const Game = {
         }
     },
 
+    // 2. 身份选择：显示开场白
     selectIdentity(type) {
         this.state.identity = type;
         this.showScreen('screen-role');
         
-        // 根据身份显示不同的开场白
         const introEl = document.getElementById('role-intro');
         if (type === 'student') {
             introEl.innerHTML = "这将是一次<strong style='color:#fff'>深度模拟</strong>。<br>包含价值观测试与职业情境，请跟随直觉。<br>我们将帮你预判：你是否真的适合那个职业？";
@@ -32,38 +32,38 @@ const Game = {
         }
     },
 
+    // 3. 页面切换：控制容器显示
     showScreen(id) {
         document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     },
 
-    // === 核心修改：混合题库生成逻辑 ===
+    // 4. 游戏开始：组装题库
     start(role) {
         document.body.className = `theme-${role}`;
         this.currentRole = role;
         
-        // 1. 获取通用题库并洗牌
+        // --- 混合题库逻辑 ---
+        // 获取通用题并洗牌
         let universalPool = GameData.universal ? [...GameData.universal] : [];
         for (let i = universalPool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [universalPool[i], universalPool[j]] = [universalPool[j], universalPool[i]];
         }
 
-        // 2. 获取职业题库并洗牌
+        // 获取职业题并洗牌
         let rolePool = GameData.scenarios[role] ? [...GameData.scenarios[role]] : [];
         for (let i = rolePool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]];
         }
 
-        // 3. 组合题库：先测性格(5题)，再测职业(5题)
-        // 总量 10 题，保证数据采样准确，又不会太累
+        // 组合：前5题性格，后5题职业
         this.currentEvents = [
-            ...universalPool.slice(0, 5), // 前 5 题：性格价值观
-            ...rolePool.slice(0, 5)       // 后 5 题：职业情境
+            ...universalPool.slice(0, 5),
+            ...rolePool.slice(0, 5)
         ];
 
-        // 4. 初始化状态
         this.state = { energy: 50, meaning: 50, money: 50, tracks: {} };
         this.history = [];
         this.currentIndex = 0;
@@ -72,8 +72,8 @@ const Game = {
         this.loadEvent(0);
     },
 
+    // 5. 加载题目
     loadEvent(index) {
-        // 扩展时间轴以适应 10 题
         const times = [
             "价值观测试 1", "价值观测试 2", "价值观测试 3", "价值观测试 4", "价值观测试 5",
             "职业情境 1", "职业情境 2", "职业情境 3", "职业情境 4", "职业情境 5"
@@ -86,26 +86,25 @@ const Game = {
         document.getElementById("btn-b").innerText = event.choices.reject.text;
     },
 
-        // === 修改 1：点击交互优化 ===
+    // 6. 点击交互：含动效逻辑
     handleAction(type) {
         const event = this.currentEvents[this.currentIndex];
         const choice = event.choices[type];
 
-        // 1. 禁用按钮，防止狂点，并显示视觉反馈
+        // 禁用按钮防止狂点
         const btnA = document.getElementById('btn-a');
         const btnB = document.getElementById('btn-b');
         btnA.disabled = true; btnB.disabled = true;
-        // 这里的 innerHTML 替换可以根据需要加个 loading 小图标，这里用文字提示代替
         btnA.style.opacity = '0.5'; 
         btnB.style.opacity = '0.5';
 
-        // 2. 模拟思考时间，增加仪式感 (延迟 300ms 执行)
+        // 模拟思考延迟 300ms
         setTimeout(() => {
-            // 恢复按钮状态
+            // 恢复按钮
             btnA.disabled = false; btnB.disabled = false;
             btnA.style.opacity = '1'; btnB.style.opacity = '1';
 
-            // 3. 数值计算逻辑
+            // 计算数值
             this.state.energy += choice.effects.e;
             this.state.meaning += choice.effects.m;
             this.state.money += choice.effects.y;
@@ -117,7 +116,7 @@ const Game = {
             if (choice.track) this.state.tracks[choice.track] = (this.state.tracks[choice.track] || 0) + 1;
             this.history.push({ round: this.currentIndex + 1, event: event.text, choice: choice.text, track: choice.track });
 
-            // 4. 触发数值跳动动画
+            // 触发数值跳动动画
             this.animateNumber('val-energy', this.state.energy);
             this.animateNumber('val-meaning', this.state.meaning);
             this.animateNumber('val-money', this.state.money);
@@ -128,32 +127,28 @@ const Game = {
             } else {
                 this.loadEvent(this.currentIndex);
             }
-        }, 300); // 300ms 的思考延迟
+        }, 300);
     },
 
-    // === 新增：数值跳动动画函数 ===
+    // 新增：数值跳动动画
     animateNumber(id, newValue) {
         const el = document.getElementById(id);
-        // 更新数值
         el.innerText = newValue;
-        // 添加动画类
         el.classList.add('pulse');
-        // 动画结束后移除类，以便下次触发
         setTimeout(() => el.classList.remove('pulse'), 400);
     },
 
-    // === 修改 2：结果页加载动画 ===
+    // 7. 显示结果：含骨架屏加载
     showResult() {
         this.showScreen('screen-result');
         
-        // 1. 先显示一个“分析中”的骨架屏，制造悬念感
+        // 先显示骨架屏
         document.getElementById('result-content').innerHTML = `
             <div class="report-card" style="opacity: 0.8;">
                 <div class="skeleton-line" style="width: 40%; height: 24px; margin-bottom: 20px;"></div>
                 <div class="skeleton-line" style="width: 100%; height: 12px;"></div>
                 <div class="skeleton-line" style="width: 90%; height: 12px;"></div>
                 <div class="skeleton-line" style="width: 95%; height: 12px; margin-bottom: 30px;"></div>
-                
                 <div class="mirror-grid">
                     <div class="skeleton-line" style="height: 80px; border-radius: 12px;"></div>
                     <div class="skeleton-line" style="height: 80px; border-radius: 12px;"></div>
@@ -162,15 +157,14 @@ const Game = {
             </div>
         `;
 
-        // 2. 模拟计算时间 (600ms后生成真实报告)
+        // 600ms 后渲染真实报告
         setTimeout(() => {
             this.renderResult();
         }, 600);
     },
 
-    // === 抽离：真实报告渲染逻辑 ===
+    // 8. 渲染最终报告
     renderResult() {
-        // 以下是之前 showResult 的完整逻辑
         const sorted = Object.entries(this.state.tracks).sort((a, b) => b[1] - a[1]);
         const topTrack = sorted[0] ? sorted[0][0] : 'security';
         const lowTrack = sorted[sorted.length - 1] ? sorted[sorted.length - 1][0] : 'security';
@@ -234,10 +228,33 @@ const Game = {
         document.getElementById('result-content').innerHTML = html;
     },
 
-    // 辅助函数保持不变...
-    copyAIPrompt() { /* ... 保持原样 ... */ },
-    getCareerSuggestion(track) { /* ... 保持原样 ... */ },
-    getAdvice(s, match, topTrack) { /* ... 保持原样 ... */ }
+    // 9. 复制提示词
+    copyAIPrompt() {
+        if (!window.currentAIPrompt) return;
+        navigator.clipboard.writeText(window.currentAIPrompt).then(() => {
+            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
+        }).catch(err => {
+            const textArea = document.createElement("textarea");
+            textArea.value = window.currentAIPrompt;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
+        });
+    },
+
+    // 10. 辅助建议函数
+    getCareerSuggestion(track) {
+        const map = { tech: "研发工程师/数据科学家/技术专家", influence: "产品经理/项目管理/创业者", freedom: "自由职业/独立开发者/远程工作", security: "体制内/国企/大型集团职能岗", service: "客户成功/教育/咨询/运营", challenge: "早期创业核心成员/销售冠军/攻坚负责人" };
+        return map[track] || "综合型岗位";
+    },
+
+    getAdvice(s, match, topTrack) {
+        if (match >= 3) { return `恭喜你！你的内核特质与当前职业高度契合。你找对了赛道。\n建议：\n1. 蓄力：多做一些能发挥「${topTrack}」优势的项目，打造核心竞争力。\n2. 平衡：注意能量值(${s.energy}%)，保持可持续的节奏。`; }
+        else { return `警报：你的内核与当前工作存在错位。这可能是你感到“累”或“没意思”的根源。\n建议：\n1. 微调：在现有工作中，主动申请偏向「${topTrack}」的任务。\n2. 副业：下班后开启一个符合你特质的小项目，找回掌控感。\n3. 换行：如果能量值过低，不要裸辞，先做职业访谈。`; }
+    }
+};
 
 // 启动游戏
 window.onload = () => Game.init();
