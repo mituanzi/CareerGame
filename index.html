@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>职业觉醒实验室 V22 - 分离版</title>
+    <title>职业觉醒实验室</title>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="css/style.css">
     <!-- 引入字体 -->
@@ -37,11 +37,15 @@
 <!-- 2. 角色选择页 -->
 <div class="container" id="screen-role">
     <div class="screen">
+        <!-- 新增：根据身份动态显示的开场白 -->
+        <p id="role-intro" style="font-size:14px; color:#888; margin-bottom:30px; line-height:1.6;"></p>
+        
         <h2 style="font-size:18px; margin-bottom:30px; color:#aaa;">选择剧本：</h2>
         <!-- 动态生成区域 -->
         <div class="role-grid" id="role-container"></div>
     </div>
 </div>
+
 
 <!-- 3. 游戏页 -->
 <div class="container" id="screen-game">
