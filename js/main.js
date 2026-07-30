@@ -71,11 +71,29 @@ const Game = {
     },
 
     loadEvent(index) {
-        const times = ["价值观 1", "价值观 2", "价值观 3", "价值观 4", "价值观 5", "情境 1", "情境 2", "情境 3", "情境 4", "情境 5"];
         const event = this.currentEvents[index];
         
-        document.getElementById('hud-time').innerText = times[index];
-        document.getElementById("event-text").innerText = event.text;
+        // === 职业沉浸感配置 (语气与图标) ===
+        const roleConfig = {
+            coder:      { hud: "IDE Console >",   prefix: "// ⚠️ 警告: ",     icon: "💻" },
+            finance:    { hud: "WIND Terminal >", prefix: "⚡ 快讯: ",        icon: "📊" },
+            soe:        { hud: "OA系统 >",        prefix: "📋 通知: ",       icon: "🏭" },
+            civil:      { hud: "公文流转 >",      prefix: "🔴 领导批示: ",    icon: "🏛️" },
+            academic:   { hud: "教务系统 >",      prefix: "📝 备课笔记: ",    icon: "📚" },
+            medical:    { hud: "HIS系统 >",       prefix: "🚑 接诊记录: ",    icon: "⚕️" }
+        };
+
+        // 获取当前职业配置，默认为空
+        const config = roleConfig[this.currentRole] || { hud: "当前进度 >", prefix: "", icon: "" };
+        
+        // 设置时间轴显示 (例如: "IDE Console > 周一")
+        const times = ["价值观 1", "价值观 2", "价值观 3", "价值观 4", "价值观 5", "情境 1", "情境 2", "情境 3", "情境 4", "情境 5"];
+        document.getElementById('hud-time').innerText = `${config.hud} ${times[index]}`;
+        
+        // 设置事件文本 (加上职业化前缀)
+        document.getElementById("event-text").innerText = config.prefix + event.text;
+        
+        // 设置按钮文本
         document.getElementById("btn-a").innerText = event.choices.do.text;
         document.getElementById("btn-b").innerText = event.choices.reject.text;
     },
