@@ -1,4 +1,4 @@
-/* 逻辑层：完整版 (包含动效与混合题库) */
+/* 逻辑层：极速流畅版 (移除人为延迟，保留视觉过渡) */
 const Game = {
     state: {},
     history: [],
@@ -6,7 +6,6 @@ const Game = {
     currentIndex: 0,
     currentEvents: [],
 
-    // 1. 初始化：生成角色列表
     init() {
         const container = document.getElementById('role-container');
         if(container) {
@@ -19,50 +18,40 @@ const Game = {
         }
     },
 
-    // 2. 身份选择：显示开场白
     selectIdentity(type) {
         this.state.identity = type;
         this.showScreen('screen-role');
         
         const introEl = document.getElementById('role-intro');
         if (type === 'student') {
-            introEl.innerHTML = "这将是一次<strong style='color:#fff'>深度模拟</strong>。<br>包含价值观测试与职业情境，请跟随直觉。<br>我们将帮你预判：你是否真的适合那个职业？";
+            introEl.innerHTML = "这将是一次<strong style='color:#fff'>深度模拟</strong>。<br>包含价值观测试与职业情境，请跟随直觉。";
         } else {
-            introEl.innerHTML = "这将是一次<strong style='color:#fff'>全面体检</strong>。<br>包含性格复盘与现状诊断，请选择真实反应。<br>我们将帮你分析：当下的工作是否正在消耗你？";
+            introEl.innerHTML = "这将是一次<strong style='color:#fff'>全面体检</strong>。<br>包含性格复盘与现状诊断，请选择真实反应。";
         }
     },
 
-    // 3. 页面切换：控制容器显示
     showScreen(id) {
         document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     },
 
-    // 4. 游戏开始：组装题库
     start(role) {
         document.body.className = `theme-${role}`;
         this.currentRole = role;
         
-        // --- 混合题库逻辑 ---
-        // 获取通用题并洗牌
         let universalPool = GameData.universal ? [...GameData.universal] : [];
         for (let i = universalPool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [universalPool[i], universalPool[j]] = [universalPool[j], universalPool[i]];
         }
 
-        // 获取职业题并洗牌
         let rolePool = GameData.scenarios[role] ? [...GameData.scenarios[role]] : [];
         for (let i = rolePool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]];
         }
 
-        // 组合：前5题性格，后5题职业
-        this.currentEvents = [
-            ...universalPool.slice(0, 5),
-            ...rolePool.slice(0, 5)
-        ];
+        this.currentEvents = [...universalPool.slice(0, 5), ...rolePool.slice(0, 5)];
 
         this.state = { energy: 50, meaning: 50, money: 50, tracks: {} };
         this.history = [];
@@ -72,98 +61,64 @@ const Game = {
         this.loadEvent(0);
     },
 
-    // 5. 加载题目
     loadEvent(index) {
-        const times = [
-            "价值观测试 1", "价值观测试 2", "价值观测试 3", "价值观测试 4", "价值观测试 5",
-            "职业情境 1", "职业情境 2", "职业情境 3", "职业情境 4", "职业情境 5"
-        ];
-        
+        const times = ["价值观 1", "价值观 2", "价值观 3", "价值观 4", "价值观 5", "情境 1", "情境 2", "情境 3", "情境 4", "情境 5"];
         const event = this.currentEvents[index];
+        
         document.getElementById('hud-time').innerText = times[index];
         document.getElementById("event-text").innerText = event.text;
         document.getElementById("btn-a").innerText = event.choices.do.text;
         document.getElementById("btn-b").innerText = event.choices.reject.text;
     },
 
-    // 6. 点击交互：含动效逻辑
+    // === 优化：点击立刻响应，无延迟 ===
     handleAction(type) {
         const event = this.currentEvents[this.currentIndex];
         const choice = event.choices[type];
 
-        // 禁用按钮防止狂点
-        const btnA = document.getElementById('btn-a');
-        const btnB = document.getElementById('btn-b');
-        btnA.disabled = true; btnB.disabled = true;
-        btnA.style.opacity = '0.5'; 
-        btnB.style.opacity = '0.5';
+        // 1. 立刻计算数值 (不等待)
+        this.state.energy += choice.effects.e;
+        this.state.meaning += choice.effects.m;
+        this.state.money += choice.effects.y;
+        
+        ['energy', 'meaning', 'money'].forEach(k => {
+            this.state[k] = Math.max(0, Math.min(100, this.state[k]));
+        });
 
-        // 模拟思考延迟 300ms
-        setTimeout(() => {
-            // 恢复按钮
-            btnA.disabled = false; btnB.disabled = false;
-            btnA.style.opacity = '1'; btnB.style.opacity = '1';
+        if (choice.track) this.state.tracks[choice.track] = (this.state.tracks[choice.track] || 0) + 1;
+        this.history.push({ round: this.currentIndex + 1, event: event.text, choice: choice.text, track: choice.track });
 
-            // 计算数值
-            this.state.energy += choice.effects.e;
-            this.state.meaning += choice.effects.m;
-            this.state.money += choice.effects.y;
-            
-            ['energy', 'meaning', 'money'].forEach(k => {
-                this.state[k] = Math.max(0, Math.min(100, this.state[k]));
-            });
+        // 2. 触发UI更新 (带动画)
+        this.updateStat('val-energy', this.state.energy);
+        this.updateStat('val-meaning', this.state.meaning);
+        this.updateStat('val-money', this.state.money);
 
-            if (choice.track) this.state.tracks[choice.track] = (this.state.tracks[choice.track] || 0) + 1;
-            this.history.push({ round: this.currentIndex + 1, event: event.text, choice: choice.text, track: choice.track });
-
-            // 触发数值跳动动画
-            this.animateNumber('val-energy', this.state.energy);
-            this.animateNumber('val-meaning', this.state.meaning);
-            this.animateNumber('val-money', this.state.money);
-
-            this.currentIndex++;
-            if (this.currentIndex >= 10) {
-                this.showResult();
-            } else {
-                this.loadEvent(this.currentIndex);
-            }
-        }, 300);
+        // 3. 立刻判断下一步 (无延迟)
+        this.currentIndex++;
+        if (this.currentIndex >= 10) {
+            this.showResult();
+        } else {
+            this.loadEvent(this.currentIndex);
+        }
     },
 
-    // 新增：数值跳动动画
-    animateNumber(id, newValue) {
+    // 辅助：更新UI并触发动画
+    updateStat(id, val) {
         const el = document.getElementById(id);
-        el.innerText = newValue;
+        el.innerText = val;
+        // 添加动画类
         el.classList.add('pulse');
-        setTimeout(() => el.classList.remove('pulse'), 400);
+        // 动画结束后自动移除，不影响下一次
+        setTimeout(() => el.classList.remove('pulse'), 300);
     },
 
-    // 7. 显示结果：含骨架屏加载
+    // === 优化：直接生成结果，不看骨架屏 ===
     showResult() {
         this.showScreen('screen-result');
-        
-        // 先显示骨架屏
-        document.getElementById('result-content').innerHTML = `
-            <div class="report-card" style="opacity: 0.8;">
-                <div class="skeleton-line" style="width: 40%; height: 24px; margin-bottom: 20px;"></div>
-                <div class="skeleton-line" style="width: 100%; height: 12px;"></div>
-                <div class="skeleton-line" style="width: 90%; height: 12px;"></div>
-                <div class="skeleton-line" style="width: 95%; height: 12px; margin-bottom: 30px;"></div>
-                <div class="mirror-grid">
-                    <div class="skeleton-line" style="height: 80px; border-radius: 12px;"></div>
-                    <div class="skeleton-line" style="height: 80px; border-radius: 12px;"></div>
-                </div>
-                <div class="skeleton-line" style="width: 50%; height: 50px; margin: 30px auto 0; border-radius: 25px;"></div>
-            </div>
-        `;
-
-        // 600ms 后渲染真实报告
-        setTimeout(() => {
-            this.renderResult();
-        }, 600);
+        // 直接渲染结果，不搞假的加载动画
+        this.renderResult();
     },
 
-    // 8. 渲染最终报告
     renderResult() {
         const sorted = Object.entries(this.state.tracks).sort((a, b) => b[1] - a[1]);
         const topTrack = sorted[0] ? sorted[0][0] : 'security';
@@ -228,7 +183,6 @@ const Game = {
         document.getElementById('result-content').innerHTML = html;
     },
 
-    // 9. 复制提示词
     copyAIPrompt() {
         if (!window.currentAIPrompt) return;
         navigator.clipboard.writeText(window.currentAIPrompt).then(() => {
@@ -244,7 +198,6 @@ const Game = {
         });
     },
 
-    // 10. 辅助建议函数
     getCareerSuggestion(track) {
         const map = { tech: "研发工程师/数据科学家/技术专家", influence: "产品经理/项目管理/创业者", freedom: "自由职业/独立开发者/远程工作", security: "体制内/国企/大型集团职能岗", service: "客户成功/教育/咨询/运营", challenge: "早期创业核心成员/销售冠军/攻坚负责人" };
         return map[track] || "综合型岗位";
@@ -256,5 +209,4 @@ const Game = {
     }
 };
 
-// 启动游戏
 window.onload = () => Game.init();
