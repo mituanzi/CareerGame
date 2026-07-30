@@ -1,4 +1,4 @@
-/* 逻辑层：游戏引擎与交互 */
+/* 逻辑层：游戏引擎与交互 (区分身份版) */
 const Game = {
     state: {},
     history: [],
@@ -22,6 +22,14 @@ const Game = {
     selectIdentity(type) {
         this.state.identity = type;
         this.showScreen('screen-role');
+        
+        // 关键修改：根据身份显示不同的开场白，建立不同的心理预期
+        const introEl = document.getElementById('role-intro');
+        if (type === 'student') {
+            introEl.innerHTML = "这将是一次<strong style='color:#fff'>未来模拟</strong>。<br>你不需要有工作经验，只需跟随直觉做出选择。<br>我们将帮你预判：你是否真的适合那个职业？";
+        } else {
+            introEl.innerHTML = "这将是一次<strong style='color:#fff'>现状体检</strong>。<br>你不需要伪装完美，请选择你真实的应对方式。<br>我们将帮你诊断：当下的工作是否正在消耗你？";
+        }
     },
 
     showScreen(id) {
@@ -96,19 +104,31 @@ const Game = {
         window.currentAIPrompt = aiPromptData;
 
         let html = '';
+        
+        // === 关键修改：根据身份生成完全不同的报告 ===
         if (this.state.identity === 'student') {
+            // --- 学生版报告：侧重潜力与匹配度 ---
+            const recRole = this.getCareerSuggestion(topTrack);
             html = `
             <div class="report-card">
-                <div class="report-header"><span class="report-icon">🧬</span><div><div class="report-title">职业基因图谱</div><span class="report-sub">基于本能偏好的客观分析</span></div></div>
-                <div class="mirror-grid">
-                    <div class="mirror-box mirror-good"><div class="mirror-title">✨ 核心优势</div><div class="mirror-desc"><strong style="color:#fff">${GameData.traits[topTrack].name}</strong><br>${GameData.traits[topTrack].pros}</div></div>
-                    <div class="mirror-box mirror-bad"><div class="mirror-title">🕳️ 潜在盲点</div><div class="mirror-desc"><strong style="color:#fff">${GameData.traits[lowTrack].name}</strong><br>${GameData.traits[lowTrack].cons}</div></div>
+                <div class="report-header"><span class="report-icon">🗺️</span><div><div class="report-title">职业潜力地图</div><span class="report-sub">模拟推演结果 | 仅供参考</span></div></div>
+                <div style="margin-bottom:20px; font-size:13px; color:#aaa; line-height:1.6;">
+                    你在模拟中展现出的特质是 <strong style="color:var(--accent-color)">${GameData.traits[topTrack].name}</strong>。这意味着在未来的职场中，当你处于能发挥该特质的环境时，你最容易产生“心流”体验。
                 </div>
-                <div class="radar-grid">${sorted.map(([key, value]) => `<div class="radar-item"><span class="radar-name">${trackNames[key]}</span><span class="radar-score">${value} 分</span></div>`).join('')}</div>
-                <div class="rec-card"><div class="rec-title">🚀 推荐起步方向</div><div class="rec-role">${this.getCareerSuggestion(topTrack).split('/')[0]}</div><div class="rec-desc">建议你在实习或第一份工作中，优先寻找能接触该核心职能的岗位。</div></div>
+                <div class="mirror-grid">
+                    <div class="mirror-box mirror-good"><div class="mirror-title">✨ 你的天赋点</div><div class="mirror-desc">${GameData.traits[topTrack].pros}</div></div>
+                    <div class="mirror-box mirror-bad"><div class="mirror-title">⚠️ 你的雷区</div><div class="mirror-desc">${GameData.traits[topTrack].cons}</div></div>
+                </div>
+                <div class="rec-card" style="margin-top:25px;">
+                    <div class="rec-title">🚀 推荐起步方向</div>
+                    <div class="rec-role" style="font-size:18px;">${recRole}</div>
+                    <div class="rec-desc">建议你在实习或第一份工作中，优先寻找能接触该核心职能的岗位，避开消耗你的雷区。</div>
+                </div>
             </div>
-            <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读 (免费)</button><button class="btn-restart" onclick="location.reload()">重新探索</button>`;
+            <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读</button>
+            <button class="btn-restart" onclick="location.reload()">重新探索</button>`;
         } else {
+            // --- 打工人版报告：侧重健康与生存诊断 ---
             const energyColor = this.state.energy < 30 ? 'bad' : (this.state.energy < 60 ? 'warn' : 'good');
             const meaningColor = this.state.meaning < 30 ? 'bad' : (this.state.meaning < 60 ? 'warn' : 'good');
             const roleMap = { coder: 'tech', finance: 'challenge', soe: 'security', civil: 'service', academic: 'tech', medical: 'service' };
@@ -119,17 +139,22 @@ const Game = {
 
             html = `
             <div class="report-card">
-                <div class="report-header"><span class="report-icon">🏥</span><div><div class="report-title">职业状态体检报告</div><span class="report-sub">生成时间：${new Date().toLocaleDateString()}</span></div></div>
+                <div class="report-header"><span class="report-icon">🏥</span><div><div class="report-title">职业状态体检报告</div><span class="report-sub">现状诊断 | 生成时间：${new Date().toLocaleDateString()}</span></div></div>
+                
                 <div class="status-item"><div class="status-header"><span>⚡️ 能量储备</span><span>${this.state.energy}%</span></div><div class="status-track"><div class="status-fill fill-${energyColor}" style="width: ${this.state.energy}%"></div></div></div>
                 <div class="status-item"><div class="status-header"><span>🌟 意义感</span><span>${this.state.meaning}%</span></div><div class="status-track"><div class="status-fill fill-${meaningColor}" style="width: ${this.state.meaning}%"></div></div></div>
+
                 <div class="mirror-grid">
                     <div class="mirror-box mirror-good"><div class="mirror-title">✨ 你的天赋</div><div class="mirror-desc"><strong style="color:#fff">${GameData.traits[topTrack].name}</strong><br>${GameData.traits[topTrack].pros}</div></div>
                     <div class="mirror-box mirror-bad"><div class="mirror-title">⚠️ 你的软肋</div><div class="mirror-desc"><strong style="color:#fff">${GameData.traits[lowTrack].name}</strong><br>${GameData.traits[lowTrack].cons}</div></div>
                 </div>
+                
                 <div class="diag-box" style="border-left-color: var(--accent-color);"><div class="diag-title">⚖️ 人岗匹配度分析</div><div class="diag-text">当前角色：<strong>${document.querySelector(`.role-card[onclick="Game.start('${this.currentRole}')"] .role-name`).innerText}</strong><br>匹配指数：<span style="color:${matchColor === 'good' ? '#2ecc71' : (matchColor === 'warn' ? '#f1c40f' : '#e74c3c')};">${matchText}</span><div style="margin-top:10px;"><div class="status-track" style="height:12px; border-radius:6px;"><div class="status-fill fill-${matchColor}" style="width: ${matchScore * 20}%"></div></div></div></div></div>
+                
                 <div class="diag-box" style="border-left-color: #ffa502;"><div class="diag-title">💊 诊断建议</div><div class="diag-text" style="white-space: pre-wrap;">${this.getAdvice(this.state, matchScore, GameData.traits[topTrack].name)}</div></div>
             </div>
-            <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读 (免费)</button><button class="btn-restart" onclick="location.reload()">重新体检</button>`;
+            <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读</button>
+            <button class="btn-restart" onclick="location.reload()">重新体检</button>`;
         }
         document.getElementById('result-content').innerHTML = html;
     },
