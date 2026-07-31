@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>职业觉醒实验室</title>
-    <!-- 引入样式 -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
 </head>
 <body class="theme-coder">
 
-<!-- 背景层 -->
+<!-- 背景光晕层 -->
 <div class="bg-layer"></div>
 
 <!-- 1. 身份选择页 -->
@@ -36,33 +34,43 @@
 <!-- 2. 角色选择页 -->
 <div class="container" id="screen-role">
     <div class="screen">
-        <!-- 新增：根据身份动态显示的开场白 -->
         <p id="role-intro" style="font-size:14px; color:#888; margin-bottom:30px; line-height:1.6;"></p>
-        
         <h2 style="font-size:18px; margin-bottom:30px; color:#aaa;">选择剧本：</h2>
-        <!-- 动态生成区域 -->
         <div class="role-grid" id="role-container"></div>
     </div>
 </div>
 
-
-<!-- 3. 游戏页 -->
+<!-- 3. 游戏页 (改动：增加了 hud-role，优化了按钮结构) -->
 <div class="container" id="screen-game">
     <div class="screen">
         <div class="game-hud">
             <span id="hud-time">周一 09:00</span>
-            <span id="hud-hint">决策中...</span>
+            <span id="hud-role">[角色名]</span> <!-- 新增：显示角色名 -->
         </div>
+        
+        <!-- 状态球区域 -->
         <div class="stats-row">
-            <div class="stat-orb"><span class="stat-val" id="val-energy">50</span><span class="stat-lbl">⚡️ 能量</span></div>
-            <div class="stat-orb"><span class="stat-val" id="val-meaning">50</span><span class="stat-lbl">🌟 意义</span></div>
-            <div class="stat-orb"><span class="stat-val" id="val-money">50</span><span class="stat-lbl">💰 收益</span></div>
+            <div class="stat-orb">
+                <span class="stat-val" id="val-energy">50</span>
+                <span class="stat-lbl">⚡️ 能量</span>
+            </div>
+            <div class="stat-orb">
+                <span class="stat-val" id="val-meaning">50</span>
+                <span class="stat-lbl">🌟 意义</span>
+            </div>
+            <div class="stat-orb">
+                <span class="stat-val" id="val-money">50</span>
+                <span class="stat-lbl">💰 收益</span>
+            </div>
         </div>
+
+        <!-- 事件卡片 -->
         <div class="event-container">
             <div class="event-desc" id="event-text">正在加载...</div>
             <div class="action-btns">
-                <button class="act-btn" id="btn-a" onclick="Game.handleAction('do')">A</button>
-                <button class="act-btn" id="btn-b" onclick="Game.handleAction('reject')">B</button>
+                <!-- 按钮文本将由 JS 动态填充 -->
+                <button class="act-btn" id="btn-a" onclick="Game.handleAction(0)">选项 A</button>
+                <button class="act-btn" id="btn-b" onclick="Game.handleAction(1)">选项 B</button>
             </div>
         </div>
     </div>
@@ -75,7 +83,6 @@
     </div>
 </div>
 
-<!-- 引入脚本：注意顺序，数据在前，逻辑在后 -->
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
 
