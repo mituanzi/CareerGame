@@ -23,18 +23,18 @@ const Game = {
         
         document.getElementById('role-intro').innerText = introText;
         
-        // 【关键修复】调用渲染角色的函数
+        // 渲染角色卡片
         this.renderRoles();
         
         this.showScreen('screen-role');
     },
 
-    /* 【新增】2. 渲染角色卡片 */
+    /* 2. 渲染角色卡片 */
     renderRoles() {
         const container = document.getElementById('role-container');
-        container.innerHTML = ''; // 先清空
+        container.innerHTML = ''; 
 
-        // 如果 data.js 里没有定义 roles，这里给一个默认列表兜底
+        // 从数据文件读取角色配置
         const roles = GameData.roles || [
             { id: 'coder', name: '程序员', icon: '👨‍💻' },
             { id: 'finance', name: '金融民工', icon: '📈' },
@@ -44,14 +44,10 @@ const Game = {
             { id: 'medical', name: '医务工作者', icon: '🏥' }
         ];
 
-        // 循环生成卡片
         roles.forEach(role => {
             const card = document.createElement('div');
             card.className = 'role-card';
-            // 点击时触发 start 函数
             card.onclick = () => this.start(role.id);
-            
-            // 填充卡片内容
             card.innerHTML = `
                 <span class="role-icon">${role.icon}</span>
                 <div class="role-name">${role.name}</div>
@@ -74,16 +70,20 @@ const Game = {
         this.state.tracks = {};
         this.history = [];
         
-        // 洗牌
-        if (typeof GameData !== 'undefined' && GameData.events) {
-            this.events = this.shuffle([...GameData.events]);
-        } else {
-            // 兜底数据，防止 data.js 没加载报错
-            this.events = [{ text: "测试事件", options: [{text:"A", effect:{energy:1}}, {text:"B", effect:{money:1}}] }];
+        // 【核心修改】加载事件逻辑：通用库 + 职业库
+        // 1. 先复制通用库
+        let allEvents = GameData.universal ? [...GameData.universal] : [];
+        
+        // 2. 再把该角色的专属库合并进去
+        if (GameData.scenarios && GameData.scenarios[role]) {
+            allEvents = [...allEvents, ...GameData.scenarios[role]];
         }
+
+        // 3. 洗牌
+        this.events = this.shuffle(allEvents);
         this.currentIndex = 0;
         
-        // 更新 HUD
+        // 更新 HUD 显示
         const roleNames = {
             coder: "程序员", finance: "金融民工", soe: "央企职员",
             civil: "体制内", academic: "高校青椒", medical: "医务工作者"
@@ -105,16 +105,17 @@ const Game = {
 
         const event = this.events[index];
         
-        // 更新时间
+        // 更新时间显示
         const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
         document.getElementById('hud-time').innerText = `${days[index % 7]} ${(9 + index * 2) % 24}:00`;
 
-        // 填充文本
+        // 填充事件文本
         document.getElementById('event-text').innerText = event.text;
 
         const btnA = document.getElementById('btn-a');
         const btnB = document.getElementById('btn-b');
         
+        // 填充按钮文本
         if (event.options && event.options.length >= 2) {
             btnA.innerText = event.options[0].text;
             btnB.innerText = event.options[1].text;
