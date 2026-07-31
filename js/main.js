@@ -1,231 +1,238 @@
-/* 逻辑层：最终修复版 (修复身份丢失问题) */
+/* ================= 主逻辑控制 ================= */
 const Game = {
-    state: {},
-    history: [],
-    currentRole: '',
-    currentIndex: 0,
-    currentEvents: [],
-
-    init() {
-        const container = document.getElementById('role-container');
-        if(container) {
-            container.innerHTML = GameData.roles.map(r => `
-                <div class="role-card" onclick="Game.start('${r.id}')">
-                    <span class="role-icon">${r.icon}</span>
-                    <div class="role-name">${r.name}</div>
-                </div>
-            `).join('');
-        }
+    state: {
+        identity: 'worker',
+        energy: 50,
+        meaning: 50,
+        money: 50,
+        tracks: {}
     },
+    
+    history: [],
+    currentIndex: 0,
+    currentRole: null,
+    events: [],
 
+    /* 1. 身份选择 */
     selectIdentity(type) {
         this.state.identity = type;
-        this.showScreen('screen-role');
         
-        const introEl = document.getElementById('role-intro');
-        if (type === 'student') {
-            introEl.innerHTML = "这将是一次<strong style='color:#fff'>深度模拟</strong>。<br>包含价值观测试与职业情境，请跟随直觉。";
-        } else {
-            introEl.innerHTML = "这将是一次<strong style='color:#fff'>全面体检</strong>。<br>包含性格复盘与现状诊断，请选择真实反应。";
-        }
+        const introText = type === 'student' 
+            ? "年轻的你站在人生的岔路口，每一次选择都将塑造未来的模样。" 
+            : "在职场摸爬滚打多年的你，是否还记得当初为何出发？";
+        
+        document.getElementById('role-intro').innerText = introText;
+        this.showScreen('screen-role');
     },
 
-    showScreen(id) {
-        document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    },
-
+    /* 2. 开始游戏 */
     start(role) {
-        document.body.className = `theme-${role}`;
         this.currentRole = role;
         
-        let universalPool = GameData.universal ? [...GameData.universal] : [];
-        for (let i = universalPool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [universalPool[i], universalPool[j]] = [universalPool[j], universalPool[i]];
-        }
+        // 【核心】应用主题皮肤 (theme-coder, theme-finance 等)
+        // 这一步会让 CSS 变量生效，界面变色
+        document.body.className = `theme-${role}`;
 
-        let rolePool = GameData.scenarios[role] ? [...GameData.scenarios[role]] : [];
-        for (let i = rolePool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]];
-        }
-
-        this.currentEvents = [...universalPool.slice(0, 5), ...rolePool.slice(0, 5)];
-
-        // === 关键修复：重置数值时，保留身份信息 ===
-        const identity = this.state.identity; // 先取出来
-        this.state = { 
-            identity: identity, // 再放回去
-            energy: 50, 
-            meaning: 50, 
-            money: 50, 
-            tracks: {} 
-        };
-        
+        // 初始化状态
+        this.state.energy = 50;
+        this.state.meaning = 50;
+        this.state.money = 50;
+        this.state.tracks = {};
         this.history = [];
+        
+        // 洗牌
+        this.events = this.shuffle([...GameData.events]);
         this.currentIndex = 0;
+        
+        // 【新增】更新 HUD 显示的角色名
+        const roleNames = {
+            coder: "程序员",
+            finance: "金融民工",
+            soe: "央企职员",
+            civil: "体制内",
+            academic: "高校青椒",
+            medical: "医务工作者"
+        };
+        document.getElementById('hud-role').innerText = roleNames[role] || "职场人";
+        document.getElementById('hud-time').innerText = "周一 09:00";
 
         this.showScreen('screen-game');
+        this.updateStats();
         this.loadEvent(0);
     },
 
+    /* 3. 加载事件 */
     loadEvent(index) {
-        const event = this.currentEvents[index];
-        
-        // === 职业沉浸感配置 (语气与图标) ===
-        const roleConfig = {
-            coder:      { hud: "IDE Console >",   prefix: "// ⚠️ 警告: ",     icon: "💻" },
-            finance:    { hud: "WIND Terminal >", prefix: "⚡ 快讯: ",        icon: "📊" },
-            soe:        { hud: "OA系统 >",        prefix: "📋 通知: ",       icon: "🏭" },
-            civil:      { hud: "公文流转 >",      prefix: "🔴 领导批示: ",    icon: "🏛️" },
-            academic:   { hud: "教务系统 >",      prefix: "📝 备课笔记: ",    icon: "📚" },
-            medical:    { hud: "HIS系统 >",       prefix: "🚑 接诊记录: ",    icon: "⚕️" }
-        };
+        if (index >= this.events.length) {
+            this.endGame('normal');
+            return;
+        }
 
-        // 获取当前职业配置，默认为空
-        const config = roleConfig[this.currentRole] || { hud: "当前进度 >", prefix: "", icon: "" };
+        const event = this.events[index];
         
-        // 设置时间轴显示 (例如: "IDE Console > 周一")
-        const times = ["价值观 1", "价值观 2", "价值观 3", "价值观 4", "价值观 5", "情境 1", "情境 2", "情境 3", "情境 4", "情境 5"];
-        document.getElementById('hud-time').innerText = `${config.hud} ${times[index]}`;
+        // 简单的时间推进模拟
+        const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+        document.getElementById('hud-time').innerText = `${days[index % 7]} ${(9 + index * 2) % 24}:00`;
+
+        // 填充事件文本
+        document.getElementById('event-text').innerText = event.text;
+
+        // 填充按钮选项
+        const btnA = document.getElementById('btn-a');
+        const btnB = document.getElementById('btn-b');
         
-        // 设置事件文本 (加上职业化前缀)
-        document.getElementById("event-text").innerText = config.prefix + event.text;
-        
-        // 设置按钮文本
-        document.getElementById("btn-a").innerText = event.choices.do.text;
-        document.getElementById("btn-b").innerText = event.choices.reject.text;
+        if (event.options && event.options.length >= 2) {
+            btnA.innerText = event.options[0].text;
+            btnB.innerText = event.options[1].text;
+        }
     },
 
-    handleAction(type) {
-        const event = this.currentEvents[this.currentIndex];
-        const choice = event.choices[type];
+    /* 4. 处理选择 */
+    handleAction(optionIndex) {
+        const event = this.events[this.currentIndex];
+        const option = event.options[optionIndex];
 
-        this.state.energy += choice.effects.e;
-        this.state.meaning += choice.effects.m;
-        this.state.money += choice.effects.y;
+        // 记录历史
+        this.history.push({ event: event, choice: option.text });
+
+        // 更新数值
+        if (option.effect) {
+            // 安全取值，防止未定义
+            const e = option.effect.energy || 0;
+            const m = option.effect.meaning || 0;
+            const y = option.effect.money || 0;
+            
+            this.state.energy += e;
+            this.state.meaning += m;
+            this.state.money += y;
+            
+            // 边界限制 (0-100)
+            this.state.energy = Math.max(0, Math.min(100, this.state.energy));
+            this.state.meaning = Math.max(0, Math.min(100, this.state.meaning));
+            this.state.money = Math.max(0, Math.min(100, this.state.money));
+        }
+
+        // 记录关键轨迹
+        if (option.track) {
+            this.state.tracks[option.track] = true;
+        }
+
+        this.updateStats();
         
-        ['energy', 'meaning', 'money'].forEach(k => {
-            this.state[k] = Math.max(0, Math.min(100, this.state[k]));
-        });
+        // 判断特殊结局 (比如能量归零)
+        if (this.state.energy <= 0) {
+            this.endGame('burnout');
+            return;
+        }
 
-        if (choice.track) this.state.tracks[choice.track] = (this.state.tracks[choice.track] || 0) + 1;
-        this.history.push({ round: this.currentIndex + 1, event: event.text, choice: choice.text, track: choice.track });
-
-        this.updateStat('val-energy', this.state.energy);
-        this.updateStat('val-meaning', this.state.meaning);
-        this.updateStat('val-money', this.state.money);
-
+        // 进入下一回合
         this.currentIndex++;
-        if (this.currentIndex >= 10) {
-            this.showResult();
-        } else {
-            this.loadEvent(this.currentIndex);
-        }
+        this.loadEvent(this.currentIndex);
     },
 
-    updateStat(id, val) {
-        const el = document.getElementById(id);
-        el.innerText = val;
-        el.classList.add('pulse');
-        setTimeout(() => el.classList.remove('pulse'), 300);
-    },
+    /* 5. 更新界面数值 */
+    updateStats() {
+        // 数值更新
+        document.getElementById('val-energy').innerText = this.state.energy;
+        document.getElementById('val-meaning').innerText = this.state.meaning;
+        document.getElementById('val-money').innerText = this.state.money;
 
-    showResult() {
-        this.showScreen('screen-result');
-        this.renderResult();
-    },
-
-    renderResult() {
-        const sorted = Object.entries(this.state.tracks).sort((a, b) => b[1] - a[1]);
-        const topTrack = sorted[0] ? sorted[0][0] : 'security';
-        const lowTrack = sorted[sorted.length - 1] ? sorted[sorted.length - 1][0] : 'security';
-        const trackNames = { tech: "技术创造", influence: "影响引领", freedom: "自由自主", security: "安全稳定", service: "服务贡献", challenge: "挑战突破" };
-        
-        const historyText = this.history.map(h => `第${h.round}轮:\n情境: ${h.event}\n选择: ${h.choice}\n倾向: ${trackNames[h.track] || '无'}`).join('\n\n');
-        const aiPromptData = `我刚刚玩了一个叫《职业觉醒实验室》的职业模拟游戏，请帮我做一个深度职业诊断。我的身份：${this.state.identity === 'student' ? '在校学生/准毕业生' : '工作1-5年的职场人'}扮演角色：${this.currentRole}最终状态：能量 ${this.state.energy}%，意义 ${this.state.meaning}%，收益 ${this.state.money}%核心特质：${GameData.traits[topTrack].name}盲点特质：${GameData.traits[lowTrack].name}我的游戏历程：${historyText}请根据以上信息：1. 分析我目前的职业状态。2. 结合我的核心特质和盲点，给我两条具体的、可执行的建议。`.trim();
-        window.currentAIPrompt = aiPromptData;
-
-        let html = '';
-        
-        // 这里的判断现在会生效了
-        if (this.state.identity === 'student') {
-            const recRole = this.getCareerSuggestion(topTrack);
-            html = `
-            <div class="report-card">
-                <div class="report-header"><span class="report-icon">🗺️</span><div><div class="report-title">职业潜力地图</div><span class="report-sub">深度分析 | 包含性格与情境</span></div></div>
-                <div style="margin-bottom:20px; font-size:13px; color:#aaa; line-height:1.6;">
-                    经过 10 轮测试，你的底层特质是 <strong style="color:var(--accent-color)">${GameData.traits[topTrack].name}</strong>。
-                </div>
-                <div class="mirror-grid">
-                    <div class="mirror-box mirror-good"><div class="mirror-title">✨ 你的天赋点</div><div class="mirror-desc">${GameData.traits[topTrack].pros}</div></div>
-                    <div class="mirror-box mirror-bad"><div class="mirror-title">⚠️ 你的雷区</div><div class="mirror-desc">${GameData.traits[topTrack].cons}</div></div>
-                </div>
-                <div class="rec-card" style="margin-top:25px;">
-                    <div class="rec-title">🚀 推荐起步方向</div>
-                    <div class="rec-role" style="font-size:18px;">${recRole}</div>
-                    <div class="rec-desc">建议你在实习或第一份工作中，优先寻找能接触该核心职能的岗位。</div>
-                </div>
-            </div>
-            <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读</button>
-            <button class="btn-restart" onclick="location.reload()">重新探索</button>`;
-        } else {
-            const energyColor = this.state.energy < 30 ? 'bad' : (this.state.energy < 60 ? 'warn' : 'good');
-            const meaningColor = this.state.meaning < 30 ? 'bad' : (this.state.meaning < 60 ? 'warn' : 'good');
-            const roleMap = { coder: 'tech', finance: 'challenge', soe: 'security', civil: 'service', academic: 'tech', medical: 'service' };
-            const roleNeed = roleMap[this.currentRole];
-            const matchScore = this.state.tracks[roleNeed] || 0;
-            const matchColor = matchScore >= 3 ? 'good' : (matchScore >= 1 ? 'warn' : 'bad');
-            const matchText = matchScore >= 3 ? '高度匹配' : (matchScore >= 1 ? '存在错位' : '严重错位');
-
-            html = `
-            <div class="report-card">
-                <div class="report-header"><span class="report-icon">🏥</span><div><div class="report-title">职业状态体检报告</div><span class="report-sub">深度诊断 | 包含性格与情境</span></div></div>
-                
-                <div class="status-item"><div class="status-header"><span>⚡️ 能量储备</span><span>${this.state.energy}%</span></div><div class="status-track"><div class="status-fill fill-${energyColor}" style="width: ${this.state.energy}%"></div></div></div>
-                <div class="status-item"><div class="status-header"><span>🌟 意义感</span><span>${this.state.meaning}%</span></div><div class="status-track"><div class="status-fill fill-${meaningColor}" style="width: ${this.state.meaning}%"></div></div></div>
-
-                <div class="mirror-grid">
-                    <div class="mirror-box mirror-good"><div class="mirror-title">✨ 你的天赋</div><div class="mirror-desc"><strong style="color:#fff">${GameData.traits[topTrack].name}</strong><br>${GameData.traits[topTrack].pros}</div></div>
-                    <div class="mirror-box mirror-bad"><div class="mirror-title">⚠️ 你的软肋</div><div class="mirror-desc"><strong style="color:#fff">${GameData.traits[lowTrack].name}</strong><br>${GameData.traits[lowTrack].cons}</div></div>
-                </div>
-                
-                <div class="diag-box" style="border-left-color: var(--accent-color);"><div class="diag-title">⚖️ 人岗匹配度分析</div><div class="diag-text">当前角色：<strong>${document.querySelector(`.role-card[onclick="Game.start('${this.currentRole}')"] .role-name`).innerText}</strong><br>匹配指数：<span style="color:${matchColor === 'good' ? '#2ecc71' : (matchColor === 'warn' ? '#f1c40f' : '#e74c3c')};">${matchText}</span></div></div>
-                
-                <div class="diag-box" style="border-left-color: #ffa502;"><div class="diag-title">💊 诊断建议</div><div class="diag-text" style="white-space: pre-wrap;">${this.getAdvice(this.state, matchScore, GameData.traits[topTrack].name)}</div></div>
-            </div>
-            <button class="btn-ai" onclick="Game.copyAIPrompt()">🔍 一键生成 AI 深度解读</button>
-            <button class="btn-restart" onclick="location.reload()">重新体检</button>`;
-        }
-        
-        document.getElementById('result-content').innerHTML = html;
-    },
-
-    copyAIPrompt() {
-        if (!window.currentAIPrompt) return;
-        navigator.clipboard.writeText(window.currentAIPrompt).then(() => {
-            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
-        }).catch(err => {
-            const textArea = document.createElement("textarea");
-            textArea.value = window.currentAIPrompt;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            alert("已复制！\n\n请打开 Kimi、豆包、通义千问等免费 AI 软件，粘贴发送，即可获得专属深度解读。");
+        // 简单的脉冲动效
+        const orbs = document.querySelectorAll('.stat-orb');
+        orbs.forEach(orb => {
+            orb.classList.add('pulse');
+            setTimeout(() => orb.classList.remove('pulse'), 300);
         });
     },
 
-    getCareerSuggestion(track) {
-        const map = { tech: "研发工程师/数据科学家/技术专家", influence: "产品经理/项目管理/创业者", freedom: "自由职业/独立开发者/远程工作", security: "体制内/国企/大型集团职能岗", service: "客户成功/教育/咨询/运营", challenge: "早期创业核心成员/销售冠军/攻坚负责人" };
-        return map[track] || "综合型岗位";
+    /* 6. 结束游戏 */
+    endGame(reason) {
+        const result = this.calculateResult(reason);
+        
+        // 生成报告 HTML (适配 CSS 结构)
+        const resultHTML = `
+            <div class="report-card">
+                <div class="report-header">
+                    <span class="report-icon">${result.icon}</span>
+                    <div>
+                        <div class="report-title">${result.title}</div>
+                        <span class="report-sub">${result.sub}</span>
+                    </div>
+                </div>
+                
+                <div class="radar-grid">
+                    <div class="radar-item">
+                        <span class="radar-name">能量</span>
+                        <span class="radar-score">${this.state.energy}</span>
+                    </div>
+                    <div class="radar-item">
+                        <span class="radar-name">意义</span>
+                        <span class="radar-score">${this.state.meaning}</span>
+                    </div>
+                    <div class="radar-item">
+                        <span class="radar-name">收益</span>
+                        <span class="radar-score">${this.state.money}</span>
+                    </div>
+                </div>
+
+                <div class="diag-box">
+                    <div class="diag-title">🧠 职业诊断</div>
+                    <div class="diag-text">${result.diagnosis}</div>
+                </div>
+            </div>
+            <button class="btn-restart" onclick="Game.restart()">重新开始</button>
+        `;
+
+        document.getElementById('result-content').innerHTML = resultHTML;
+        this.showScreen('screen-result');
     },
 
-    getAdvice(s, match, topTrack) {
-        if (match >= 3) { return `恭喜你！你的内核特质与当前职业高度契合。你找对了赛道。\n建议：\n1. 蓄力：多做一些能发挥「${topTrack}」优势的项目，打造核心竞争力。\n2. 平衡：注意能量值(${s.energy}%)，保持可持续的节奏。`; }
-        else { return `警报：你的内核与当前工作存在错位。这可能是你感到“累”或“没意思”的根源。\n建议：\n1. 微调：在现有工作中，主动申请偏向「${topTrack}」的任务。\n2. 副业：下班后开启一个符合你特质的小项目，找回掌控感。\n3. 换行：如果能量值过低，不要裸辞，先做职业访谈。`; }
+    calculateResult(reason) {
+        // 根据数值计算结局
+        let title, icon, sub, diagnosis;
+        const avg = (this.state.energy + this.state.meaning + this.state.money) / 3;
+
+        if (reason === 'burnout') {
+            title = "职业倦怠";
+            icon = "🔋";
+            sub = "能量耗尽，不得不停下来";
+            diagnosis = "长期的高压透支了你的身心。记住，职场是马拉松，不是百米冲刺。请务必重视休息与调整。";
+        } else if (avg > 80) {
+            title = "职场赢家";
+            icon = "🏆";
+            sub = "你找到了完美的平衡点";
+            diagnosis = "你在保持身心健康的同时，实现了经济自由和自我价值，这是职场人的终极形态。";
+        } else if (avg > 50) {
+            title = "中坚力量";
+            icon = "🛡️";
+            sub = "虽有波折，但仍稳步前行";
+            diagnosis = "你的职场之路虽有不易，但你证明了韧性。或许可以思考一下，哪一项指标是你下一步的提升点。";
+        } else {
+            title = "觉醒边缘";
+            icon = "🌑";
+            sub = "或许需要停下来思考了";
+            diagnosis = "现在的状态令人担忧。继续这样下去可能会面临职业倦怠。建议重新审视你的工作方式和目标。";
+        }
+
+        return { title, icon, sub, diagnosis };
+    },
+
+    restart() {
+        document.body.className = ''; // 重置主题色
+        this.showScreen('screen-id');
+    },
+
+    /* 工具函数 */
+    showScreen(screenId) {
+        document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    },
+    
+    shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 };
-
-window.onload = () => Game.init();
