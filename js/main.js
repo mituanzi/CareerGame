@@ -22,15 +22,49 @@ const Game = {
             : "在职场摸爬滚打多年的你，是否还记得当初为何出发？";
         
         document.getElementById('role-intro').innerText = introText;
+        
+        // 【关键修复】调用渲染角色的函数
+        this.renderRoles();
+        
         this.showScreen('screen-role');
     },
 
-    /* 2. 开始游戏 */
+    /* 【新增】2. 渲染角色卡片 */
+    renderRoles() {
+        const container = document.getElementById('role-container');
+        container.innerHTML = ''; // 先清空
+
+        // 如果 data.js 里没有定义 roles，这里给一个默认列表兜底
+        const roles = GameData.roles || [
+            { id: 'coder', name: '程序员', icon: '👨‍💻' },
+            { id: 'finance', name: '金融民工', icon: '📈' },
+            { id: 'soe', name: '央企职员', icon: '🏢' },
+            { id: 'civil', name: '体制内', icon: '☕️' },
+            { id: 'academic', name: '高校青椒', icon: '📚' },
+            { id: 'medical', name: '医务工作者', icon: '🏥' }
+        ];
+
+        // 循环生成卡片
+        roles.forEach(role => {
+            const card = document.createElement('div');
+            card.className = 'role-card';
+            // 点击时触发 start 函数
+            card.onclick = () => this.start(role.id);
+            
+            // 填充卡片内容
+            card.innerHTML = `
+                <span class="role-icon">${role.icon}</span>
+                <div class="role-name">${role.name}</div>
+            `;
+            container.appendChild(card);
+        });
+    },
+
+    /* 3. 开始游戏 */
     start(role) {
         this.currentRole = role;
         
-        // 【核心】应用主题皮肤 (theme-coder, theme-finance 等)
-        // 这一步会让 CSS 变量生效，界面变色
+        // 应用主题皮肤
         document.body.className = `theme-${role}`;
 
         // 初始化状态
@@ -41,17 +75,18 @@ const Game = {
         this.history = [];
         
         // 洗牌
-        this.events = this.shuffle([...GameData.events]);
+        if (typeof GameData !== 'undefined' && GameData.events) {
+            this.events = this.shuffle([...GameData.events]);
+        } else {
+            // 兜底数据，防止 data.js 没加载报错
+            this.events = [{ text: "测试事件", options: [{text:"A", effect:{energy:1}}, {text:"B", effect:{money:1}}] }];
+        }
         this.currentIndex = 0;
         
-        // 【新增】更新 HUD 显示的角色名
+        // 更新 HUD
         const roleNames = {
-            coder: "程序员",
-            finance: "金融民工",
-            soe: "央企职员",
-            civil: "体制内",
-            academic: "高校青椒",
-            medical: "医务工作者"
+            coder: "程序员", finance: "金融民工", soe: "央企职员",
+            civil: "体制内", academic: "高校青椒", medical: "医务工作者"
         };
         document.getElementById('hud-role').innerText = roleNames[role] || "职场人";
         document.getElementById('hud-time').innerText = "周一 09:00";
@@ -61,7 +96,7 @@ const Game = {
         this.loadEvent(0);
     },
 
-    /* 3. 加载事件 */
+    /* 4. 加载事件 */
     loadEvent(index) {
         if (index >= this.events.length) {
             this.endGame('normal');
@@ -70,14 +105,13 @@ const Game = {
 
         const event = this.events[index];
         
-        // 简单的时间推进模拟
+        // 更新时间
         const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
         document.getElementById('hud-time').innerText = `${days[index % 7]} ${(9 + index * 2) % 24}:00`;
 
-        // 填充事件文本
+        // 填充文本
         document.getElementById('event-text').innerText = event.text;
 
-        // 填充按钮选项
         const btnA = document.getElementById('btn-a');
         const btnB = document.getElementById('btn-b');
         
@@ -87,17 +121,14 @@ const Game = {
         }
     },
 
-    /* 4. 处理选择 */
+    /* 5. 处理选择 */
     handleAction(optionIndex) {
         const event = this.events[this.currentIndex];
         const option = event.options[optionIndex];
 
-        // 记录历史
         this.history.push({ event: event, choice: option.text });
 
-        // 更新数值
         if (option.effect) {
-            // 安全取值，防止未定义
             const e = option.effect.energy || 0;
             const m = option.effect.meaning || 0;
             const y = option.effect.money || 0;
@@ -106,50 +137,37 @@ const Game = {
             this.state.meaning += m;
             this.state.money += y;
             
-            // 边界限制 (0-100)
             this.state.energy = Math.max(0, Math.min(100, this.state.energy));
             this.state.meaning = Math.max(0, Math.min(100, this.state.meaning));
             this.state.money = Math.max(0, Math.min(100, this.state.money));
         }
 
-        // 记录关键轨迹
         if (option.track) {
             this.state.tracks[option.track] = true;
         }
 
         this.updateStats();
         
-        // 判断特殊结局 (比如能量归零)
         if (this.state.energy <= 0) {
             this.endGame('burnout');
             return;
         }
 
-        // 进入下一回合
         this.currentIndex++;
         this.loadEvent(this.currentIndex);
     },
 
-    /* 5. 更新界面数值 */
+    /* 6. 更新界面 */
     updateStats() {
-        // 数值更新
         document.getElementById('val-energy').innerText = this.state.energy;
         document.getElementById('val-meaning').innerText = this.state.meaning;
         document.getElementById('val-money').innerText = this.state.money;
-
-        // 简单的脉冲动效
-        const orbs = document.querySelectorAll('.stat-orb');
-        orbs.forEach(orb => {
-            orb.classList.add('pulse');
-            setTimeout(() => orb.classList.remove('pulse'), 300);
-        });
     },
 
-    /* 6. 结束游戏 */
+    /* 7. 结束游戏 */
     endGame(reason) {
         const result = this.calculateResult(reason);
         
-        // 生成报告 HTML (适配 CSS 结构)
         const resultHTML = `
             <div class="report-card">
                 <div class="report-header">
@@ -159,22 +177,11 @@ const Game = {
                         <span class="report-sub">${result.sub}</span>
                     </div>
                 </div>
-                
                 <div class="radar-grid">
-                    <div class="radar-item">
-                        <span class="radar-name">能量</span>
-                        <span class="radar-score">${this.state.energy}</span>
-                    </div>
-                    <div class="radar-item">
-                        <span class="radar-name">意义</span>
-                        <span class="radar-score">${this.state.meaning}</span>
-                    </div>
-                    <div class="radar-item">
-                        <span class="radar-name">收益</span>
-                        <span class="radar-score">${this.state.money}</span>
-                    </div>
+                    <div class="radar-item"><span class="radar-name">能量</span><span class="radar-score">${this.state.energy}</span></div>
+                    <div class="radar-item"><span class="radar-name">意义</span><span class="radar-score">${this.state.meaning}</span></div>
+                    <div class="radar-item"><span class="radar-name">收益</span><span class="radar-score">${this.state.money}</span></div>
                 </div>
-
                 <div class="diag-box">
                     <div class="diag-title">🧠 职业诊断</div>
                     <div class="diag-text">${result.diagnosis}</div>
@@ -188,41 +195,30 @@ const Game = {
     },
 
     calculateResult(reason) {
-        // 根据数值计算结局
         let title, icon, sub, diagnosis;
         const avg = (this.state.energy + this.state.meaning + this.state.money) / 3;
 
         if (reason === 'burnout') {
-            title = "职业倦怠";
-            icon = "🔋";
-            sub = "能量耗尽，不得不停下来";
-            diagnosis = "长期的高压透支了你的身心。记住，职场是马拉松，不是百米冲刺。请务必重视休息与调整。";
+            title = "职业倦怠"; icon = "🔋"; sub = "能量耗尽，不得不停下来";
+            diagnosis = "长期的高压透支了你的身心。请务必重视休息。";
         } else if (avg > 80) {
-            title = "职场赢家";
-            icon = "🏆";
-            sub = "你找到了完美的平衡点";
-            diagnosis = "你在保持身心健康的同时，实现了经济自由和自我价值，这是职场人的终极形态。";
+            title = "职场赢家"; icon = "🏆"; sub = "你找到了完美的平衡点";
+            diagnosis = "你在保持身心健康的同时，实现了经济自由和自我价值。";
         } else if (avg > 50) {
-            title = "中坚力量";
-            icon = "🛡️";
-            sub = "虽有波折，但仍稳步前行";
-            diagnosis = "你的职场之路虽有不易，但你证明了韧性。或许可以思考一下，哪一项指标是你下一步的提升点。";
+            title = "中坚力量"; icon = "🛡️"; sub = "虽有波折，但仍稳步前行";
+            diagnosis = "你的职场之路虽有不易，但你证明了韧性。";
         } else {
-            title = "觉醒边缘";
-            icon = "🌑";
-            sub = "或许需要停下来思考了";
-            diagnosis = "现在的状态令人担忧。继续这样下去可能会面临职业倦怠。建议重新审视你的工作方式和目标。";
+            title = "觉醒边缘"; icon = "🌑"; sub = "或许需要停下来思考了";
+            diagnosis = "现在的状态令人担忧。建议重新审视你的工作方式。";
         }
-
         return { title, icon, sub, diagnosis };
     },
 
     restart() {
-        document.body.className = ''; // 重置主题色
+        document.body.className = '';
         this.showScreen('screen-id');
     },
 
-    /* 工具函数 */
     showScreen(screenId) {
         document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
