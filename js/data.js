@@ -1,6 +1,5 @@
-/* ================= 游戏数据配置：全集版 (通用+职业) ================= */
+/* ================= 游戏数据配置：全集平衡版 ================= */
 const GameData = {
-    // ================= 1. 角色配置 =================
     roles: [
         { id: 'coder', icon: '💻', name: '程序员' },
         { id: 'finance', icon: '💰', name: '金融民工' },
@@ -10,356 +9,118 @@ const GameData = {
         { id: 'medical', icon: '⚕️', name: '医务工作者' }
     ],
 
-    // ================= 2. 通用题库 (所有人都会遇到) =================
-    // 设计思路：测底层人格特质，不涉及具体工作内容
+    // ================= 1. 通用题库 (14题) =================
     universal: [
-        { 
-            text: "面对一个复杂且模糊的问题时，你通常的反应是？", 
-            options: [
-                { text: "试图拆解逻辑，寻找规律和结构。", effect: { energy: 0, meaning: 5, money: 0 }, track: "tech" },
-                { text: "寻求他人意见，听听专家或朋友怎么说。", effect: { energy: 0, meaning: 0, money: 0 }, track: "influence" }
-            ] 
-        },
-        { 
-            text: "如果一份工作能给你极高的社会地位，但需要牺牲大量的个人生活，你会？", 
-            options: [
-                { text: "接受，成王败寇，没有付出哪有回报。", effect: { energy: -10, meaning: 0, money: 10 }, track: "challenge" },
-                { text: "拒绝，工作是为了生活，不能本末倒置。", effect: { energy: 10, meaning: 5, money: -5 }, track: "freedom" }
-            ] 
-        },
-        { 
-            text: "在一个团队中，你更倾向于扮演哪种角色？", 
-            options: [
-                { text: "那个提出新想法、指明方向的人。", effect: { energy: 0, meaning: 5, money: 0 }, track: "influence" },
-                { text: "那个负责落地执行、确保不出错的人。", effect: { energy: 0, meaning: 0, money: 5 }, track: "security" }
-            ] 
-        },
-        { 
-            text: "面对突如其来的变动（如计划取消、环境改变），你的心态通常是？", 
-            options: [
-                { text: "兴奋，变动意味着新的机会，打破僵局。", effect: { energy: 5, meaning: 5, money: 0 }, track: "freedom" },
-                { text: "担忧，变动带来不确定性，还是稳定一点好。", effect: { energy: -5, meaning: 0, money: 0 }, track: "security" }
-            ] 
-        },
-        { 
-            text: "你更愿意为什么样的成就而感到自豪？", 
-            options: [
-                { text: "帮助了具体的人，解决了他们的痛苦。", effect: { energy: 0, meaning: 10, money: 0 }, track: "service" },
-                { text: "攻克了难题，创造了某种纪录或作品。", effect: { energy: 0, meaning: 10, money: 0 }, track: "tech" }
-            ] 
-        },
-        { 
-            text: "在做决定时，你更依赖什么？", 
-            options: [
-                { text: "数据和事实，哪怕结论很冷酷。", effect: { energy: 0, meaning: 0, money: 0 }, track: "tech" },
-                { text: "直觉和人情，要考虑大家的感受。", effect: { energy: 0, meaning: 5, money: 0 }, track: "service" }
-            ] 
-        },
-        { 
-            text: "对于“规则”，你的看法是？", 
-            options: [
-                { text: "规则就是用来遵守的，没有规矩不成方圆。", effect: { energy: 0, meaning: 0, money: 5 }, track: "security" },
-                { text: "规则是用来打破的，限制只会阻碍创新。", effect: { energy: 0, meaning: 5, money: 0 }, track: "freedom" }
-            ] 
-        },
-        { 
-            text: "当看到别人犯错时，你通常会选择？", 
-            options: [
-                { text: "直接指出，这对大家都好。", effect: { energy: 0, meaning: 0, money: 0 }, track: "tech" },
-                { text: "委婉提醒，或者帮着掩盖，给对方留面子。", effect: { energy: 0, meaning: 0, money: 0 }, track: "influence" }
-            ] 
-        },
-        { 
-            text: "你理想中的周末是？", 
-            options: [
-                { text: "彻底躺平，谁也别找我，我需要充电。", effect: { energy: 10, meaning: 0, money: 0 }, track: "security" },
-                { text: "去尝试没做过的事，比如探险、社交或新爱好。", effect: { energy: -5, meaning: 5, money: 0 }, track: "challenge" }
-            ] 
-        },
-        { 
-            text: "如果有一笔资金，你会倾向于？", 
-            options: [
-                { text: "存起来或买稳健理财，落袋为安。", effect: { energy: 0, meaning: 0, money: 10 }, track: "security" },
-                { text: "投资自己或创业，博取更大的未来。", effect: { energy: 0, meaning: 0, money: -10 }, track: "challenge" }
-            ] 
-        },
-        // --- 新增通用职场事件 ---
-        {
-            text: "周一早晨，闹钟响起。你感到一阵强烈的疲惫，不想起床。",
-            options: [
-                { text: "猛灌一杯咖啡，强行开机", effect: { energy: -5, money: 0, meaning: 5 }, track: "hardwork" },
-                { text: "请假一天，给自己放个假", effect: { energy: 20, money: -50, meaning: 0 } }
-            ]
-        },
-        {
-            text: "领导在群里@所有人，问谁愿意接手一个没人要的烂摊子项目。",
-            options: [
-                { text: "主动站出来，刷波存在感", effect: { energy: -15, meaning: 10, money: 5 }, track: "active" },
-                { text: "假装没看见，火速潜水", effect: { energy: 5, meaning: -5, money: 0 }, track: "passive" }
-            ]
-        },
-        {
-            text: "同事邀请你下班去聚餐，但你其实很想回家躺平。",
-            options: [
-                { text: "去社交，维护人际关系", effect: { energy: -10, meaning: 5, money: -10 } },
-                { text: "拒绝，回家享受独处时光", effect: { energy: 15, meaning: 5, money: 0 } }
-            ]
-        },
-        {
-            text: "下班高峰期，外面下起了暴雨，打车排队要200多位。",
-            options: [
-                { text: "加价呼叫，不管多贵先回家", effect: { energy: 0, meaning: 0, money: -30 } },
-                { text: "在工位蹭网加班，等雨停", effect: { energy: -10, meaning: 0, money: 0 } }
-            ]
-        }
+        { text: "面对一个复杂且模糊的问题时，你通常的反应是？", options: [ { text: "试图拆解逻辑，寻找规律和结构。", effect: { energy: 0, meaning: 5, money: 0 }, track: "tech" }, { text: "寻求他人意见，听听专家或朋友怎么说。", effect: { energy: 0, meaning: 0, money: 0 }, track: "influence" } ] },
+        { text: "如果一份工作能给你极高的社会地位，但需要牺牲大量的个人生活，你会？", options: [ { text: "接受，成王败寇，没有付出哪有回报。", effect: { energy: -10, meaning: 0, money: 10 }, track: "challenge" }, { text: "拒绝，工作是为了生活，不能本末倒置。", effect: { energy: 10, meaning: 5, money: -5 }, track: "freedom" } ] },
+        { text: "在一个团队中，你更倾向于扮演哪种角色？", options: [ { text: "那个提出新想法、指明方向的人。", effect: { energy: 0, meaning: 5, money: 0 }, track: "influence" }, { text: "那个负责落地执行、确保不出错的人。", effect: { energy: 0, meaning: 0, money: 5 }, track: "security" } ] },
+        { text: "面对突如其来的变动，你的心态通常是？", options: [ { text: "兴奋，变动意味着新的机会。", effect: { energy: 5, meaning: 5, money: 0 }, track: "freedom" }, { text: "担忧，变动带来不确定性。", effect: { energy: -5, meaning: 0, money: 0 }, track: "security" } ] },
+        { text: "你更愿意为什么样的成就而感到自豪？", options: [ { text: "帮助了具体的人，解决了他们的痛苦。", effect: { energy: 0, meaning: 10, money: 0 }, track: "service" }, { text: "攻克了难题，创造了某种纪录或作品。", effect: { energy: 0, meaning: 10, money: 0 }, track: "tech" } ] },
+        { text: "在做决定时，你更依赖什么？", options: [ { text: "数据和事实，哪怕结论很冷酷。", effect: { energy: 0, meaning: 0, money: 0 }, track: "tech" }, { text: "直觉和人情，要考虑大家的感受。", effect: { energy: 0, meaning: 5, money: 0 }, track: "service" } ] },
+        { text: "对于“规则”，你的看法是？", options: [ { text: "规则就是用来遵守的。", effect: { energy: 0, meaning: 0, money: 5 }, track: "security" }, { text: "规则是用来打破的。", effect: { energy: 0, meaning: 5, money: 0 }, track: "freedom" } ] },
+        { text: "当看到别人犯错时，你通常会选择？", options: [ { text: "直接指出，这对大家都好。", effect: { energy: 0, meaning: 0, money: 0 }, track: "tech" }, { text: "委婉提醒，给对方留面子。", effect: { energy: 0, meaning: 0, money: 0 }, track: "influence" } ] },
+        { text: "你理想中的周末是？", options: [ { text: "彻底躺平，谁也别找我。", effect: { energy: 10, meaning: 0, money: 0 }, track: "security" }, { text: "去尝试没做过的事。", effect: { energy: -5, meaning: 5, money: 0 }, track: "challenge" } ] },
+        { text: "如果有一笔资金，你会倾向于？", options: [ { text: "存起来或买稳健理财。", effect: { energy: 0, meaning: 0, money: 10 }, track: "security" }, { text: "投资自己或创业。", effect: { energy: 0, meaning: 0, money: -10 }, track: "challenge" } ] },
+        { text: "周一早晨，闹钟响起，你感到一阵强烈的疲惫。", options: [ { text: "猛灌一杯咖啡，强行开机。", effect: { energy: -5, money: 0, meaning: 5 } }, { text: "请假一天，给自己放个假。", effect: { energy: 20, money: -50, meaning: 0 } } ] },
+        { text: "领导在群里问谁愿意接手一个没人要的烂摊子项目。", options: [ { text: "主动站出来，刷波存在感。", effect: { energy: -15, meaning: 10, money: 5 } }, { text: "假装没看见，火速潜水。", effect: { energy: 5, meaning: -5, money: 0 } } ] },
+        { text: "同事邀请你下班去聚餐，但你其实很想回家躺平。", options: [ { text: "去社交，维护人际关系。", effect: { energy: -10, meaning: 5, money: -10 } }, { text: "拒绝，回家享受独处时光。", effect: { energy: 15, meaning: 5, money: 0 } } ] },
+        { text: "下班高峰期，外面下起了暴雨，打车排队要200多位。", options: [ { text: "加价呼叫，不管多贵先回家。", effect: { energy: 0, meaning: 0, money: -30 } }, { text: "在工位蹭网加班，等雨停。", effect: { energy: -10, meaning: 0, money: 0 } } ] }
     ],
     
-    // ================= 3. 职业剧本库 (仅特定职业可见) =================
+    // ================= 2. 职业剧本库 (每个职业均补齐至12题) =================
     scenarios: {
-        // --- 程序员 ---
         coder: [
-            // 原经典剧情
-            { text: "你攻克了一个困扰团队一个月的技术难题，CEO在全员大会上点名表扬你，并给了你一笔可观的期权。这是技术人的高光时刻。", options: [
-                { text: "享受这份荣耀，并以此为契机要求带独立小组，承担更大压力。", effect: { energy: -5, meaning: 20, money: 10 }, track: "challenge" },
-                { text: "低调处理，只想安安静静写代码，不想被推到前台卷管理。", effect: { energy: 10, meaning: 5, money: 0 }, track: "tech" }
-            ]},
-            { text: "公司最新架构调整，你有机会转做“技术管理”，工资涨一级，但基本告别代码，主要工作是开会和写PPT。", options: [
-                { text: "接受转型，这是职场上升的必经之路，我不做别人也会做。", effect: { energy: -10, meaning: -5, money: 15 }, track: "influence" },
-                { text: "拒绝，我无法忍受失去创造工具的快乐，哪怕升职无望。", effect: { energy: 5, meaning: 15, money: -5 }, track: "tech" }
-            ]},
-            { text: "一个猎头给你推了一个远程工作机会，薪资少20%，但你可以自由安排时间，甚至去大理旅居。", options: [
-                { text: "立刻辞职，生活不应该只有代码，还有远方。", effect: { energy: 15, meaning: 15, money: -10 }, track: "freedom" },
-                { text: "太冒险了，现在的环境，保住大厂高薪饭票更重要。", effect: { energy: -5, meaning: -10, money: 5 }, track: "security" }
-            ]},
-            { text: "你发现团队里那个代码写得烂的同事，因为和老板关系好，晋升速度比你快。", options: [
-                { text: "我也得学着“懂事”，主动找老板汇报思想，加入政治游戏。", effect: { energy: -10, meaning: -15, money: 10 }, track: "influence" },
-                { text: "嗤之以鼻，继续深耕技术。我相信长期看，硬实力才是护城河。", effect: { energy: -5, meaning: 10, money: -5 }, track: "tech" }
-            ]},
-            { text: "为了赶进度，底层架构埋下了隐患。修好它需要停服三天，不修也许永远不出事。", options: [
-                { text: "申请停服修复，我是工程师，必须对代码负责。", effect: { energy: -20, meaning: 20, money: -10 }, track: "tech" },
-                { text: "加上监控补丁，祈祷在跳槽前别暴雷。", effect: { energy: 5, meaning: -30, money: 5 }, track: "security" }
-            ]},
-            { text: "团队扩张，你负责面试。来了一个技术比你强、但性格傲慢的人；另一个技术平庸但听话。你有投票权。", options: [
-                { text: "投给强者，团队实力第一，哪怕以后他可能顶替我。", effect: { energy: -5, meaning: 10, money: -5 }, track: "tech" },
-                { text: "投给听话的，技术可以培养，但我需要一个好相处的队友。", effect: { energy: 5, meaning: -10, money: 0 }, track: "security" }
-            ]},
-            { text: "你维护的老系统每天报警，业务方却拒绝重构，只让你“修修补补”。你感觉自己在做电子垃圾清理员。", options: [
-                { text: "发起“起义”，写好迁移方案逼业务方表态。", effect: { energy: -20, meaning: 15, money: -5 }, track: "challenge" },
-                { text: "领工资而已，别太入戏，修Bug也是一种修行。", effect: { energy: -5, meaning: -20, money: 5 }, track: "security" }
-            ]},
-            { text: "上线出了大Bug，其实是产品需求逻辑漏洞，但开会时产品经理暗示是你“执行不到位”。", options: [
-                { text: "当面甩出会议记录和聊天截图，绝不背锅。", effect: { energy: 5, meaning: 5, money: -5 }, track: "influence" },
-                { text: "算了，技术本身就是兜底的，默默修好算我倒霉。", effect: { energy: -10, meaning: -10, money: 5 }, track: "service" }
-            ]},
-            // 新增剧情
-            { text: "【程序员】产品经理突然加需求，说要在下周上线一个AI大模型功能。", options: [
-                { text: "怒怼回去：这需求做不了！", effect: { energy: -5, meaning: 10, money: -10 } },
-                { text: "接下需求，开始复制粘贴开源代码", effect: { energy: -15, meaning: -10, money: 20 } }
-            ]},
-            { text: "【程序员】凌晨2点，代码跑通了，但你在注释里看到了前人留下的脏话。", options: [
-                { text: "默默加上自己的脏话，提交代码", effect: { energy: -10, meaning: -5, money: 10 } },
-                { text: "重构那段代码，直到它看起来像个艺术品", effect: { energy: -20, meaning: 20, money: 0 }, track: "craftsman" }
-            ]}
+            { text: "你攻克了一个困扰团队一个月的技术难题，CEO在全员大会上点名表扬你。", options: [ { text: "享受荣耀，要求带独立小组。", effect: { energy: -5, meaning: 20, money: 10 }, track: "challenge" }, { text: "低调处理，只想安静写代码。", effect: { energy: 10, meaning: 5, money: 0 }, track: "tech" } ] },
+            { text: "架构调整，你有机会转做“技术管理”，工资涨一级，但告别代码。", options: [ { text: "接受转型，这是职场上升必经之路。", effect: { energy: -10, meaning: -5, money: 15 }, track: "influence" }, { text: "拒绝，无法忍受失去创造的快乐。", effect: { energy: 5, meaning: 15, money: -5 }, track: "tech" } ] },
+            { text: "猎头推了一个远程工作机会，薪资少20%，但可旅居。", options: [ { text: "立刻辞职，生活不应只有代码。", effect: { energy: 15, meaning: 15, money: -10 }, track: "freedom" }, { text: "太冒险，保住大厂饭票更重要。", effect: { energy: -5, meaning: -10, money: 5 }, track: "security" } ] },
+            { text: "代码写得烂的同事因和老板关系好，晋升比你快。", options: [ { text: "学着“懂事”，加入政治游戏。", effect: { energy: -10, meaning: -15, money: 10 }, track: "influence" }, { text: "嗤之以鼻，继续深耕技术。", effect: { energy: -5, meaning: 10, money: -5 }, track: "tech" } ] },
+            { text: "底层架构埋下隐患，修好需停服三天，不修也许不出事。", options: [ { text: "申请停服修复，对代码负责。", effect: { energy: -20, meaning: 20, money: -10 }, track: "tech" }, { text: "加补丁，祈祷跳槽前别暴雷。", effect: { energy: 5, meaning: -30, money: 5 }, track: "security" } ] },
+            { text: "面试时，一个技术强但傲慢，一个平庸但听话，你投谁？", options: [ { text: "投给强者，团队实力第一。", effect: { energy: -5, meaning: 10, money: -5 }, track: "tech" }, { text: "投给听话的，技术可以培养。", effect: { energy: 5, meaning: -10, money: 0 }, track: "security" } ] },
+            { text: "老系统每天报警，业务方拒绝重构，你感觉在做垃圾清理员。", options: [ { text: "发起“起义”，逼业务方表态。", effect: { energy: -20, meaning: 15, money: -5 }, track: "challenge" }, { text: "领工资而已，别太入戏。", effect: { energy: -5, meaning: -20, money: 5 }, track: "security" } ] },
+            { text: "上线Bug是产品逻辑漏洞，但产品经理暗示是你执行不到位。", options: [ { text: "甩出记录，绝不背锅。", effect: { energy: 5, meaning: 5, money: -5 }, track: "influence" }, { text: "算了，技术本质是兜底。", effect: { energy: -10, meaning: -10, money: 5 }, track: "service" } ] },
+            { text: "产品经理突然加需求，下周上线AI大模型功能。", options: [ { text: "怒怼：做不了！", effect: { energy: -5, meaning: 10, money: -10 } }, { text: "接下，复制粘贴开源代码。", effect: { energy: -15, meaning: -10, money: 20 } } ] },
+            { text: "凌晨2点代码跑通，你在注释里看到了前人留下的脏话。", options: [ { text: "加上自己的脏话提交。", effect: { energy: -10, meaning: -5, money: 10 } }, { text: "重构代码，让它像个艺术品。", effect: { energy: -20, meaning: 20, money: 0 }, track: "craftsman" } ] },
+            { text: "你发现团队使用了有严重漏洞的开源库。", options: [ { text: "默默修好并提交Patch。", effect: { energy: -10, meaning: 15, money: 0 }, track: "tech" }, { text: "提个Issue，然后不管了。", effect: { energy: 0, meaning: 0, money: 0 }, track: "security" } ] },
+            { text: "公司号召“技术下沉”业务，让你去一线轮岗三个月。", options: [ { text: "拒绝，我就在工位写代码。", effect: { energy: 5, meaning: -5, money: -5 }, track: "tech" }, { text: "去轮岗，了解一下业务也不错。", effect: { energy: -15, meaning: 5, money: 5 }, track: "influence" } ] }
         ],
-
-        // --- 金融民工 ---
         finance: [
-            // 原经典剧情
-            { text: "你主控的项目今年给公司赚了上千万，年终奖到账的那一刻，你觉得之前的通宵都值了。", options: [
-                { text: "用这笔钱买个大件奖励自己，明年继续拼，高薪就是正义。", effect: { energy: -20, meaning: -5, money: 30 }, track: "challenge" },
-                { text: "看着数字感到空虚，把部分收入捐给公益，寻找内心安宁。", effect: { energy: -5, meaning: 15, money: -10 }, track: "service" }
-            ]},
-            { text: "你有机会接触到顶级企业家，听他们讲述商业帝国的逻辑。这种顶层视野让你大开眼界。", options: [
-                { text: "珍惜机会，努力学习他们的思维，梦想成为他们。", effect: { energy: -10, meaning: 5, money: 5 }, track: "influence" },
-                { text: "保持距离，我只想执行交易，不想被宏大叙事绑架。", effect: { energy: 5, meaning: -5, money: 0 }, track: "security" }
-            ]},
-            { text: "IPO项目过会前夕，你发现一个小的合规瑕疵。指出它可能导致项目流产，奖金泡汤；忽略它，大概率没人发现。", options: [
-                { text: "必须指出，我不愿在职业生涯里埋下地雷。", effect: { energy: -5, meaning: 20, money: -20 }, track: "tech" },
-                { text: "为了团队和奖金，选择忽略。这行都是这么干的。", effect: { energy: -10, meaning: -20, money: 15 }, track: "security" }
-            ]},
-            { text: "你发现自己经手的资金流向了房地产泡沫，你的工作本质是把普通人储蓄变成富人游戏。", options: [
-                { text: "申请转岗去做行研，哪怕钱少，也要离创造价值近一点。", effect: { energy: -5, meaning: 20, money: -10 }, track: "service" },
-                { text: "别想太多，这就是金融本质，赚钱才是硬道理。", effect: { energy: -5, meaning: -20, money: 15 }, track: "security" }
-            ]},
-            { text: "客户亏损严重，打电话骂了你十分钟。你需要安抚情绪，但心里也明白这是市场风险。", options: [
-                { text: "专业安抚，发送详细分析报告，用数据说话。", effect: { energy: -20, meaning: -5, money: 10 }, track: "service" },
-                { text: "转接客服部，我不应该直接面对这种情绪垃圾。", effect: { energy: 5, meaning: -5, money: -5 }, track: "security" }
-            ]},
-            { text: "所里有一个去中后台（风控/运营）的机会，收入腰斩，但从此告别业绩压力，朝九晚五。", options: [
-                { text: "立刻申请，我的健康和生活比钱重要。", effect: { energy: 15, meaning: 5, money: -15 }, track: "freedom" },
-                { text: "拒绝，我还年轻，不能这么早退休，前台才有暴富机会。", effect: { energy: -10, meaning: -5, money: 5 }, track: "challenge" }
-            ]},
-            { text: "你写的一篇看空报告引发了股价大跌，公司高层受到压力，暗示你“以后这种报告少发”。", options: [
-                { text: "坚持发布，分析师的尊严在于独立性。", effect: { energy: -10, meaning: 20, money: -10 }, track: "tech" },
-                { text: "识时务者为俊杰，以后只写看多报告，保护饭碗。", effect: { energy: 5, meaning: -20, money: 10 }, track: "security" }
-            ]},
-            { text: "业务部为了冲业绩，想绕过合规流程做一个高风险产品。你是合规负责人。", options: [
-                { text: "坚决否决，哪怕得罪业务老大，合规是我的底线。", effect: { energy: -10, meaning: 10, money: -5 }, track: "tech" },
-                { text: "睁只眼闭只眼，业务活了大家才有奖金拿。", effect: { energy: -5, meaning: -15, money: 10 }, track: "security" }
-            ]},
-            // 新增剧情
-            { text: "【金融】美股昨晚熔断了，你的客户在疯狂打电话问你怎么办。", options: [
-                { text: "专业安抚：'这是技术性调整，稳住'", effect: { energy: -5, meaning: -5, money: 20 } },
-                { text: "老实承认：'我也慌，要不要割肉？'", effect: { energy: -10, meaning: 10, money: -20 } }
-            ]}
+            { text: "主控项目赚了上千万，年终奖到账，你觉得通宵值了。", options: [ { text: "买大件奖励自己，明年继续拼。", effect: { energy: -20, meaning: -5, money: 30 }, track: "challenge" }, { text: "把钱捐公益，寻找内心安宁。", effect: { energy: -5, meaning: 15, money: -10 }, track: "service" } ] },
+            { text: "有机会接触顶级企业家，听他们讲商业帝国逻辑。", options: [ { text: "珍惜机会，梦想成为他们。", effect: { energy: -10, meaning: 5, money: 5 }, track: "influence" }, { text: "保持距离，只想执行交易。", effect: { energy: 5, meaning: -5, money: 0 }, track: "security" } ] },
+            { text: "IPO过会前夕，发现小合规瑕疵，指出可能项目流产。", options: [ { text: "必须指出，不愿埋地雷。", effect: { energy: -5, meaning: 20, money: -20 }, track: "tech" }, { text: "为了奖金忽略，这行都这样。", effect: { energy: -10, meaning: -20, money: 15 }, track: "security" } ] },
+            { text: "发现经手资金流向房地产泡沫，工作本质是把储蓄变富人游戏。", options: [ { text: "转岗做行研，离创造价值近点。", effect: { energy: -5, meaning: 20, money: -10 }, track: "service" }, { text: "别想太多，赚钱是硬道理。", effect: { energy: -5, meaning: -20, money: 15 }, track: "security" } ] },
+            { text: "客户亏损严重，骂了你十分钟。", options: [ { text: "专业安抚，用数据说话。", effect: { energy: -20, meaning: -5, money: 10 }, track: "service" }, { text: "转接客服，不面对情绪垃圾。", effect: { energy: 5, meaning: -5, money: -5 }, track: "security" } ] },
+            { text: "有去中后台机会，收入腰斩，但告别业绩压力。", options: [ { text: "申请，健康比钱重要。", effect: { energy: 15, meaning: 5, money: -15 }, track: "freedom" }, { text: "拒绝，前台才有暴富机会。", effect: { energy: -10, meaning: -5, money: 5 }, track: "challenge" } ] },
+            { text: "看空报告引发股价大跌，高层暗示少发这种。", options: [ { text: "坚持发布，尊严在于独立。", effect: { energy: -10, meaning: 20, money: -10 }, track: "tech" }, { text: "以后只写看多，保饭碗。", effect: { energy: 5, meaning: -20, money: 10 }, track: "security" } ] },
+            { text: "业务部想绕过合规做高风险产品。", options: [ { text: "坚决否决，合规是底线。", effect: { energy: -10, meaning: 10, money: -5 }, track: "tech" }, { text: "睁只眼闭只眼，大家才有奖金。", effect: { energy: -5, meaning: -15, money: 10 }, track: "security" } ] },
+            { text: "美股熔断，客户疯狂打电话。", options: [ { text: "专业安抚：技术性调整。", effect: { energy: -5, meaning: -5, money: 20 } }, { text: "老实承认：我也慌。", effect: { energy: -10, meaning: 10, money: -20 } } ] },
+            { text: "有一个内幕消息，胜率很高但违规。", options: [ { text: "坚决不碰，红线不能踩。", effect: { energy: 0, meaning: 10, money: 0 }, track: "security" }, { text: "小仓位试一下，没人会查。", effect: { energy: -10, meaning: -20, money: 30 }, track: "challenge" } ] },
+            { text: "领导让你去陪大客户喝酒，你酒精过敏。", options: [ { text: "为了单子，硬喝。", effect: { energy: -20, meaning: -10, money: 20 }, track: "challenge" }, { text: "以茶代酒，真诚沟通。", effect: { energy: -5, meaning: 5, money: -5 }, track: "influence" } ] },
+            { text: "做尽调时发现目标公司财务造假。", options: [ { text: "如实写在报告里。", effect: { energy: -5, meaning: 15, money: -10 }, track: "tech" }, { text: "暗示对方整改，否则不投。", effect: { energy: -5, meaning: -5, money: 0 }, track: "influence" } ] }
         ],
-
-        // --- 央企职员 ---
         soe: [
-            // 原经典剧情
-            { text: "单位分房了。虽然地段一般，但这在一线城市意味着省去了几百万房贷压力，家人终于松了口气。", options: [
-                { text: "感恩这份安稳，接受体制内的游戏规则。", effect: { energy: -5, meaning: -10, money: 20 }, track: "security" },
-                { text: "房子有了，但感觉这辈子也就这样了，不甘心。", effect: { energy: 0, meaning: -5, money: 15 }, track: "freedom" }
-            ]},
-            { text: "领导找你谈话，想调你去核心部门当秘书，这通常是升迁快车道，但也是最累的岗位。", options: [
-                { text: "抓住机会，离权力中心越近，机会越多。", effect: { energy: -20, meaning: -5, money: 10 }, track: "influence" },
-                { text: "婉拒，我不想把生活全献给工作，清闲挺好。", effect: { energy: 10, meaning: 5, money: -5 }, track: "freedom" }
-            ]},
-            { text: "你在专业领域发表了高质量论文，有私企想高薪挖你去做技术专家，打破薪资天花板。", options: [
-                { text: "跳槽！体制内天花板太低，我要去市场检验价值。", effect: { energy: 5, meaning: 10, money: 15 }, track: "tech" },
-                { text: "拒绝，外面风浪大，体制内的平台值得留下。", effect: { energy: -5, meaning: -5, money: 0 }, track: "security" }
-            ]},
-            { text: "为了应付检查，部门需要编造一份“创新成果”汇报。领导暗示你笔杆子好。", options: [
-                { text: "婉拒，申请去一线干苦差事，也不愿造假。", effect: { energy: -10, meaning: 5, money: -5 }, track: "freedom" },
-                { text: "接受任务，写得天花乱坠，大家都在演。", effect: { energy: -5, meaning: -25, money: 5 }, track: "security" }
-            ]},
-            { text: "同事是典型的“关系户”，经常把工作推给你。他刚又把麻烦报表扔给你。", options: [
-                { text: "当面拒绝：“我手头也紧，帮不了。”", effect: { energy: 5, meaning: 5, money: 0 }, track: "freedom" },
-                { text: "为了维持和平，帮他把活干了，不想惹事。", effect: { energy: -15, meaning: -10, money: 0 }, track: "security" }
-            ]},
-            { text: "单位工会组织“红歌合唱比赛”，要求下班排练。你知道这纯属浪费时间，但不去会被通报。", options: [
-                { text: "积极报名，还要领唱，这种表现机会比干活强。", effect: { energy: -10, meaning: -10, money: 5 }, track: "influence" },
-                { text: "站在后排装样子，心里骂娘，面子上过得去就行。", effect: { energy: -5, meaning: -5, money: 0 }, track: "security" }
-            ]},
-            { text: "集团总部有一个借调名额，去两年能解决职级，但要去偏远分公司，夫妻两地分居。", options: [
-                { text: "为了级别，牺牲两年的家庭团聚是值得的。", effect: { energy: -15, meaning: -10, money: 10 }, track: "challenge" },
-                { text: "算了，级别可以等，孩子的童年不能等。", effect: { energy: 5, meaning: 5, money: -5 }, track: "service" }
-            ]},
-            { text: "年底评优，你和另一个同事票数相同。但他平时给领导开车，你平时在机房干活。", options: [
-                { text: "主动找领导汇报思想，争取把票拉过来。", effect: { energy: -5, meaning: -15, money: 5 }, track: "influence" },
-                { text: "随缘，如果领导给我就要，不给拉倒。", effect: { energy: 0, meaning: -5, money: 0 }, track: "security" }
-            ]}
+            { text: "单位分房了，虽然地段一般，但省了几百万房贷。", options: [ { text: "感恩安稳，接受规则。", effect: { energy: -5, meaning: -10, money: 20 }, track: "security" }, { text: "不甘心，这辈子就这样了？", effect: { energy: 0, meaning: -5, money: 15 }, track: "freedom" } ] },
+            { text: "领导调你去核心部门当秘书，升迁快但最累。", options: [ { text: "抓住机会，离权力中心近。", effect: { energy: -20, meaning: -5, money: 10 }, track: "influence" }, { text: "婉拒，不想把生活献给工作。", effect: { energy: 10, meaning: 5, money: -5 }, track: "freedom" } ] },
+            { text: "发表高质量论文，私企想高薪挖你。", options: [ { text: "跳槽！去市场检验价值。", effect: { energy: 5, meaning: 10, money: 15 }, track: "tech" }, { text: "拒绝，外面风浪大。", effect: { energy: -5, meaning: -5, money: 0 }, track: "security" } ] },
+            { text: "部门需编造“创新成果”汇报，领导暗示你写。", options: [ { text: "婉拒，去一线干苦差事。", effect: { energy: -10, meaning: 5, money: -5 }, track: "freedom" }, { text: "接受，写得天花乱坠。", effect: { energy: -5, meaning: -25, money: 5 }, track: "security" } ] },
+            { text: "“关系户”同事把麻烦报表扔给你。", options: [ { text: "当面拒绝。", effect: { energy: 5, meaning: 5, money: 0 }, track: "freedom" }, { text: "帮他干了，不想惹事。", effect: { energy: -15, meaning: -10, money: 0 }, track: "security" } ] },
+            { text: "工会组织红歌合唱，强制参加。", options: [ { text: "积极报名领唱。", effect: { energy: -10, meaning: -10, money: 5 }, track: "influence" }, { text: "后排装样子。", effect: { energy: -5, meaning: -5, money: 0 }, track: "security" } ] },
+            { text: "总部借调名额，去两年解决职级，但需两地分居。", options: [ { text: "为了级别牺牲家庭。", effect: { energy: -15, meaning: -10, money: 10 }, track: "challenge" }, { text: "算了，孩子童年不能等。", effect: { energy: 5, meaning: 5, money: -5 }, track: "service" } ] },
+            { text: "年底评优，你和给领导开车的同事票数相同。", options: [ { text: "找领导汇报思想。", effect: { energy: -5, meaning: -15, money: 5 }, track: "influence" }, { text: "随缘，不给拉倒。", effect: { energy: 0, meaning: -5, money: 0 }, track: "security" } ] },
+            { text: "单位组织“岗位练兵”，其实就是考试，排名全系统通报。", options: [ { text: "通宵复习，必须考第一。", effect: { energy: -20, meaning: -5, money: 5 }, track: "challenge" }, { text: "裸考，考成啥样算啥样。", effect: { energy: 5, meaning: 0, money: 0 }, track: "freedom" } ] },
+            { text: "食堂今天有很难抢的红烧肉。", options: [ { text: "提前溜号去排队。", effect: { energy: 5, meaning: 0, money: 0 } }, { text: "老实等到点吃剩的。", effect: { energy: 0, meaning: -5, money: 0 } } ] },
+            { text: "有亲戚想让你帮走后门办业务。", options: [ { text: "严词拒绝，违反原则。", effect: { energy: 0, meaning: 15, money: -5 }, track: "tech" }, { text: "悄悄帮了，都是亲戚。", effect: { energy: -5, meaning: -10, money: 0 }, track: "influence" } ] },
+            { text: "上级视察，部门让你负责接待摆盘。", options: [ { text: "做得尽善尽美，连水果缝隙都对齐。", effect: { energy: -5, meaning: -5, money: 0 }, track: "security" }, { text: "随便摆摆，意思一下。", effect: { energy: 0, meaning: 0, money: 0 }, track: "freedom" } ] }
         ],
-
-        // --- 体制内 ---
         civil: [
-            // 原经典剧情
-            { text: "你帮一位办事的老人解决了大麻烦，老人握着你的手说：“你是真正为人民服务的好干部。”", options: [
-                { text: "这一刻，我觉得繁文缛节都值了，这就是意义。", effect: { energy: 5, meaning: 25, money: -5 }, track: "service" },
-                { text: "感动只是一瞬，现实还要面对年底考核压力。", effect: { energy: -5, meaning: 0, money: 0 }, track: "security" }
-            ]},
-            { text: "上级下达了一个“必须完成”但不合逻辑的指标，强制执行会损害基层利益。", options: [
-                { text: "如实反馈困难，提出修改建议，哪怕被批执行力不强。", effect: { energy: -10, meaning: 10, money: -5 }, track: "influence" },
-                { text: "照单全收，压力下传，只要我不背锅。", effect: { energy: 5, meaning: -20, money: 5 }, track: "security" }
-            ]},
-            { text: "办事大厅来了一位情绪激动的群众，手续不全但跑了大半天。后面排队的人开始抱怨。", options: [
-                { text: "“原则上不行但想办法办”，利用午休帮他补齐。", effect: { energy: -15, meaning: 15, money: -5 }, track: "service" },
-                { text: "公事公办，温和拒绝。为了效率，必须牺牲少数人。", effect: { energy: 5, meaning: -15, money: 5 }, track: "security" }
-            ]},
-            { text: "巡查组来检查，台账资料有缺失。补齐需要造假，不补可能被问责。", options: [
-                { text: "连夜补造，为了集体荣誉，这点形式主义是代价。", effect: { energy: -20, meaning: -15, money: 5 }, track: "security" },
-                { text: "实事求是说明情况，不助长这种风气。", effect: { energy: 5, meaning: 10, money: -10 }, track: "freedom" }
-            ]},
-            { text: "单位有个下乡扶贫的名额，条件艰苦，但回来后提干概率大。", options: [
-                { text: "主动报名，基层履历是未来晋升的关键筹码。", effect: { energy: -25, meaning: 5, money: 10 }, track: "challenge" },
-                { text: "家里离不开人，还是守在机关里安稳。", effect: { energy: 5, meaning: -5, money: 0 }, track: "security" }
-            ]},
-            { text: "年底互评，同事暗示你给他打“优秀”，他也会给你打“优秀”。这是个利益交换。", options: [
-                { text: "同意，这是机关生存法则，大家好才是真的好。", effect: { energy: -5, meaning: -5, money: 5 }, track: "influence" },
-                { text: "凭良心打分，不想搞这种小圈子交易。", effect: { energy: 5, meaning: 5, money: -5 }, track: "tech" }
-            ]},
-            { text: "领导让你写一份讲话稿，只有一句话的要求：“要有高度，但又要接地气”。这种模糊指示最难写。", options: [
-                { text: "找以前的稿子拼凑，不求有功但求无过。", effect: { energy: -5, meaning: -10, money: 0 }, track: "security" },
-                { text: "硬着头皮创新，试图在形式中找出一点新意。", effect: { energy: -15, meaning: 10, money: -5 }, track: "challenge" }
-            ]},
-            { text: "科室的临时工把档案搞乱了，按规定应该辞退，但他家里很困难。", options: [
-                { text: "按规矩办事，这种隐患不能留，辞退。", effect: { energy: -5, meaning: -10, money: 5 }, track: "tech" },
-                { text: "私下批评一顿，帮他瞒下来，保住他的饭碗。", effect: { energy: -5, meaning: 10, money: -5 }, track: "service" }
-            ]}
+            { text: "帮办事老人解决麻烦，他说你是好干部。", options: [ { text: "觉得繁文缛节都值了。", effect: { energy: 5, meaning: 25, money: -5 }, track: "service" }, { text: "感动一瞬，还要面对考核。", effect: { energy: -5, meaning: 0, money: 0 }, track: "security" } ] },
+            { text: "上级下达不合逻辑指标，强制执行损害基层利益。", options: [ { text: "如实反馈困难。", effect: { energy: -10, meaning: 10, money: -5 }, track: "influence" }, { text: "照单全收，压力下传。", effect: { energy: 5, meaning: -20, money: 5 }, track: "security" } ] },
+            { text: "大厅群众情绪激动，手续不全但跑大半天。", options: [ { text: "利用午休帮他补齐。", effect: { energy: -15, meaning: 15, money: -5 }, track: "service" }, { text: "公事公办，温和拒绝。", effect: { energy: 5, meaning: -15, money: 5 }, track: "security" } ] },
+            { text: "巡查组检查，台账缺失，补齐需造假。", options: [ { text: "连夜补造，为了荣誉。", effect: { energy: -20, meaning: -15, money: 5 }, track: "security" }, { text: "实事求是，不助长风气。", effect: { energy: 5, meaning: 10, money: -10 }, track: "freedom" } ] },
+            { text: "有下乡扶贫名额，条件苦但提干概率大。", options: [ { text: "报名，履历关键。", effect: { energy: -25, meaning: 5, money: 10 }, track: "challenge" }, { text: "守在机关安稳。", effect: { energy: 5, meaning: -5, money: 0 }, track: "security" } ] },
+            { text: "同事互评暗示交换“优秀”。", options: [ { text: "同意，生存法则。", effect: { energy: -5, meaning: -5, money: 5 }, track: "influence" }, { text: "凭良心打分。", effect: { energy: 5, meaning: 5, money: -5 }, track: "tech" } ] },
+            { text: "写讲话稿，要求“有高度又接地气”。", options: [ { text: "拼凑以前稿子。", effect: { energy: -5, meaning: -10, money: 0 }, track: "security" }, { text: "硬着头皮创新。", effect: { energy: -15, meaning: 10, money: -5 }, track: "challenge" } ] },
+            { text: "临时工搞乱档案，按规定辞退但他家困难。", options: [ { text: "辞退，隐患不能留。", effect: { energy: -5, meaning: -10, money: 5 }, track: "tech" }, { text: "私下批评，帮他瞒下。", effect: { energy: -5, meaning: 10, money: -5 }, track: "service" } ] },
+            { text: "领导让你帮他接孩子放学。", options: [ { text: "去接，这是拉近关系好机会。", effect: { energy: -10, meaning: -10, money: 5 }, track: "influence" }, { text: "借口工作忙推脱。", effect: { energy: 0, meaning: 5, money: -5 }, track: "freedom" } ] },
+            { text: "单位搞“数字化改革”，系统做得很难用。", options: [ { text: "认真学习怎么用，还要教别人。", effect: { energy: -10, meaning: 0, money: 0 }, track: "security" }, { text: "吐槽几句，尽量避开不用。", effect: { energy: 0, meaning: 5, money: 0 }, track: "freedom" } ] },
+            { text: "隔壁科室大姐推销保险。", options: [ { text: "买一份，以后好办事。", effect: { energy: 0, meaning: -5, money: -20 }, track: "influence" }, { text: "坚决不买，死活不要。", effect: { energy: -5, meaning: 5, money: 0 }, track: "freedom" } ] },
+            { text: "窗口服务遇到难缠的人，录像威胁投诉。", options: [ { text: "态度更温和，叫领导来处理。", effect: { energy: -15, meaning: 0, money: 0 }, track: "service" }, { text: "停止服务，叫保安。", effect: { energy: 5, meaning: -10, money: 0 }, track: "security" } ] }
         ],
-
-        // --- 高校青椒 ---
         academic: [
-            // 原经典剧情
-            { text: "你收到了一封学生信件，说你的一堂课改变了他的人生观。这种精神富足感是钱买不来的。", options: [
-                { text: "把更多精力投入教学，这才是大学老师的灵魂。", effect: { energy: -5, meaning: 20, money: -5 }, track: "service" },
-                { text: "感动归感动，评职称只看论文，还是搞科研。", effect: { energy: -10, meaning: -5, money: 5 }, track: "security" }
-            ]},
-            { text: "学校提供了“教学型教授”晋升通道，名额少但竞争小，意味着放弃科研项目。", options: [
-                { text: "走教学路线，我喜欢和学生在一起。", effect: { energy: 5, meaning: 10, money: -5 }, track: "service" },
-                { text: "绝不放弃科研，哪怕竞争激烈，也要留在学术主战场。", effect: { energy: -15, meaning: 5, money: 0 }, track: "tech" }
-            ]},
-            { text: "导师让你帮他的“关系户”学生代写毕业论文，拒绝可能导致延毕。", options: [
-                { text: "严词拒绝，大不了延期，不能玷污学术尊严。", effect: { energy: -20, meaning: 15, money: -10 }, track: "freedom" },
-                { text: "忍气吞声，导师资源决定未来。", effect: { energy: -5, meaning: -25, money: 5 }, track: "security" }
-            ]},
-            { text: "为了评职称，你可以选择追逐热点发“水刊”，或死磕冷门重要课题。", options: [
-                { text: "选择冷门课题，学术是马拉松，不为帽子折腰。", effect: { energy: -15, meaning: 20, money: -10 }, track: "tech" },
-                { text: "现实一点，先评上职称再说。", effect: { energy: -5, meaning: -15, money: 10 }, track: "security" }
-            ]},
-            { text: "你有机会接一个横向课题，赚钱多，但会占用大量科研时间，偏离学术主线。", options: [
-                { text: "接！有了钱才能更好搞科研，这叫以商养学。", effect: { energy: -5, meaning: -5, money: 20 }, track: "influence" },
-                { text: "不接，我要保持学术纯粹性，不想变成生意人。", effect: { energy: 5, meaning: 5, money: -10 }, track: "tech" }
-            ]},
-            { text: "实验室的离心机坏了，需要更换核心零件。可以用科研经费买新的，也可以自己修。", options: [
-                { text: "自己动手修，省下的经费能带学生吃顿好的。", effect: { energy: -10, meaning: 5, money: 0 }, track: "service" },
-                { text: "直接申请买新的，时间宝贵，别浪费在修机器上。", effect: { energy: 5, meaning: -5, money: -5 }, track: "tech" }
-            ]},
-            { text: "一个学生因为论文被毙在办公室哭了一下午，甚至提到了抑郁。", options: [
-                { text: "放下手头工作，陪他聊到晚上，心理干预比论文重要。", effect: { energy: -15, meaning: 15, money: -5 }, track: "service" },
-                { text: "通知辅导员来处理，我不仅是导师，更是科研压力的承担者。", effect: { energy: 5, meaning: -15, money: 5 }, track: "security" }
-            ]},
-            { text: "报账时，财务说发票抬头写错了一个字。重开要一个月，你面临“找票抵扣”的诱惑。", options: [
-                { text: "按规定重新开票，哪怕项目结项延期。", effect: { energy: -10, meaning: 10, money: -5 }, track: "tech" },
-                { text: "找张其他发票顶上，大家都这么干，别太死板。", effect: { energy: 5, meaning: -15, money: 5 }, track: "security" }
-            ]}
+            { text: "收到学生信件，说你的课改变了他人生观。", options: [ { text: "投入更多精力教学。", effect: { energy: -5, meaning: 20, money: -5 }, track: "service" }, { text: "感动归感动，评职称看论文。", effect: { energy: -10, meaning: -5, money: 5 }, track: "security" } ] },
+            { text: "有“教学型教授”晋升通道，放弃科研。", options: [ { text: "走教学路线，喜欢和学生在一起。", effect: { energy: 5, meaning: 10, money: -5 }, track: "service" }, { text: "不放弃科研，留主战场。", effect: { energy: -15, meaning: 5, money: 0 }, track: "tech" } ] },
+            { text: "导师让你帮“关系户”代写毕业论文。", options: [ { text: "严词拒绝，大不了延期。", effect: { energy: -20, meaning: 15, money: -10 }, track: "freedom" }, { text: "忍气吞声，导师决定未来。", effect: { energy: -5, meaning: -25, money: 5 }, track: "security" } ] },
+            { text: "评职称可选择发“水刊”或死磕冷门课题。", options: [ { text: "选冷门课题，不为帽子折腰。", effect: { energy: -15, meaning: 20, money: -10 }, track: "tech" }, { text: "现实点，先评上职称。", effect: { energy: -5, meaning: -15, money: 10 }, track: "security" } ] },
+            { text: "接横向课题赚钱多，但偏离学术主线。", options: [ { text: "接！有钱才能搞科研。", effect: { energy: -5, meaning: -5, money: 20 }, track: "influence" }, { text: "不接，保持学术纯粹。", effect: { energy: 5, meaning: 5, money: -10 }, track: "tech" } ] },
+            { text: "离心机坏了，可用经费买新的，也可自己修。", options: [ { text: "自己修，省钱带学生吃顿好的。", effect: { energy: -10, meaning: 5, money: 0 }, track: "service" }, { text: "买新的，时间宝贵。", effect: { energy: 5, meaning: -5, money: -5 }, track: "tech" } ] },
+            { text: "学生论文被毙，在办公室哭一下午。", options: [ { text: "陪他聊，心理干预比论文重要。", effect: { energy: -15, meaning: 15, money: -5 }, track: "service" }, { text: "通知辅导员处理。", effect: { energy: 5, meaning: -15, money: 5 }, track: "security" } ] },
+            { text: "发票抬头写错，面临“找票抵扣”诱惑。", options: [ { text: "按规定重新开票。", effect: { energy: -10, meaning: 10, money: -5 }, track: "tech" }, { text: "找其他发票顶上。", effect: { energy: 5, meaning: -15, money: 5 }, track: "security" } ] },
+            { text: "学院让你兼任行政职务（如班主任/秘书）。", options: [ { text: "拒绝，只想搞学术。", effect: { energy: 5, meaning: 5, money: -5 }, track: "freedom" }, { text: "接受，晋升需要行政履历。", effect: { energy: -10, meaning: -5, money: 5 }, track: "influence" } ] },
+            { text: "有人质疑你的观点，并在学术会议上公开抨击。", options: [ { text: "有理有据地回击。", effect: { energy: -10, meaning: 10, money: 0 }, track: "tech" }, { text: "保持微笑，会后私下沟通。", effect: { energy: -5, meaning: 0, money: 0 }, track: "influence" } ] },
+            { text: "学生想让你帮忙介绍对象。", options: [ { text: "帮他留意身边合适的人。", effect: { energy: -5, meaning: 5, money: 0 }, track: "service" }, { text: "拒绝，这不是导师职责。", effect: { energy: 0, meaning: 0, money: 0 }, track: "security" } ] },
+            { text: "申请到了国外访学机会，但孩子刚上幼儿园。", options: [ { text: "放弃机会，陪孩子成长。", effect: { energy: 5, meaning: 10, money: -5 }, track: "service" }, { text: "全家一起去，或者两地分居一年。", effect: { energy: -15, meaning: 5, money: 5 }, track: "challenge" } ] }
         ],
-
-        // --- 医务工作者 ---
         medical: [
-            // 原经典剧情
-            { text: "你成功抢救了一位危重病人，家属跪地感谢。那种从死神手里抢人的成就感无与伦比。", options: [
-                { text: "这就是学医初心，哪怕累死，这一刻也值了。", effect: { energy: -10, meaning: 30, money: -5 }, track: "service" },
-                { text: "成就感只是一瞬，身体透支的痛苦是真实的。", effect: { energy: 10, meaning: -10, money: 0 }, track: "security" }
-            ]},
-            { text: "连轴转30小时，你头晕眼花。来了重症手术，你现在的状态成功率80%；休息4小时再做是95%，但可能错过窗口。", options: [
-                { text: "坚持上台，我是医生，哪怕拼命也要给病人机会。", effect: { energy: -35, meaning: 10, money: -5 }, track: "service" },
-                { text: "交班给状态好的同事，承认生理极限。", effect: { energy: 10, meaning: -5, money: -5 }, track: "security" }
-            ]},
-            { text: "患者家属跪求用“最好的药”，其实是无效进口安慰剂；有效廉价药会被质疑没尽力。", options: [
-                { text: "坚持用廉价药，花半小时解释，哪怕被投诉。", effect: { energy: -20, meaning: 15, money: -5 }, track: "tech" },
-                { text: "顺家属意开进口药，皆大欢喜，避免纠纷。", effect: { energy: 5, meaning: -20, money: 5 }, track: "security" }
-            ]},
-            { text: "你有一项独创手术技法，可申请专利转化为商业项目，但需花精力跑市场。", options: [
-                { text: "走出这一步，医生也可以是企业家。", effect: { energy: -20, meaning: -5, money: 25 }, track: "influence" },
-                { text: "不想分心，医生本职是治病，赚钱太俗。", effect: { energy: 5, meaning: 5, money: -10 }, track: "tech" }
-            ]},
-            { text: "你发现病历复制粘贴带进了上一位患者姓名，这是严重医疗隐患。", options: [
-                { text: "立即报告科室，主动承认错误并整改。", effect: { energy: -25, meaning: 10, money: -10 }, track: "tech" },
-                { text: "悄悄改掉，祈祷没人发现，保住口碑。", effect: { energy: -5, meaning: -15, money: 0 }, track: "security" }
-            ]},
-            { text: "科室主任把进修名额给了资历比你浅的“关系户”，你本来最有资格去。", options: [
-                { text: "找主任理论，凭什么牺牲公平？", effect: { energy: -10, meaning: -5, money: -5 }, track: "freedom" },
-                { text: "忍气吞声，在体制内，站队比技术重要。", effect: { energy: -5, meaning: -15, money: 5 }, track: "security" }
-            ]},
-            { text: "孩子发烧在家，今晚是你值夜班。老公/老婆打电话来抱怨你不管家。", options: [
-                { text: "跟护士长请假，这次我必须回去，家比工作重要。", effect: { energy: 5, meaning: 5, money: -10 }, track: "freedom" },
-                { text: "咬牙坚持，穿上白大褂，我就不属于自己。", effect: { energy: -20, meaning: -5, money: 5 }, track: "service" }
-            ]},
-            { text: "医药代表塞给你一个信封，说是“讲课费”，金额不低，而你确实周末帮他们做过培训。", options: [
-                { text: "收下，这是知识变现，只要不过分。", effect: { energy: -5, meaning: -5, money: 15 }, track: "influence" },
-                { text: "拒收，红线不能碰，万一被拍录像就完了。", effect: { energy: 5, meaning: 5, money: -5 }, track: "security" }
-            ]}
+            { text: "成功抢救危重病人，家属跪地感谢。", options: [ { text: "哪怕累死也值了。", effect: { energy: -10, meaning: 30, money: -5 }, track: "service" }, { text: "成就感一瞬，透支痛苦是真实的。", effect: { energy: 10, meaning: -10, money: 0 }, track: "security" } ] },
+            { text: "连轴转30小时，重症手术成功率80%，休息后95%。", options: [ { text: "坚持上台，给病人机会。", effect: { energy: -35, meaning: 10, money: -5 }, track: "service" }, { text: "交班给同事，承认极限。", effect: { energy: 10, meaning: -5, money: -5 }, track: "security" } ] },
+            { text: "家属跪求用无效进口药，有效廉价药被质疑。", options: [ { text: "坚持廉价药，解释清楚。", effect: { energy: -20, meaning: 15, money: -5 }, track: "tech" }, { text: "顺家属意，避免纠纷。", effect: { energy: 5, meaning: -20, money: 5 }, track: "security" } ] },
+            { text: "独创手术技法，可申请专利跑市场。", options: [ { text: "走出这一步，医生也可做企业家。", effect: { energy: -20, meaning: -5, money: 25 }, track: "influence" }, { text: "不分心，治病是本职。", effect: { energy: 5, meaning: 5, money: -10 }, track: "tech" } ] },
+            { text: "病历复制粘贴带进上一位患者姓名。", options: [ { text: "报告科室，承认错误整改。", effect: { energy: -25, meaning: 10, money: -10 }, track: "tech" }, { text: "悄悄改掉，祈祷没人发现。", effect: { energy: -5, meaning: -15, money: 0 }, track: "security" } ] },
+            { text: "进修名额给了“关系户”，你最有资格。", options: [ { text: "找主任理论。", effect: { energy: -10, meaning: -5, money: -5 }, track: "freedom" }, { text: "忍气吞声，站队重要。", effect: { energy: -5, meaning: -15, money: 5 }, track: "security" } ] },
+            { text: "孩子发烧，今晚夜班，家人抱怨。", options: [ { text: "请假回家，家比工作重要。", effect: { energy: 5, meaning: 5, money: -10 }, track: "freedom" }, { text: "咬牙坚持，穿白大褂不属于自己。", effect: { energy: -20, meaning: -5, money: 5 }, track: "service" } ] },
+            { text: "药代塞信封，说是讲课费，金额不低。", options: [ { text: "收下，知识变现。", effect: { energy: -5, meaning: -5, money: 15 }, track: "influence" }, { text: "拒收，红线不能碰。", effect: { energy: 5, meaning: 5, money: -5 }, track: "security" } ] },
+            { text: "患者治好了，但没钱付医药费。", options: [ { text: "帮他想办法申请救助。", effect: { energy: -10, meaning: 15, money: 0 }, track: "service" }, { text: "那是社保和财务的事，我不管。", effect: { energy: 0, meaning: 0, money: 0 }, track: "security" } ] },
+            { text: "科室任务重，想辞职去私立医院，钱多事少。", options: [ { text: "走，身体是自己的。", effect: { energy: 15, meaning: -5, money: 20 }, track: "freedom" }, { text: "公立平台大，再坚持一下。", effect: { energy: -5, meaning: 0, money: -5 }, track: "security" } ] },
+            { text: "值班室条件太差，没有洗澡水。", options: [ { text: "忍了，忙起来没空洗澡。", effect: { energy: -5, meaning: 0, money: 0 }, track: "security" }, { text: "自己买简易洗澡装备。", effect: { energy: 5, meaning: 0, money: -5 }, track: "tech" } ] },
+            { text: "有患者家属送锦旗，同时也送了购物卡。", options: [ { text: "收锦旗，退购物卡。", effect: { energy: 0, meaning: 15, money: 0 }, track: "service" }, { text: "都收了，这也是心意。", effect: { energy: -5, meaning: -10, money: 10 }, track: "security" } ] }
         ]
     },
-
-    // ================= 4. 特质分析库 (保留备用) =================
+    
     traits: {
-        tech: { name: "技术创造", pros: "拥有不可替代的专业壁垒，是团队的定海神针。", cons: "容易陷入“工具人”陷阱，忽视人际链接和商业价值。" },
-        influence: { name: "影响引领", pros: "天生的资源整合者，擅长利用规则、撬动人心。", cons: "若缺乏硬技能支撑，易被认为“光说不练”。" },
-        freedom: { name: "自由自主", pros: "强大的自我驱动力，拒绝盲从。", cons: "对规章制度天然排斥，在科层制组织中极其痛苦。" },
-        security: { name: "安全稳定", pros: "优秀的执行者，风险意识强，极少犯大错。", cons: "路径依赖严重，面对变革适应慢。" },
-        service: { name: "服务贡献", pros: "高情商的链接者，在服务中获极大满足感。", cons: "边界感弱，情绪耗竭风险高。" },
-        challenge: { name: "挑战突破", pros: "开疆拓土的先锋，抗压能力极强。", cons: "耐性不足，难以忍受重复性工作。" }
+        tech: { name: "技术创造", pros: "拥有不可替代的专业壁垒。", cons: "容易陷入“工具人”陷阱。" },
+        influence: { name: "影响引领", pros: "天生资源整合者。", cons: "易被认为“光说不练”。" },
+        freedom: { name: "自由自主", pros: "强大自我驱动力。", cons: "对规章制度天然排斥。" },
+        security: { name: "安全稳定", pros: "优秀执行者，极少犯错。", cons: "路径依赖严重。" },
+        service: { name: "服务贡献", pros: "高情商链接者。", cons: "边界感弱，情绪耗竭风险高。" },
+        challenge: { name: "挑战突破", pros: "抗压能力极强。", cons: "难以忍受重复工作。" }
     }
 };
