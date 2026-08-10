@@ -64,7 +64,7 @@ const Game = {
         document.body.className = `theme-${role}`;
 
         // 初始化状态
-        this.state.energy = 50;
+        this.state.energy = 100;
         this.state.meaning = 50;
         this.state.money = 50;
         this.state.tracks = {};
