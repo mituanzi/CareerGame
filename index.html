@@ -5,86 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>职业觉醒实验室</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="theme-coder">
+<body>
+    <div class="bg-layer"></div>
 
-<!-- 背景光晕层 -->
-<div class="bg-layer"></div>
-
-<!-- 1. 身份选择页 -->
-<div class="container active" id="screen-id">
-    <div class="screen">
-        <h1 class="main-title">职业觉醒实验室</h1>
-        <div class="id-grid">
-            <div class="id-card" onclick="Game.selectIdentity('student')">
-                <span class="id-icon">🎓</span>
-                <div class="id-name">我是学生</div>
-                <div class="id-desc">面对未来，我想知道自己适合走向何方</div>
-            </div>
-            <div class="id-card" onclick="Game.selectIdentity('worker')">
-                <span class="id-icon">💼</span>
-                <div class="id-name">我是打工人</div>
-                <div class="id-desc">面对当下，我想确认此刻的状态是否健康</div>
+    <!-- 1. 首页：身份选择 -->
+    <div id="screen-id" class="container active">
+        <div class="screen">
+            <div class="main-title">职业觉醒实验室</div>
+            <div class="sub-title">每一次选择，都是未来的伏笔</div>
+            <div class="id-grid">
+                <div class="id-card" onclick="Game.selectIdentity('student')">
+                    <span class="id-icon">🎓</span>
+                    <div class="id-name">我是学生</div>
+                    <div class="id-desc">面对未来，我想知道自己适合走向何方</div>
+                </div>
+                <div class="id-card" onclick="Game.selectIdentity('worker')">
+                    <span class="id-icon">💼</span>
+                    <div class="id-name">我是打工人</div>
+                    <div class="id-desc">面对当下，我想确认此刻的状态是否健康</div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 2. 角色选择页 -->
-<div class="container" id="screen-role">
-    <div class="screen">
-        <p id="role-intro" style="font-size:14px; color:#888; margin-bottom:30px; line-height:1.6;"></p>
-        <h2 style="font-size:18px; margin-bottom:30px; color:#aaa;">选择剧本：</h2>
-        <div class="role-grid" id="role-container"></div>
+    <!-- 2. 角色选择页 -->
+    <div id="screen-role" class="container">
+        <div class="screen">
+            <div class="main-title">选择剧本</div>
+            
+            <!-- 新增：模式选择开关 -->
+            <div class="mode-switcher">
+                <button id="btn-mode-deep" class="mode-btn active" onclick="Game.selectMode('deep')">深度评测 (全部题目)</button>
+                <button id="btn-mode-shallow" class="mode-btn" onclick="Game.selectMode('shallow')">浅度评测 (15题)</button>
+            </div>
+
+            <p id="role-intro" style="color: #666; font-size: 14px; margin-bottom: 20px;">年轻的你站在人生的岔路口...</p>
+            <div id="role-container" class="role-grid">
+                <!-- 角色卡片由JS生成 -->
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- 3. 游戏页 (改动：增加了 hud-role，优化了按钮结构) -->
-<div class="container" id="screen-game">
-    <div class="screen">
+    <!-- 3. 游戏主界面 -->
+    <div id="screen-game" class="container">
         <div class="game-hud">
-            <span id="hud-time">周一 09:00</span>
-            <span id="hud-role">[角色名]</span> <!-- 新增：显示角色名 -->
+            <div id="hud-time">周一 09:00</div>
+            <div id="hud-role">[角色名]</div>
         </div>
         
-        <!-- 状态球区域 -->
         <div class="stats-row">
             <div class="stat-orb">
-                <span class="stat-val" id="val-energy">50</span>
-                <span class="stat-lbl">⚡️ 能量</span>
+                <div class="stat-val" id="val-energy">100</div>
+                <div class="stat-lbl">⚡️ 能量</div>
             </div>
             <div class="stat-orb">
-                <span class="stat-val" id="val-meaning">50</span>
-                <span class="stat-lbl">🌟 意义</span>
+                <div class="stat-val" id="val-meaning">50</div>
+                <div class="stat-lbl">🌟 意义</div>
             </div>
             <div class="stat-orb">
-                <span class="stat-val" id="val-money">50</span>
-                <span class="stat-lbl">💰 收益</span>
+                <div class="stat-val" id="val-money">50</div>
+                <div class="stat-lbl">💰 收益</div>
             </div>
         </div>
 
-        <!-- 事件卡片 -->
         <div class="event-container">
             <div class="event-desc" id="event-text">正在加载...</div>
             <div class="action-btns">
-                <!-- 按钮文本将由 JS 动态填充 -->
-                <button class="act-btn" id="btn-a" onclick="Game.handleAction(0)">选项 A</button>
-                <button class="act-btn" id="btn-b" onclick="Game.handleAction(1)">选项 B</button>
+                <div class="act-btn" id="btn-a" onclick="Game.handleAction(0)">选项 A</div>
+                <div class="act-btn" id="btn-b" onclick="Game.handleAction(1)">选项 B</div>
+                
+                <!-- 新增：撤回按钮 -->
+                <button id="btn-back" class="btn-back" style="display: none;" onclick="Game.goBack()">↩ 撤回上一题</button>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 4. 结果页 -->
-<div class="container" id="screen-result">
-    <div class="screen">
-        <div class="result-screen" id="result-content"></div>
+    <!-- 4. 结果页 -->
+    <div id="screen-result" class="container">
+        <div class="screen result-screen">
+            <div id="result-content">
+                <!-- 结果由JS生成 -->
+            </div>
+        </div>
     </div>
-</div>
 
-<script src="js/data.js"></script>
-<script src="js/main.js"></script>
-
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
