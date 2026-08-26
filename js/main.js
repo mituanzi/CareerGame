@@ -551,6 +551,7 @@ const Game = {
                 <div style="font-size: 18px; font-weight: 900; color: var(--accent-color); margin: 4px 0 2px;">你的认知风格 · ${c.type}</div>
                 <div style="font-size: 13px; color: #bbb; margin-bottom: 14px;">${temp.name} — ${temp.desc}</div>
                 ${bars}
+                ${this.cognitiveGridHTML(result)}
             </div>
 
             <div class="rec-card" style="margin-top: 15px;">
@@ -558,6 +559,48 @@ const Game = {
                 <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${cross}</div>
             </div>
         `;
+    },
+
+    /* 生成职业认知九宫格（S/N × T/F 双轴落点） */
+    cognitiveGridHTML(result) {
+        const axes = result.cognitive.axes; // 顺序 e/i, s/n, t/f, j/p
+        const sn = axes[1], tf = axes[2];
+        const totN = sn.va + sn.vb, totF = tf.va + tf.vb;
+        const rN = totN === 0 ? 0.5 : sn.vb / totN;  // N 比例（vb=n）
+        const rF = totF === 0 ? 0.5 : tf.vb / totF;  // F 比例（vb=f）
+        const colMe = rN > 0.62 ? 2 : (rN < 0.38 ? 0 : 1);  // 0=S左 2=N右
+        const rowMe = rF > 0.62 ? 0 : (rF < 0.38 ? 2 : 1);  // 0=F上 2=T下
+        const cells = [
+            [ {t:'关怀工匠', d:'亲手做出有温度的东西'},
+              {t:'人文纽带', d:'凝聚团队、传递温度'},
+              {t:'理想创造者', d:'用愿景感召他人'} ],
+            [ {t:'稳健实干', d:'把事踏实落地'},
+              {t:'均衡协作者', d:'刚柔并济、弹性应对'},
+              {t:'远见探索者', d:'在可能性里找路'} ],
+            [ {t:'精益工程师', d:'优化、可靠、重落地'},
+              {t:'务实分析者', d:'用数据与方法说话'},
+              {t:'系统架构师', d:'抽象建模、长远布局'} ]
+        ];
+        let html = '';
+        for (let r = 0; r < 3; r++) {
+            for (let col = 0; col < 3; col++) {
+                const isMe = (r === rowMe && col === colMe);
+                const cell = cells[r][col];
+                const bg = isMe ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)';
+                const bd = isMe ? 'var(--accent-color)' : 'rgba(255,255,255,0.08)';
+                const sh = isMe ? 'box-shadow:0 0 14px rgba(120,200,255,0.35);' : '';
+                const tag = isMe ? '<div style="font-size:10px;color:var(--accent-color);font-weight:700;margin-bottom:2px;">📍 你在这里</div>' : '';
+                html += '<div style="background:' + bg + ';border:1px solid ' + bd + ';border-radius:10px;padding:9px 7px;min-height:58px;text-align:center;' + sh + '">' +
+                    tag +
+                    '<div style="font-size:12px;font-weight:700;color:' + (isMe ? 'var(--accent-color)' : '#eee') + ';">' + cell.t + '</div>' +
+                    '<div style="font-size:10px;color:#aaa;line-height:1.4;margin-top:2px;">' + cell.d + '</div>' +
+                '</div>';
+            }
+        }
+        return '<div style="font-size:13px;color:#bbb;margin:14px 0 4px;">🔭 <b style="color:var(--accent-color);">职业认知地图</b> · 横轴 实感S ↔ 直觉N，纵轴 情感F ↔ 思考T</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin:0 4px 4px;"><span>◀ 实感 S（具体·当下）</span><span>直觉 N（可能·长远）▶</span></div>' +
+            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0;">' + html + '</div>' +
+            '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin:4px 4px 0;"><span>▲ 情感 F（人·感受）</span><span>思考 T（逻辑·效率）▼</span></div>';
     },
 
     /* 生成打工人报告（优化版） */
