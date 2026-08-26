@@ -1,4 +1,57 @@
 /* ================= 主逻辑控制 ================= */
+
+/* ============ MBTI 风格认知层（与 track 价值层正交） ============ */
+const COG_AXES = [['e', 'i'], ['s', 'n'], ['t', 'f'], ['j', 'p']];
+const COG_LABEL = { e: '外倾', i: '内倾', s: '实感', n: '直觉', t: '思考', f: '情感', j: '判断', p: '知觉' };
+
+// 凯尔西气质类型：由认知类型的第 2、3 字母（N/S × T/F）决定
+const TEMPERAMENTS = {
+    NT: { name: '理性者 · 战略家', desc: '相信世界可被理解与改造，热衷底层逻辑与长期可能性。' },
+    SJ: { name: '守护者 · 管理者', desc: '重视秩序、责任与稳定，是系统里最可靠的齿轮与枢纽。' },
+    NF: { name: '理想者 · 辅导者', desc: '以意义与人和关系为驱动，追求“做正确的事”。' },
+    SP: { name: '艺术者 · 自由人', desc: '活在当下、灵活应变，用行动与手感拿结果。' }
+};
+
+// 职业认知交叉表：价值原型(primary track) × 认知气质 → 建议
+const CROSS_MAP = {
+    tech: {
+        NT: '你适合“底层架构/研究型”角色——把技术当成可复用的系统设计，而非救火。',
+        SJ: '你适合“标准化交付”角色——在成熟团队做可靠技术骨干，流程和规范是你的护城河。',
+        NF: '你适合“技术向善”角色——用技术解决具体人群的真实痛点（无障碍、教育、公益技术）。',
+        SP: '你适合“手感型专家”角色——独立接项目、做自由开发者或技术博主，靠作品说话。'
+    },
+    influence: {
+        NT: '你适合“战略型操盘”——做增长、战略、投资，用系统思维整合资源而非单纯社交。',
+        SJ: '你适合“组织内协调者”——在大型组织做项目管理、BD，靠稳重信任拿资源。',
+        NF: '你适合“愿景型 leader”——做社区、品牌、公益组织，用价值观凝聚人。',
+        SP: '你适合“变通型生意人”——销售、创业、商务拓展，靠现场应变拿结果。'
+    },
+    freedom: {
+        NT: '你适合“独立创造”——把技能产品化（SaaS、内容、咨询），自己定节奏。',
+        SJ: '你适合“稳健自营”——小型工作室、顾问、远程合约岗，自由但有结构。',
+        NF: '你适合“价值驱动的自由职业”——独立设计/写作/教练，按自己认同的方式接活。',
+        SP: '你适合“即兴自由人”——自由职业、数字游民、项目制工作，拒绝打卡。'
+    },
+    security: {
+        NT: '你适合“体系内专家”——在大平台/体制里找规则里的空白，做有壁垒的研究岗。',
+        SJ: '你适合“标杆执行者”——体制内、大厂样板岗、风控合规，稳定是你的优势。',
+        NF: '你适合“有温度的安稳岗”——HR、教务、医护行政，稳定且助人。',
+        SP: '你适合“手艺型安稳”——技术蓝领、匠人、运维，靠熟练度拿稳定收入。'
+    },
+    service: {
+        NT: '你适合“系统化助人”——做产品/运营中用户侧的系统设计，用机制放大善意。',
+        SJ: '你适合“流程化服务”——客服管理、行政、教务，在结构中稳定输出。',
+        NF: '你天生匹配“关系型助岗”——咨询、社工、用户研究、医护，边界感是你要注意的。',
+        SP: '你适合“现场型服务”——活动、应急、一线支持，靠即时反应帮到人。'
+    },
+    challenge: {
+        NT: '你适合“硬核攻坚”——创业、硬科技、咨询难题，把压力当燃料。',
+        SJ: '你适合“可控的冒险”——大厂攻坚项目、派驻、轮岗，挑战但有兜底。',
+        NF: '你适合“有意义的大仗”——社会创新、危机救援、变革项目。',
+        SP: '你适合“高变数现场”——销售冲刺、创业、急诊/战地类，越不确定越兴奋。'
+    }
+};
+
 const Game = {
     state: {
         identity: 'worker',
@@ -6,7 +59,8 @@ const Game = {
         energy: 100,
         meaning: 50,
         money: 50,
-        tracks: {}
+        tracks: {},
+        cog: {}
     },
     
     history: [],       // 用于存放历史状态快照，支持回退
@@ -83,6 +137,7 @@ const Game = {
         this.state.meaning = 50;
         this.state.money = 50;
         this.state.tracks = {};
+        this.state.cog = {};
         
         // 清空历史记录
         this.history = [];
@@ -182,8 +237,17 @@ const Game = {
             this.state.money = Math.max(0, Math.min(100, this.state.money));
         }
 
+        // 价值层：统计主导特质（累加计数，而非布尔标记——原版用 true 会导致排序失效）
         if (option.track) {
-            this.state.tracks[option.track] = true;
+            const track = option.track === 'craftsman' ? 'tech' : option.track;
+            this.state.tracks[track] = (this.state.tracks[track] || 0) + 1;
+        }
+
+        // 认知层：累加认知维度权重
+        if (option.cog) {
+            for (const k in option.cog) {
+                this.state.cog[k] = (this.state.cog[k] || 0) + option.cog[k];
+            }
         }
 
         this.updateStats();
@@ -371,13 +435,36 @@ const Game = {
         if (reason === 'burnout' || this.state.energy < 20) statusLevel = "危险";
         else if (this.state.energy < 40 || this.state.meaning < 30) statusLevel = "亚健康";
 
+        // 6. 认知层：由 cog 累加值推断认知类型与气质
+        const cog = this.state.cog || {};
+        const axisDetails = [];
+        let type = '';
+        COG_AXES.forEach(([a, b]) => {
+            const va = cog[a] || 0, vb = cog[b] || 0;
+            const total = va + vb;
+            let letter, clarity;
+            if (total === 0) { letter = a.toUpperCase(); clarity = 0; }
+            else if (va === vb) { letter = a.toUpperCase(); clarity = 50; }
+            else if (va > vb) { letter = a.toUpperCase(); clarity = Math.round(va / total * 100); }
+            else { letter = b.toUpperCase(); clarity = Math.round(vb / total * 100); }
+            type += letter;
+            axisDetails.push({ a, b, va, vb, letter, clarity });
+        });
+        const nOrS = type[1], tOrF = type[2], jOrP = type[3];
+        let temp = 'NT';
+        if (nOrS === 'N') temp = (tOrF === 'F') ? 'NF' : 'NT';
+        else temp = (jOrP === 'P') ? 'SP' : 'SJ';
+        const cognitive = { type, axes: axisDetails, temp };
+
         return {
             scores: this.state,
             archetype: archetype,
             mainTrait: traitMap[primary],
+            primaryKey: primary,
             isBurnout: reason === 'burnout',
             statusLevel: statusLevel,
-            matchScore: matchScore
+            matchScore: matchScore,
+            cognitive: cognitive
         };
     },
 
@@ -420,6 +507,8 @@ const Game = {
                     </div>
                 </div>
 
+                ${this.cognitiveBlockHTML(result)}
+
                 <div class="rec-card">
                     <div class="rec-title">🎯 推荐职业剧本</div>
                     <div class="rec-role" style="color: var(--accent-color); font-size: 18px;">《${roleNames[recRole] || "职场通才"}》</div>
@@ -428,6 +517,45 @@ const Game = {
 
                 <button class="btn-share" onclick="Game.copyReport()">📋 复制结果发朋友圈</button>
                 <button class="btn-restart" onclick="Game.restart()">重新测评</button>
+            </div>
+        `;
+    },
+
+    /* 生成认知风格 + 职业认知交叉区块（学生线 / 打工人线共用） */
+    cognitiveBlockHTML(result) {
+        const c = result.cognitive;
+        const temp = TEMPERAMENTS[c.temp];
+        const bars = c.axes.map(ax => {
+            const total = ax.va + ax.vb;
+            const leftPct = total === 0 ? 50 : Math.round(ax.va / total * 100);
+            const dom = ax.letter.toLowerCase();
+            const leftColor = dom === ax.a ? '#fff' : '#777';
+            const rightColor = dom === ax.b ? '#fff' : '#777';
+            const clarityTxt = total === 0 ? '样本不足' : (ax.clarity + '% 清晰');
+            return `
+                <div class="status-item" style="margin-bottom: 10px;">
+                    <div class="status-header">
+                        <span style="color:${leftColor}; font-weight:${dom === ax.a ? 700 : 400};">${ax.a.toUpperCase()} ${COG_LABEL[ax.a]}</span>
+                        <span style="font-size: 11px; color: #999;">${clarityTxt}</span>
+                        <span style="color:${rightColor}; font-weight:${dom === ax.b ? 700 : 400};">${COG_LABEL[ax.b]} ${ax.b.toUpperCase()}</span>
+                    </div>
+                    <div class="status-track"><div class="status-fill fill-good" style="width: ${leftPct}%"></div></div>
+                </div>`;
+        }).join('');
+
+        const cross = (CROSS_MAP[result.primaryKey] && CROSS_MAP[result.primaryKey][c.temp]) || "你的价值取向与认知风格组合独特，建议结合具体行业再做判断。";
+
+        return `
+            <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 25px; position: relative;">
+                <div style="position: absolute; top: -10px; left: 20px; font-size: 24px;">🧠</div>
+                <div style="font-size: 18px; font-weight: 900; color: var(--accent-color); margin: 4px 0 2px;">你的认知风格 · ${c.type}</div>
+                <div style="font-size: 13px; color: #bbb; margin-bottom: 14px;">${temp.name} — ${temp.desc}</div>
+                ${bars}
+            </div>
+
+            <div class="rec-card" style="margin-top: 15px;">
+                <div class="rec-title">🔭 职业认知（价值原型 × 认知风格）</div>
+                <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${cross}</div>
             </div>
         `;
     },
@@ -477,6 +605,10 @@ const Game = {
                     <div class="diag-text">${diagnosis.text}</div>
                 </div>
 
+                <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 13px; color: #ccc; line-height: 1.7;">
+                    🧬 <b style="color: var(--accent-color);">认知风格 ${result.cognitive.type}</b>（${TEMPERAMENTS[result.cognitive.temp].name}）· 你的“出厂设置”是【${result.mainTrait.name}】。上面的消耗或倦怠，往往发生在工作要求与你认知习惯相悖时——下一步调整，记得顺着自己的节奏。
+                </div>
+
                 <div class="rec-card" style="margin-top: 20px;">
                     <div class="rec-title">💊 行动建议</div>
                     <div class="rec-role" style="color: ${result.isBurnout ? '#e74c3c' : 'var(--accent-color)'};">${diagnosis.action}</div>
@@ -503,6 +635,7 @@ const Game = {
         let text = `我在【职业觉醒实验室】完成了测评！\n\n`;
         text += `👤 我的角色：${role}\n`;
         text += `🧬 核心人格：${arch.label} (${arch.emoji})\n`;
+        text += `🧠 认知风格：${this.lastResult.cognitive.type}（${TEMPERAMENTS[this.lastResult.cognitive.temp].name}）\n`;
         text += `⚡️ 能量值：${this.state.energy} | 🌟 意义感：${this.state.meaning} | 💰 收益：${this.state.money}\n\n`;
         
         if (this.state.identity === 'student') {
