@@ -4,12 +4,78 @@
 const COG_AXES = [['e', 'i'], ['s', 'n'], ['t', 'f'], ['j', 'p']];
 const COG_LABEL = { e: '外倾', i: '内倾', s: '实感', n: '直觉', t: '思考', f: '情感', j: '判断', p: '知觉' };
 
+// 职业认知九宫格细胞（行=F/T 轴，列=S/N 轴）——报告与海报共用单一来源
+const GRID_CELLS = [
+    [ {t:'关怀工匠', d:'亲手做出有温度的东西'}, {t:'人文纽带', d:'凝聚团队、传递温度'}, {t:'理想创造者', d:'用愿景感召他人'} ],
+    [ {t:'稳健实干', d:'把事踏实落地'}, {t:'均衡协作者', d:'刚柔并济、弹性应对'}, {t:'远见探索者', d:'在可能性里找路'} ],
+    [ {t:'精益工程师', d:'优化、可靠、重落地'}, {t:'务实分析者', d:'用数据与方法说话'}, {t:'系统架构师', d:'抽象建模、长远布局'} ]
+];
+// 根据认知轴计算九宫格落点（row 0=F上 2=T下；col 0=S左 2=N右）
+function gridPos(axes) {
+    const sn = axes[1], tf = axes[2];
+    const totN = sn.va + sn.vb, totF = tf.va + tf.vb;
+    const rN = totN === 0 ? 0.5 : sn.vb / totN;
+    const rF = totF === 0 ? 0.5 : tf.vb / totF;
+    const col = rN > 0.62 ? 2 : (rN < 0.38 ? 0 : 1);
+    const row = rF > 0.62 ? 0 : (rF < 0.38 ? 2 : 1);
+    return { row, col };
+}
+
+/* Canvas 辅助：十六进制色加透明度 */
+function hexA(hex, a) {
+    const h = (hex || '#00ff88').replace('#', '');
+    const n = h.length === 3 ? h.split('').map(x => x + x).join('') : h;
+    const r = parseInt(n.slice(0, 2), 16), g = parseInt(n.slice(2, 4), 16), b = parseInt(n.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+}
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+function wrapText(ctx, text, x, y, maxW, lh) {
+    const chars = (text || '').split('');
+    let line = '', yy = y;
+    for (const ch of chars) {
+        const test = line + ch;
+        if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, x, yy); line = ch; yy += lh; }
+        else line = test;
+    }
+    if (line) ctx.fillText(line, x, yy);
+    return yy;
+}
+
 // 凯尔西气质类型：由认知类型的第 2、3 字母（N/S × T/F）决定
 const TEMPERAMENTS = {
     NT: { name: '理性者 · 战略家', desc: '相信世界可被理解与改造，热衷底层逻辑与长期可能性。' },
     SJ: { name: '守护者 · 管理者', desc: '重视秩序、责任与稳定，是系统里最可靠的齿轮与枢纽。' },
     NF: { name: '理想者 · 辅导者', desc: '以意义与人和关系为驱动，追求“做正确的事”。' },
     SP: { name: '艺术者 · 自由人', desc: '活在当下、灵活应变，用行动与手感拿结果。' }
+};
+
+// 16 种具体认知类型的职场工作姿态（在“气质层”之上再做细分，避免 INTP/ESTP 等只有笼统概括）
+// 调性：连续倾向的“透镜”，不是命运判决书；描述聚焦“在职场里怎么干活”，不绝对化。
+const TYPE_DESC = {
+    ISTJ: '稳健执行者，信奉规则与程序，擅长把复杂任务拆解成可执行步骤。你在稳定、评价标准明确的环境里最能发光。注意：变化过快或目标模糊的环境会让你持续内耗。',
+    ISFJ: '守护型协作者，重视责任与关系，愿意为团队默默兜底。你擅长维护系统、照顾他人需求，是组织里可靠的隐形支柱。注意：过度付出而忽视自己的边界会让你疲惫。',
+    INFJ: '理想主义架构者，用愿景串联人与系统，追求工作与意义的统一。你擅长洞察长期趋势和人的真实需求。注意：理想与现实落差过大时容易 burnout。',
+    INTJ: '系统性战略家，习惯先用模型想清全局再动手，追求高效与长期目标。你适合定义方向、搭建体系，而非重复执行。注意：低效流程和过多社交会快速消耗你。',
+    ISTP: '冷静拆解者，喜欢亲自动手解决具体问题，对工具、逻辑和可验证的结果敏感。你适合技术、运维、实验类工作。注意：被会议、流程或情绪劳动绑架时会烦躁。',
+    ISFP: '安静手艺者，在自由与审美里打磨有温度的作品，重视真实与当下。你适合设计、创作、照护等能直接感知成果的工作。注意：被催促、过度评判或困在僵化流程里会窒息。',
+    INFP: '价值驱动创作者，为“意义”和“认同”而工作，内在价值感是你的燃料。你适合内容、设计、教育、心理、公益等能表达价值观的领域。注意：功利导向、过度流程化的环境会消耗你的热情。',
+    INTP: '逻辑解构者，用模型、假设和系统思维拆解复杂问题，对“无用之学”也可能着迷。你适合研究、架构、数据分析、策略等需要深度思考的工作。注意：无意义的会议、重复性汇报和强社交任务会让你想逃离。',
+    ESTP: '临场行动派，在变化、实战和即时反馈中拿结果，擅长快速试错与谈判。你适合销售、创业、运营、应急等高压高变现场。注意：案头规则、长期规划和重复文书会闷死你。',
+    ESFP: '现场感染王，用能量、即兴和人际温度带动氛围，擅长让团队和客户“活”起来。你适合市场、活动、直播、客户成功等需要现场感的工作。注意：结构化长线任务、孤立办公和过度内省会让你厌倦。',
+    ENFP: '可能性连接者，靠热情、创意和人际关系点燃项目，擅长把不同的人与点子串成故事。你适合创意、品牌、社群、BD、产品等需要愿景和连接的工作。注意：没有收尾伙伴帮你落地会让你焦虑。',
+    ENTP: '点子爆破手，擅长挑战假设、快速原型和跨界联想，享受“把不可能辩成可能”。你适合策略、创新、产品、咨询等需要持续挑战的工作。注意：长期单一执行、缺乏新刺激会让你迅速倦怠。',
+    ESTJ: '高效组织者，用流程、标准和明确目标推动执行，擅长让一群人把事情按时做完。你适合管理、运营、项目管理、体制/军队的执行岗。注意：模糊目标、低效会议和规则被随意打破会让你不安。',
+    ESFJ: '关系型执行官，在团队和谐里高效运转，擅长通过服务他人来推动结果。你适合 HR、客服、行政、教务、社群运营等需要人际维护的工作。注意：冲突、孤立和不被认可会削弱你的动力。',
+    ENFJ: '愿景型凝聚者，用价值观和感染力带队伍，擅长发现每个人的潜力并激发出来。你适合团队 lead、培训、教练、HR、公益组织等需要凝聚人心的工作。注意：过度承担他人情绪会让你耗尽。',
+    ENTJ: '目标驱动指挥官，擅长定方向、调资源、拿结果，享受把宏大目标拆解成可执行战役。你适合高管、创业、战略、投资等需要决断与资源整合的岗位。注意：细节 micromanagement 和情绪拉扯会拉低你的效率。'
 };
 
 // 职业认知交叉表：价值原型(primary track) × 认知气质 → 建议
@@ -158,6 +224,19 @@ const Game = {
             this.events = this.events.slice(0, 15);
         }
 
+        // 插入突发事件（约 1/3、2/3 处），从 crises 池随机抽取、不重复
+        const _crises = (GameData.crises || []).slice();
+        const _n = this.events.length;
+        const _pos = [];
+        if (_n >= 6) { _pos.push(Math.floor(_n * 0.34)); if (_n >= 12) _pos.push(Math.floor(_n * 0.67)); }
+        _pos.sort((a, b) => b - a); // 从后往前插入，避免位置偏移
+        _pos.forEach(pos => {
+            if (_crises.length && pos < this.events.length) {
+                const ci = Math.floor(Math.random() * _crises.length);
+                this.events.splice(pos, 0, _crises.splice(ci, 1)[0]);
+            }
+        });
+
         this.currentIndex = 0;
         
         // 更新 HUD 显示
@@ -204,10 +283,61 @@ const Game = {
             btnA.innerText = event.options[0].text;
             btnB.innerText = event.options[1].text;
         }
+
+        // 突发事件：渲染紧张 UI + 启动倒计时（普通题则清理）
+        if (event.isCrisis) this.renderCrisisUI(event);
+        else this.clearCrisisUI();
+    },
+
+    /* 突发事件 UI：危机样式 + 倒计时条 */
+    renderCrisisUI(event) {
+        const container = document.querySelector('.event-container');
+        if (container) container.classList.add('crisis-mode');
+        let bar = document.getElementById('crisis-timer');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'crisis-timer';
+            bar.className = 'crisis-timer';
+            const ab = document.querySelector('.action-btns');
+            if (container && ab) container.insertBefore(bar, ab);
+        }
+        bar.style.display = 'block';
+        this.startCrisisTimer(event.timer || 12, bar);
+    },
+
+    clearCrisisUI() {
+        this.stopCrisisTimer();
+        const container = document.querySelector('.event-container');
+        if (container) container.classList.remove('crisis-mode');
+        const bar = document.getElementById('crisis-timer');
+        if (bar) bar.style.display = 'none';
+    },
+
+    startCrisisTimer(sec, bar) {
+        this.stopCrisisTimer();
+        let left = sec;
+        bar.innerHTML = '<div class="crisis-timer-fill"></div><span class="crisis-timer-text">⏳ 危机决策 · 剩 ' + left + ' 秒</span>';
+        const fill = bar.querySelector('.crisis-timer-fill');
+        if (fill) fill.style.width = '100%';
+        this._crisisTimer = setInterval(() => {
+            left--;
+            const t = bar.querySelector('.crisis-timer-text');
+            if (t) t.innerText = '⏳ 危机决策 · 剩 ' + Math.max(0, left) + ' 秒';
+            if (fill) fill.style.width = Math.max(0, left / sec * 100) + '%';
+            if (left <= 0) {
+                this.stopCrisisTimer();
+                this.handleAction(1); // 超时：系统替你做了保守选择
+            }
+        }, 1000);
+    },
+
+    stopCrisisTimer() {
+        if (this._crisisTimer) { clearInterval(this._crisisTimer); this._crisisTimer = null; }
     },
 
     /* 5. 处理选择 */
     handleAction(optionIndex) {
+        this.stopCrisisTimer(); // 做选择前先停掉危机倒计时
         const event = this.events[this.currentIndex];
         const option = event.options[optionIndex];
 
@@ -285,56 +415,64 @@ const Game = {
         }
     },
 
-    /* 6. 更新界面（实时仪表盘：数值 + delta 飘字 + orb 脉冲） */
+    /* 6. 更新界面（实时仪表盘：环形进度 + 心跳 + 数值弹跳 + delta 飘字） */
     updateStats() {
         if (!this._lastStats) {
             this._lastStats = { energy: this.state.energy, meaning: this.state.meaning, money: this.state.money };
         }
+        const C = 264; // 环形圆周长 ≈ 2πr (r=42)
         const map = [
-            { key: 'energy', id: 'val-energy' },
-            { key: 'meaning', id: 'val-meaning' },
-            { key: 'money', id: 'val-money' }
+            { key: 'energy',  ring: 'ring-energy',  id: 'val-energy' },
+            { key: 'meaning', ring: 'ring-meaning', id: 'val-meaning' },
+            { key: 'money',   ring: 'ring-money',   id: 'val-money' }
         ];
-        map.forEach(({ key, id }) => {
-            const el = document.getElementById(id);
+        map.forEach(({ key, ring, id }) => {
             const newVal = this.state[key];
             const delta = newVal - this._lastStats[key];
-            el.innerText = newVal;
+            const valEl = document.getElementById(id);
+            valEl.innerText = newVal;
 
-            if (key === 'energy' && newVal <= 20) el.classList.add('danger-shake');
-            else el.classList.remove('danger-shake');
+            // 环形进度（stroke-dashoffset 驱动）
+            const ringEl = document.getElementById(ring);
+            if (ringEl) ringEl.style.strokeDashoffset = C * (1 - Math.max(0, Math.min(100, newVal)) / 100);
 
+            // 数值变化时：飘字 + 数字弹跳
             if (delta !== 0) {
-                this.pulseOrb(el, delta);
-                this.spawnFloat(el, delta);
+                this.spawnFloat(valEl, delta);
+                this.popVal(valEl);
             }
         });
+
+        // 能量维度：始终心跳；低能量时变红加强（命悬一线的紧张感）
+        const eRing = document.querySelector('.stat-ring[data-key="energy"]');
+        if (eRing) {
+            if (this.state.energy <= 20) { eRing.classList.add('beat-danger'); eRing.classList.remove('beat'); }
+            else { eRing.classList.add('beat'); eRing.classList.remove('beat-danger'); }
+        }
+
         this._lastStats = { energy: this.state.energy, meaning: this.state.meaning, money: this.state.money };
     },
 
-    /* 仪表盘：orb 脉冲反馈（涨=绿、缩=红） */
-    pulseOrb(el, delta) {
-        const orb = el.closest('.stat-orb') || el.parentNode;
-        if (!orb) return;
-        const cls = delta > 0 ? 'pulse-up' : 'pulse-down';
-        orb.classList.remove('pulse-up', 'pulse-down');
-        void orb.offsetWidth; // 重置动画，确保连续触发也生效
-        orb.classList.add(cls);
-        setTimeout(() => orb.classList.remove(cls), 650);
+    /* 仪表盘：数值弹跳（选择后数字轻微放大回落） */
+    popVal(valEl) {
+        valEl.classList.remove('pop');
+        void valEl.offsetWidth; // 重置动画，确保连续触发也生效
+        valEl.classList.add('pop');
+        setTimeout(() => valEl.classList.remove('pop'), 420);
     },
 
     /* 仪表盘：数值飘字（+N / -N 上浮淡出） */
     spawnFloat(el, delta) {
-        const orb = el.closest('.stat-orb') || el.parentNode;
-        if (!orb) return;
+        const ring = el.closest('.stat-ring');
+        if (!ring) return;
         const s = document.createElement('span');
         s.className = 'stat-delta ' + (delta > 0 ? 'up' : 'down');
         s.innerText = (delta > 0 ? '+' : '') + delta;
-        orb.appendChild(s);
+        ring.appendChild(s);
         setTimeout(() => s.remove(), 1000);
     },
 
-    /* 情境吐槽：把本次选择的代价/收益翻译成一句人话 */
+    /* 情境吐槽：把本次选择的代价/收益翻译成一句人话（单例：新吐槽替换旧的，避免连续选择时堆叠） */
     showQuip(effect) {
         const txt = this.getQuip(effect.energy || 0, effect.meaning || 0, effect.money || 0);
         if (!txt) return;
@@ -344,13 +482,14 @@ const Game = {
             layer.id = 'quip-layer';
             document.body.appendChild(layer);
         }
+        layer.innerHTML = ''; // 先清空已有吐槽，确保层里始终只有一个
         const t = document.createElement('div');
         t.className = 'quip-toast';
         t.innerText = txt;
         layer.appendChild(t);
         requestAnimationFrame(() => t.classList.add('show'));
-        setTimeout(() => t.classList.remove('show'), 2600);
-        setTimeout(() => t.remove(), 3100);
+        setTimeout(() => { if (t.parentNode) t.classList.remove('show'); }, 2600);
+        setTimeout(() => { if (t.parentNode) t.remove(); }, 3100);
     },
 
     /* 吐槽文案生成（按三维度增减组合，贴合游戏"清醒、不替人做选择"的调性） */
@@ -593,6 +732,7 @@ const Game = {
                 </div>
 
                 <button class="btn-share" onclick="Game.copyReport()">📋 复制结果发朋友圈</button>
+                <button class="btn-ai" onclick="Game.openPoster()">🖼️ 生成我的职场人格卡</button>
                 <button class="btn-restart" onclick="Game.restart()">重新测评</button>
             </div>
         `;
@@ -626,7 +766,8 @@ const Game = {
             <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 25px; position: relative;">
                 <div style="position: absolute; top: -10px; left: 20px; font-size: 24px;">🧠</div>
                 <div style="font-size: 18px; font-weight: 900; color: var(--accent-color); margin: 4px 0 2px;">你的认知风格 · ${c.type}</div>
-                <div style="font-size: 13px; color: #bbb; margin-bottom: 14px;">${temp.name} — ${temp.desc}</div>
+                <div style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px;">${temp.name}</div>
+                <div style="font-size: 12px; color: #ccc; line-height: 1.7; margin-bottom: 14px;">${TYPE_DESC[c.type] || temp.desc}</div>
                 ${bars}
                 ${this.cognitiveGridHTML(result)}
             </div>
@@ -640,24 +781,8 @@ const Game = {
 
     /* 生成职业认知九宫格（S/N × T/F 双轴落点） */
     cognitiveGridHTML(result) {
-        const axes = result.cognitive.axes; // 顺序 e/i, s/n, t/f, j/p
-        const sn = axes[1], tf = axes[2];
-        const totN = sn.va + sn.vb, totF = tf.va + tf.vb;
-        const rN = totN === 0 ? 0.5 : sn.vb / totN;  // N 比例（vb=n）
-        const rF = totF === 0 ? 0.5 : tf.vb / totF;  // F 比例（vb=f）
-        const colMe = rN > 0.62 ? 2 : (rN < 0.38 ? 0 : 1);  // 0=S左 2=N右
-        const rowMe = rF > 0.62 ? 0 : (rF < 0.38 ? 2 : 1);  // 0=F上 2=T下
-        const cells = [
-            [ {t:'关怀工匠', d:'亲手做出有温度的东西'},
-              {t:'人文纽带', d:'凝聚团队、传递温度'},
-              {t:'理想创造者', d:'用愿景感召他人'} ],
-            [ {t:'稳健实干', d:'把事踏实落地'},
-              {t:'均衡协作者', d:'刚柔并济、弹性应对'},
-              {t:'远见探索者', d:'在可能性里找路'} ],
-            [ {t:'精益工程师', d:'优化、可靠、重落地'},
-              {t:'务实分析者', d:'用数据与方法说话'},
-              {t:'系统架构师', d:'抽象建模、长远布局'} ]
-        ];
+        const { row: rowMe, col: colMe } = gridPos(result.cognitive.axes);
+        const cells = GRID_CELLS;
         let html = '';
         for (let r = 0; r < 3; r++) {
             for (let col = 0; col < 3; col++) {
@@ -678,6 +803,111 @@ const Game = {
             '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin:0 4px 4px;"><span>◀ 实感 S（具体·当下）</span><span>直觉 N（可能·长远）▶</span></div>' +
             '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0;">' + html + '</div>' +
             '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin:4px 4px 0;"><span>▲ 情感 F（人·感受）</span><span>思考 T（逻辑·效率）▼</span></div>';
+    },
+
+    /* 生成可分享海报（Canvas 零依赖绘制，file:// 双击可用） */
+    drawPoster(canvas, result) {
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const accent = (getComputedStyle(document.body).getPropertyValue('--accent-color').trim()) || '#00ff88';
+        const font = (w, bold) => (bold ? 'bold ' : '') + w + 'px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
+
+        // 背景
+        const bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, '#1a1a1c'); bg.addColorStop(1, '#0f0f11');
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+        // 顶部光晕
+        const glow = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, W * 0.85);
+        glow.addColorStop(0, hexA(accent, 0.2)); glow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+        ctx.textAlign = 'center';
+        // 标题
+        ctx.fillStyle = '#fff'; ctx.font = font(42, true); ctx.fillText('职业觉醒实验室', W / 2, 84);
+        ctx.fillStyle = '#888'; ctx.font = font(19, false); ctx.fillText('YOUR CAREER AWAKENING LAB', W / 2, 116);
+        ctx.strokeStyle = accent; ctx.globalAlpha = 0.6; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(W / 2 - 120, 140); ctx.lineTo(W / 2 + 120, 140); ctx.stroke(); ctx.globalAlpha = 1;
+
+        const arch = result.archetype, c = result.cognitive, temp = TEMPERAMENTS[c.temp];
+        // 价值原型
+        ctx.font = font(66, false); ctx.fillText(arch.emoji, W / 2, 240);
+        ctx.fillStyle = accent; ctx.font = font(46, true); ctx.fillText(arch.label, W / 2, 300);
+        ctx.fillStyle = '#aaa'; ctx.font = font(20, false); ctx.fillText('你的价值原型', W / 2, 332);
+        // 认知风格
+        ctx.fillStyle = '#fff'; ctx.font = font(30, true); ctx.fillText('认知风格 · ' + c.type, W / 2, 388);
+        ctx.fillStyle = '#bbb'; ctx.font = font(20, false); ctx.fillText(temp.name, W / 2, 420);
+
+        // 九宫格
+        const gridX = 80, gridY = 452, cellW = (W - 160) / 3, cellH = 92;
+        const { row: rowMe, col: colMe } = gridPos(c.axes);
+        for (let r = 0; r < 3; r++) for (let col = 0; col < 3; col++) {
+            const x = gridX + col * cellW, y = gridY + r * cellH;
+            const me = (r === rowMe && col === colMe);
+            ctx.fillStyle = me ? hexA(accent, 0.2) : 'rgba(255,255,255,0.04)';
+            roundRect(ctx, x + 4, y + 4, cellW - 8, cellH - 8, 10); ctx.fill();
+            ctx.strokeStyle = me ? accent : 'rgba(255,255,255,0.1)'; ctx.lineWidth = me ? 2 : 1;
+            roundRect(ctx, x + 4, y + 4, cellW - 8, cellH - 8, 10); ctx.stroke();
+            const cell = GRID_CELLS[r][col];
+            if (me) {
+                ctx.fillStyle = accent; ctx.font = font(14, true); ctx.fillText('📍 你在这里', x + cellW / 2, y + 24);
+                ctx.fillStyle = accent; ctx.font = font(20, true); ctx.fillText(cell.t, x + cellW / 2, y + 56);
+            } else {
+                ctx.fillStyle = '#eee'; ctx.font = font(19, false); ctx.fillText(cell.t, x + cellW / 2, y + cellH / 2 - 2);
+                ctx.fillStyle = '#999'; ctx.font = font(12, false); ctx.fillText(cell.d, x + cellW / 2, y + cellH / 2 + 18);
+            }
+        }
+        // 轴说明
+        ctx.fillStyle = '#777'; ctx.font = font(14, false);
+        ctx.textAlign = 'left'; ctx.fillText('◀ 实感 S', gridX + 6, gridY + 3 * cellH + 22);
+        ctx.textAlign = 'right'; ctx.fillText('直觉 N ▶', gridX + (W - 160) - 6, gridY + 3 * cellH + 22);
+        ctx.textAlign = 'center';
+
+        // 职业认知交叉建议
+        const cross = (CROSS_MAP[result.primaryKey] && CROSS_MAP[result.primaryKey][c.temp]) || '你的组合独特，建议结合具体行业再判断。';
+        ctx.fillStyle = accent; ctx.font = font(20, true); ctx.fillText('🔭 职业认知', W / 2, gridY + 3 * cellH + 64);
+        ctx.fillStyle = '#ddd'; ctx.font = font(18, false);
+        wrapText(ctx, cross, W / 2, gridY + 3 * cellH + 96, W - 140, 28);
+
+        // 底部署名
+        ctx.fillStyle = '#666'; ctx.font = font(16, false);
+        ctx.fillText('— 测测你的职场人格觉醒路径 —', W / 2, H - 34);
+    },
+
+    /* 海报弹窗：生成 / 关闭 / 下载 */
+    openPoster() {
+        const result = this.lastResult;
+        if (!result) return;
+        let overlay = document.getElementById('poster-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'poster-overlay';
+            overlay.className = 'poster-overlay';
+            overlay.innerHTML = '<div class="poster-modal">' +
+                '<canvas id="poster-canvas" width="720" height="1080"></canvas>' +
+                '<div class="poster-actions">' +
+                    '<button class="btn-share" onclick="Game.downloadPoster()">📥 保存图片</button>' +
+                    '<button class="btn-back" onclick="Game.closePoster()">关闭</button>' +
+                '</div>' +
+                '<div class="poster-tip">长按图片也可保存到相册</div>' +
+            '</div>';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) Game.closePoster(); });
+        }
+        overlay.style.display = 'flex';
+        const canvas = document.getElementById('poster-canvas');
+        this.drawPoster(canvas, result);
+    },
+    closePoster() {
+        const o = document.getElementById('poster-overlay');
+        if (o) o.style.display = 'none';
+    },
+    downloadPoster() {
+        const c = document.getElementById('poster-canvas');
+        if (!c) return;
+        const a = document.createElement('a');
+        a.download = '职场人格卡.png';
+        a.href = c.toDataURL('image/png');
+        a.click();
     },
 
     /* 生成打工人报告（优化版） */
@@ -740,6 +970,7 @@ const Game = {
                 </div>
 
                 <button class="btn-share" onclick="Game.copyReport()">📋 复制结果发朋友圈</button>
+                <button class="btn-ai" onclick="Game.openPoster()">🖼️ 生成我的职场人格卡</button>
                 <button class="btn-restart" onclick="Game.restart()">重新测评</button>
             </div>
         `;
