@@ -250,6 +250,9 @@ const Game = {
             }
         }
 
+        // 情境吐槽：把这次选择的代价/收益翻译成一句人话（实时反馈）
+        if (option.effect) this.showQuip(option.effect);
+
         this.updateStats();
         
         if (this.state.energy <= 0) {
@@ -282,21 +285,95 @@ const Game = {
         }
     },
 
-    /* 6. 更新界面 */
+    /* 6. 更新界面（实时仪表盘：数值 + delta 飘字 + orb 脉冲） */
     updateStats() {
-        const eVal = this.state.energy;
-        const eEl = document.getElementById('val-energy');
-        eEl.innerText = eVal;
-        
-        // 危险警告动画
-        if (eVal <= 20) {
-            eEl.classList.add('danger-shake');
-        } else {
-            eEl.classList.remove('danger-shake');
+        if (!this._lastStats) {
+            this._lastStats = { energy: this.state.energy, meaning: this.state.meaning, money: this.state.money };
         }
+        const map = [
+            { key: 'energy', id: 'val-energy' },
+            { key: 'meaning', id: 'val-meaning' },
+            { key: 'money', id: 'val-money' }
+        ];
+        map.forEach(({ key, id }) => {
+            const el = document.getElementById(id);
+            const newVal = this.state[key];
+            const delta = newVal - this._lastStats[key];
+            el.innerText = newVal;
 
-        document.getElementById('val-meaning').innerText = this.state.meaning;
-        document.getElementById('val-money').innerText = this.state.money;
+            if (key === 'energy' && newVal <= 20) el.classList.add('danger-shake');
+            else el.classList.remove('danger-shake');
+
+            if (delta !== 0) {
+                this.pulseOrb(el, delta);
+                this.spawnFloat(el, delta);
+            }
+        });
+        this._lastStats = { energy: this.state.energy, meaning: this.state.meaning, money: this.state.money };
+    },
+
+    /* 仪表盘：orb 脉冲反馈（涨=绿、缩=红） */
+    pulseOrb(el, delta) {
+        const orb = el.closest('.stat-orb') || el.parentNode;
+        if (!orb) return;
+        const cls = delta > 0 ? 'pulse-up' : 'pulse-down';
+        orb.classList.remove('pulse-up', 'pulse-down');
+        void orb.offsetWidth; // 重置动画，确保连续触发也生效
+        orb.classList.add(cls);
+        setTimeout(() => orb.classList.remove(cls), 650);
+    },
+
+    /* 仪表盘：数值飘字（+N / -N 上浮淡出） */
+    spawnFloat(el, delta) {
+        const orb = el.closest('.stat-orb') || el.parentNode;
+        if (!orb) return;
+        const s = document.createElement('span');
+        s.className = 'stat-delta ' + (delta > 0 ? 'up' : 'down');
+        s.innerText = (delta > 0 ? '+' : '') + delta;
+        orb.appendChild(s);
+        setTimeout(() => s.remove(), 1000);
+    },
+
+    /* 情境吐槽：把本次选择的代价/收益翻译成一句人话 */
+    showQuip(effect) {
+        const txt = this.getQuip(effect.energy || 0, effect.meaning || 0, effect.money || 0);
+        if (!txt) return;
+        let layer = document.getElementById('quip-layer');
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.id = 'quip-layer';
+            document.body.appendChild(layer);
+        }
+        const t = document.createElement('div');
+        t.className = 'quip-toast';
+        t.innerText = txt;
+        layer.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('show'));
+        setTimeout(() => t.classList.remove('show'), 2600);
+        setTimeout(() => t.remove(), 3100);
+    },
+
+    /* 吐槽文案生成（按三维度增减组合，贴合游戏"清醒、不替人做选择"的调性） */
+    getQuip(e, m, y) {
+        if (e === 0 && m === 0 && y === 0) return null;
+        const quips = [];
+        if (e < 0 && y > 0) quips.push('用命换钱，熟悉的配方。');
+        if (e < 0 && m > 0) quips.push('理想很丰满，电量很骨感。');
+        if (y < 0 && m > 0) quips.push('钱包瘪了，但眼睛亮了。');
+        if (y < 0 && e > 0) quips.push('钱没了，命还在，不亏。');
+        if (m < 0 && y > 0) quips.push('钱是到账了，魂好像掉了点。');
+        if (e > 0 && m > 0 && y > 0) quips.push('三喜临门？今天宜上班。');
+        if (e < 0 && m < 0 && y < 0) quips.push('三杀。今天不宜睁眼。');
+        if (e > 0 && m === 0 && y === 0) quips.push('回血一口，缓缓。');
+        if (m > 0 && e === 0 && y === 0) quips.push('意义感 +1，肉眼可见。');
+        if (y > 0 && e === 0 && m === 0) quips.push('到账了，虽然不多。');
+        if (quips.length) return quips[Math.floor(Math.random() * quips.length)];
+        // 没命中明确组合的，按主导维度补一句
+        const abs = [['e', e], ['m', m], ['y', y]].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+        const [dom, v] = abs[0];
+        if (dom === 'e') return v > 0 ? '电量回升，状态回来了。' : '电量告急，注意续航。';
+        if (dom === 'm') return v > 0 ? '心里被填了一点东西。' : '意义感 -1，说不清哪里空。';
+        return v > 0 ? '收益微涨，蚊子腿也是肉。' : '收益微降，肉疼。';
     },
 
     /* 7. 结束游戏：根据身份生成不同报告 */
