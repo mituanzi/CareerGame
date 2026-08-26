@@ -2677,5 +2677,292 @@ const GameData = {
             "pros": "抗压能力极强。",
             "cons": "难以忍受重复工作。"
         }
-    }
+    },
+    "crises": [
+        {
+            "isCrisis": true,
+            "text": "💥 突发！公司突然宣布组织架构调整，你所在的部门被整体列入裁员名单。HR 给你两个选择——",
+            "timer": 12,
+            "options": [
+                {
+                    "text": "争取转岗到核心业务，从头再拼一次",
+                    "effect": {
+                        "energy": -15,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "track": "challenge",
+                    "cog": {
+                        "e": 1,
+                        "t": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "拿 N+3 赔偿体面离开，给自己一段缓冲",
+                    "effect": {
+                        "energy": 10,
+                        "meaning": 0,
+                        "money": -5
+                    },
+                    "track": "freedom",
+                    "cog": {
+                        "i": 1,
+                        "f": 1,
+                        "p": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "📞 突发！竞品 HR 深夜来电，开出双倍薪资挖你，但要求一周内到另一座城市报到。",
+            "timer": 12,
+            "options": [
+                {
+                    "text": "接下 offer，去陌生城市重新开始",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": -5,
+                        "money": 20
+                    },
+                    "track": "challenge",
+                    "cog": {
+                        "e": 1,
+                        "s": 1,
+                        "t": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "婉拒，留在熟悉的环境与人际里",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": -10
+                    },
+                    "track": "security",
+                    "cog": {
+                        "i": 1,
+                        "n": 1,
+                        "f": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "🏥 突发！家人深夜突发疾病住院，需要有人陪床。接下来的日子，你的精力会被严重分割。",
+            "timer": 13,
+            "options": [
+                {
+                    "text": "请假亲自照料，工作先放一放",
+                    "effect": {
+                        "energy": -12,
+                        "meaning": 12,
+                        "money": -5
+                    },
+                    "track": "service",
+                    "cog": {
+                        "i": 1,
+                        "f": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "请护工、靠远程维持工作节奏",
+                    "effect": {
+                        "energy": -8,
+                        "meaning": -5,
+                        "money": -10
+                    },
+                    "track": "security",
+                    "cog": {
+                        "e": 1,
+                        "t": 1,
+                        "p": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "🔥 突发！你主导的项目出现重大数据事故，全公司都知道了。是扛下来，还是撇清？",
+            "timer": 11,
+            "options": [
+                {
+                    "text": "主动站出来担责并带队补救",
+                    "effect": {
+                        "energy": -15,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "challenge",
+                    "cog": {
+                        "e": 1,
+                        "t": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "低调撇清，先保住自己的绩效",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -10,
+                        "money": 5
+                    },
+                    "track": "security",
+                    "cog": {
+                        "i": 1,
+                        "t": 1,
+                        "p": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "🩺 突发！年度体检报告写着「过劳预警」，医生严肃建议你立刻调整作息。",
+            "timer": 12,
+            "options": [
+                {
+                    "text": "听从医嘱，规律作息、拒绝无效加班",
+                    "effect": {
+                        "energy": 18,
+                        "meaning": 8,
+                        "money": -8
+                    },
+                    "track": "security",
+                    "cog": {
+                        "i": 1,
+                        "s": 1,
+                        "f": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "先撑过这阵子，身体自己能扛",
+                    "effect": {
+                        "energy": -18,
+                        "meaning": 0,
+                        "money": 8
+                    },
+                    "track": "challenge",
+                    "cog": {
+                        "e": 1,
+                        "n": 1,
+                        "t": 1,
+                        "p": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "🎰 突发！朋友拉你入场一个来钱极快的项目，但灰色地带、风险极高，还要你押上积蓄。",
+            "timer": 11,
+            "options": [
+                {
+                    "text": "All in，赌一把大的",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": -8,
+                        "money": 18
+                    },
+                    "track": "challenge",
+                    "cog": {
+                        "e": 1,
+                        "n": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "只做观察，守住本金与底线",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 3,
+                        "money": -2
+                    },
+                    "track": "security",
+                    "cog": {
+                        "i": 1,
+                        "s": 1,
+                        "t": 1,
+                        "j": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "😤 突发！新来的上司当众把你的方案贬得一文不值，并暗示「不换思路就换人」。",
+            "timer": 12,
+            "options": [
+                {
+                    "text": "正面沟通，坚持自己的专业判断",
+                    "effect": {
+                        "energy": -8,
+                        "meaning": 8,
+                        "money": 0
+                    },
+                    "track": "influence",
+                    "cog": {
+                        "e": 1,
+                        "t": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "先低头照做，保住眼前的位子",
+                    "effect": {
+                        "energy": -12,
+                        "meaning": -6,
+                        "money": 3
+                    },
+                    "track": "security",
+                    "cog": {
+                        "i": 1,
+                        "f": 1,
+                        "p": 1
+                    }
+                }
+            ]
+        },
+        {
+            "isCrisis": true,
+            "text": "🌪️ 突发！一纸政策下来，你所在的高薪赛道被一夜收紧，同行纷纷转行。",
+            "timer": 12,
+            "options": [
+                {
+                    "text": "果断转型，去学一门全新的硬技能",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 5,
+                        "money": -5
+                    },
+                    "track": "tech",
+                    "cog": {
+                        "i": 1,
+                        "n": 1,
+                        "t": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "坚守原地，相信寒冬终会过去",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -3,
+                        "money": 2
+                    },
+                    "track": "security",
+                    "cog": {
+                        "i": 1,
+                        "s": 1,
+                        "f": 1
+                    }
+                }
+            ]
+        }
+    ]
 };
