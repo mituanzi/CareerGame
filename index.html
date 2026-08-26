@@ -56,17 +56,35 @@
         </div>
         
         <div class="stats-row">
-            <div class="stat-orb">
-                <div class="stat-val" id="val-energy">100</div>
-                <div class="stat-lbl">⚡️ 能量</div>
+            <div class="stat-ring" data-key="energy">
+                <svg viewBox="0 0 100 100" class="ring-svg">
+                    <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                    <circle class="ring-fg" id="ring-energy" cx="50" cy="50" r="42"></circle>
+                </svg>
+                <div class="ring-center">
+                    <div class="stat-val" id="val-energy">100</div>
+                    <div class="stat-lbl">⚡️ 能量</div>
+                </div>
             </div>
-            <div class="stat-orb">
-                <div class="stat-val" id="val-meaning">50</div>
-                <div class="stat-lbl">🌟 意义</div>
+            <div class="stat-ring" data-key="meaning">
+                <svg viewBox="0 0 100 100" class="ring-svg">
+                    <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                    <circle class="ring-fg" id="ring-meaning" cx="50" cy="50" r="42"></circle>
+                </svg>
+                <div class="ring-center">
+                    <div class="stat-val" id="val-meaning">50</div>
+                    <div class="stat-lbl">🌟 意义</div>
+                </div>
             </div>
-            <div class="stat-orb">
-                <div class="stat-val" id="val-money">50</div>
-                <div class="stat-lbl">💰 收益</div>
+            <div class="stat-ring" data-key="money">
+                <svg viewBox="0 0 100 100" class="ring-svg">
+                    <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                    <circle class="ring-fg" id="ring-money" cx="50" cy="50" r="42"></circle>
+                </svg>
+                <div class="ring-center">
+                    <div class="stat-val" id="val-money">50</div>
+                    <div class="stat-lbl">💰 收益</div>
+                </div>
             </div>
         </div>
 
