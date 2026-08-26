@@ -42,8 +42,12 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
 /* 游戏页样式 */
 .game-hud { position: fixed; top: 0; left: 0; right: 0; padding: 15px 20px; background: rgba(0,0,0,0.85); display: flex; justify-content: space-between; z-index: 100; font-size: 13px; color: #aaa; backdrop-filter: blur(10px); }
 .stats-row { display: flex; justify-content: space-around; margin-bottom: 30px; padding-top: 50px; }
-.stat-orb { width: 80px; height: 80px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
-.stat-val { font-size: 22px; font-weight: 900; color: #fff; }
+.stat-ring { width: 84px; height: 84px; position: relative; display: flex; align-items: center; justify-content: center; }
+.ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 7; }
+.ring-fg { fill: none; stroke: var(--accent-color); stroke-width: 7; stroke-linecap: round; stroke-dasharray: 264; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s cubic-bezier(.4,0,.2,1), stroke 0.4s; filter: drop-shadow(0 0 4px var(--accent-color)); }
+.ring-center { position: relative; text-align: center; z-index: 2; }
+.stat-val { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; }
 .stat-lbl { font-size: 10px; color: #888; margin-top: 2px; }
 
 .event-container { background: var(--card-bg); border-radius: 24px; padding: 35px 30px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -139,32 +143,88 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
     border-color: #aaa;
 }
 
-/* ================= 实时仪表盘：数值飘字 + orb 脉冲 ================= */
-.stat-orb { position: relative; overflow: visible; }
-.stat-orb.pulse-up { animation: orbPulseUp 0.6s ease; }
-.stat-orb.pulse-down { animation: orbPulseDown 0.6s ease; }
-@keyframes orbPulseUp {
-    0%   { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
-    40%  { transform: scale(1.18); border-color: #2ecc71; box-shadow: 0 0 22px rgba(46,204,113,0.55); }
-    100% { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
+/* ================= 实时仪表盘：环形进度 + 心跳 + 数值飘字 ================= */
+/* 环形进度条驱动：stroke-dashoffset 由 JS 设定（圆周长 ≈ 264） */
+
+/* 心跳：能量维度始终有轻微心跳律动；低能量时变红加强 */
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14%      { transform: scale(1.07); }
+    28%      { transform: scale(1); }
+    42%      { transform: scale(1.05); }
+    56%      { transform: scale(1); }
 }
-@keyframes orbPulseDown {
-    0%   { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
-    40%  { transform: scale(0.86); border-color: #e74c3c; box-shadow: 0 0 22px rgba(231,76,60,0.5); }
-    100% { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
+@keyframes heartbeatDanger {
+    0%, 100% { transform: scale(1); }
+    10%      { transform: scale(1.13); }
+    22%      { transform: scale(1); }
+    36%      { transform: scale(1.11); }
+    50%      { transform: scale(1); }
 }
+.stat-ring.beat        { animation: heartbeat 1.7s ease-in-out infinite; }
+.stat-ring.beat-danger { animation: heartbeatDanger 0.85s ease-in-out infinite; }
+.stat-ring.beat-danger .ring-fg { stroke: #ff4d4d !important; filter: drop-shadow(0 0 8px rgba(255,77,77,0.8)); }
+
+/* 数值飘字：+N / -N 上浮淡出 */
 .stat-delta {
-    position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
-    font-size: 14px; font-weight: 900; pointer-events: none; opacity: 0;
-    white-space: nowrap; animation: deltaFloat 1s ease forwards;
+    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    font-size: 15px; font-weight: 900; pointer-events: none; opacity: 0;
+    white-space: nowrap; animation: deltaFloat 1s ease forwards; z-index: 5;
 }
-.stat-delta.up   { color: #2ecc71; text-shadow: 0 0 8px rgba(46,204,113,0.6); }
-.stat-delta.down { color: #e74c3c; text-shadow: 0 0 8px rgba(231,76,60,0.6); }
+.stat-delta.up   { color: #2ecc71; text-shadow: 0 0 8px rgba(46,204,113,0.7); }
+.stat-delta.down { color: #ff4d4d; text-shadow: 0 0 8px rgba(255,77,77,0.7); }
 @keyframes deltaFloat {
-    0%   { opacity: 0; top: 6px; }
-    20%  { opacity: 1; }
-    100% { opacity: 0; top: -30px; }
+    0%   { opacity: 0; top: -18px; }
+    25%  { opacity: 1; }
+    100% { opacity: 0; top: -46px; }
 }
+
+/* 数值弹跳 */
+.stat-val.pop { animation: valPop 0.42s cubic-bezier(.34,1.56,.64,1); }
+@keyframes valPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+/* ================= 突发事件：危机样式 + 倒计时 ================= */
+.event-container.crisis-mode {
+    border-color: #ff4d4d !important;
+    animation: crisisGlow 1.4s ease-in-out infinite;
+}
+@keyframes crisisGlow {
+    0%, 100% { box-shadow: 0 0 16px rgba(255,77,77,0.25); }
+    50%      { box-shadow: 0 0 30px rgba(255,77,77,0.55); }
+}
+.crisis-timer {
+    position: relative; height: 28px; margin-bottom: 18px;
+    background: rgba(255,77,77,0.12); border: 1px solid rgba(255,77,77,0.4);
+    border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+}
+.crisis-timer-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 100%;
+    background: linear-gradient(90deg, rgba(255,77,77,0.5), rgba(255,77,77,0.18));
+    transition: width 1s linear;
+}
+.crisis-timer-text {
+    position: relative; z-index: 2; font-size: 12px; color: #ff8a8a; font-weight: 700; letter-spacing: 1px;
+}
+
+/* ================= 海报弹窗 ================= */
+.poster-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500;
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+    padding: 20px; overflow: auto; backdrop-filter: blur(4px);
+}
+.poster-modal { display: flex; flex-direction: column; align-items: center; }
+#poster-canvas {
+    width: auto; max-width: 88vw; max-height: 68vh; border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6); background: #0f0f11;
+}
+.poster-actions { display: flex; gap: 12px; margin-top: 18px; width: 100%; }
+.poster-actions .btn-share { flex: 1; margin-top: 0; }
+.poster-actions .btn-back { flex: 1; margin-top: 0; }
+.poster-tip { color: #888; font-size: 12px; margin-top: 12px; }
 
 /* ================= 情境吐槽 toast ================= */
 #quip-layer {
