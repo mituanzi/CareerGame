@@ -138,3 +138,46 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
     color: #aaa;
     border-color: #aaa;
 }
+
+/* ================= 实时仪表盘：数值飘字 + orb 脉冲 ================= */
+.stat-orb { position: relative; overflow: visible; }
+.stat-orb.pulse-up { animation: orbPulseUp 0.6s ease; }
+.stat-orb.pulse-down { animation: orbPulseDown 0.6s ease; }
+@keyframes orbPulseUp {
+    0%   { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
+    40%  { transform: scale(1.18); border-color: #2ecc71; box-shadow: 0 0 22px rgba(46,204,113,0.55); }
+    100% { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
+}
+@keyframes orbPulseDown {
+    0%   { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
+    40%  { transform: scale(0.86); border-color: #e74c3c; box-shadow: 0 0 22px rgba(231,76,60,0.5); }
+    100% { transform: scale(1);    border-color: rgba(255,255,255,0.1); box-shadow: none; }
+}
+.stat-delta {
+    position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    font-size: 14px; font-weight: 900; pointer-events: none; opacity: 0;
+    white-space: nowrap; animation: deltaFloat 1s ease forwards;
+}
+.stat-delta.up   { color: #2ecc71; text-shadow: 0 0 8px rgba(46,204,113,0.6); }
+.stat-delta.down { color: #e74c3c; text-shadow: 0 0 8px rgba(231,76,60,0.6); }
+@keyframes deltaFloat {
+    0%   { opacity: 0; top: 6px; }
+    20%  { opacity: 1; }
+    100% { opacity: 0; top: -30px; }
+}
+
+/* ================= 情境吐槽 toast ================= */
+#quip-layer {
+    position: fixed; left: 0; right: 0; bottom: 22px; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    pointer-events: none; padding: 0 20px;
+}
+.quip-toast {
+    background: rgba(0,0,0,0.82); border: 1px solid var(--accent-color);
+    color: #fff; font-size: 14px; line-height: 1.4; padding: 11px 18px;
+    border-radius: 16px; max-width: 520px; text-align: center;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+    opacity: 0; transform: translateY(14px) scale(0.96);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.quip-toast.show { opacity: 1; transform: translateY(0) scale(1); }
