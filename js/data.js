@@ -34,6 +34,663 @@ const GameData = {
     ],
     "universal": [
         {
+            "text": "完全自由的一整天，没有任何安排，你最可能做什么？",
+            "options": [
+                {
+                    "text": "找个项目动手做——修东西、写代码、做模型、搞烹饪，总之手不能停。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "s": 1
+                    }
+                },
+                {
+                    "text": "钻进一个感兴趣的话题——纪录片、论文、维基百科兔子洞，越查越兴奋。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "约朋友深聊，或者去认识新的人。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "准备某个表达——写文章、拍视频、做播客，把想法分享出去。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "n": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "朋友圈里，谁的状态最让你心里“咯噔”一下？",
+            "options": [
+                {
+                    "text": "那个做出了爆款产品/作品的人。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 1,
+                        "performer": 1
+                    },
+                    "cog": {
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "那个活成了自己样子、完全不被世俗绑架的人。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": -5
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "那个被很多人认可、站在聚光灯下的人。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1
+                    }
+                },
+                {
+                    "text": "那个身边围满了人、关系特别好的。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "上一次完全忘记时间、连手机都没看，是在做什么？",
+            "options": [
+                {
+                    "text": "在创造某个东西——写代码/做PPT/写文章/做手工/画画。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "在研究某个问题——越复杂越上头，搞懂了特别爽。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "在跟某个人深聊——帮他想通了什么事，或者一起碰撞出了火花。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "在准备某个表达——演讲稿/视频/文章，反复打磨想让它更好。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "n": 1,
+                        "j": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "小时候（10 岁以前），你最沉迷的事最接近哪个？",
+            "options": [
+                {
+                    "text": "搭积木/拆玩具/画画/做各种“小发明”。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "s": 1
+                    }
+                },
+                {
+                    "text": "问“为什么”/看百科全书/收集标本或卡片。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "过家家/当孩子王/照顾小动物/当小组长。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 1,
+                        "performer": 1
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "表演节目/讲故事/在台上发言/组织活动。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "n": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "每种工作都有恶心的部分，你最不能忍受哪个？",
+            "options": [
+                {
+                    "text": "每天重复同样的事，没有任何创造空间。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -5,
+                        "money": 0
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "n": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "永远在表面，不被允许深入了解。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -5,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "explorer": 1
+                    },
+                    "cog": {
+                        "i": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "完全不跟人接触，一个人对着屏幕一整天。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -5,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 1
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "做了很多但没人知道、没有反馈。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -5,
+                        "money": 0
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "e": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "刷手机时，你更倾向于？",
+            "options": [
+                {
+                    "text": "自己产出——写点什么、拍点什么、做个小工具。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 1,
+                        "performer": 1
+                    },
+                    "cog": {
+                        "n": 1,
+                        "i": 1
+                    }
+                },
+                {
+                    "text": "研究学习——看深度内容、学新东西、做笔记。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "社交连接——回消息、约人、在群里聊天。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 0,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "纯放松——刷视频、看剧、什么都不想。",
+                    "effect": {
+                        "energy": 10,
+                        "meaning": 0,
+                        "money": 0
+                    },
+                    "cog": {
+                        "s": 1,
+                        "p": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "如果你和朋友们一起做一个项目（旅行/创业/公益都算），你最自然地会成为？",
+            "options": [
+                {
+                    "text": "那个把想法变成现实的人——做攻略/搭框架/出成品。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "那个研究最深的人——把每个细节搞明白，给大家讲明白。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 1,
+                        "performer": 1
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "那个把大家黏在一起的人——协调分工、照顾情绪、解决冲突。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "那个对外代表团队的人——展示成果、讲故事、拉资源。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "n": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "以下哪个场景最能让你感到“活着”？",
+            "options": [
+                {
+                    "text": "看着一个东西从无到有在自己手里诞生。",
+                    "effect": {
+                        "energy": 10,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "s": 1
+                    }
+                },
+                {
+                    "text": "突然搞懂了一个困扰你很久的复杂问题。",
+                    "effect": {
+                        "energy": 10,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "有人跟你说“因为你，我决定改变了”。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "台下/屏幕前的人因为你的表达而产生共鸣。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "n": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "如果最终人们只记得你一件事，你希望是？",
+            "options": [
+                {
+                    "text": "他创造了一些了不起的东西。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "他搞明白了别人没搞明白的东西。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "他改变了很多人的生命。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "他的表达影响了整整一代人。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "n": 1
+                    }
+                }
+            ]
+        },
+        {
+            "text": "即使一分钱不赚、没人知道，你仍然会做的是什么？",
+            "options": [
+                {
+                    "text": "做东西——写代码/做手工/写文章/画画，创造本身就是回报。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "研究问题——搞清楚世界怎么运转，纯粹的好奇。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "帮助身边的人——陪他们度过难关，看他们变好。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "表达和记录——写下想法、拍视频、做播客，不管有没有人看。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                }
+            ]
+        },
+        {
             "text": "面对一个复杂且模糊的问题时，你通常的反应是？",
             "options": [
                 {
@@ -44,6 +701,10 @@ const GameData = {
                         "money": 0
                     },
                     "track": "tech",
+                    "passion": {
+                        "explorer": 1,
+                        "maker": 1
+                    },
                     "cog": {
                         "i": 1,
                         "n": 1,
@@ -58,6 +719,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "influence",
+                    "passion": {
+                        "connector": 1
+                    },
                     "cog": {
                         "e": 1,
                         "f": 1
@@ -76,6 +740,9 @@ const GameData = {
                         "money": 10
                     },
                     "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
                     "cog": {
                         "t": 1,
                         "j": 1
@@ -89,6 +756,9 @@ const GameData = {
                         "money": -5
                     },
                     "track": "freedom",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "i": 1,
                         "f": 1
@@ -107,6 +777,10 @@ const GameData = {
                         "money": 0
                     },
                     "track": "influence",
+                    "passion": {
+                        "performer": 1,
+                        "explorer": 1
+                    },
                     "cog": {
                         "e": 1,
                         "n": 1
@@ -120,6 +794,9 @@ const GameData = {
                         "money": 5
                     },
                     "track": "security",
+                    "passion": {
+                        "maker": 1
+                    },
                     "cog": {
                         "s": 1,
                         "j": 1
@@ -138,6 +815,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "freedom",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "n": 1,
                         "p": 1
@@ -169,6 +849,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
                     "cog": {
                         "s": 1,
                         "f": 1
@@ -182,6 +865,10 @@ const GameData = {
                         "money": 0
                     },
                     "track": "tech",
+                    "passion": {
+                        "maker": 1,
+                        "explorer": 1
+                    },
                     "cog": {
                         "n": 1,
                         "t": 1
@@ -200,6 +887,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "tech",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "t": 1,
                         "s": 1
@@ -213,6 +903,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "service",
+                    "passion": {
+                        "connector": 1
+                    },
                     "cog": {
                         "f": 1,
                         "n": 1
@@ -244,6 +937,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "freedom",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "n": 1,
                         "p": 1
@@ -262,6 +958,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "tech",
+                    "passion": {
+                        "performer": 1
+                    },
                     "cog": {
                         "t": 1,
                         "e": 1
@@ -275,6 +974,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "influence",
+                    "passion": {
+                        "connector": 1
+                    },
                     "cog": {
                         "f": 1
                     }
@@ -304,6 +1006,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "challenge",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "n": 1,
                         "p": 1
@@ -335,6 +1040,9 @@ const GameData = {
                         "money": -10
                     },
                     "track": "challenge",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "n": 1,
                         "p": 1
@@ -380,6 +1088,10 @@ const GameData = {
                         "meaning": 10,
                         "money": 5
                     },
+                    "passion": {
+                        "performer": 1,
+                        "connector": 1
+                    },
                     "cog": {
                         "e": 1,
                         "j": 1
@@ -408,6 +1120,9 @@ const GameData = {
                         "energy": -10,
                         "meaning": 5,
                         "money": -10
+                    },
+                    "passion": {
+                        "connector": 1
                     },
                     "cog": {
                         "e": 1,
@@ -469,6 +1184,9 @@ const GameData = {
                             "money": 10
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -482,6 +1200,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "i": 1,
                             "t": 1
@@ -500,6 +1221,9 @@ const GameData = {
                             "money": 15
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "j": 1,
                             "e": 1
@@ -513,6 +1237,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 2
+                        },
                         "cog": {
                             "n": 1,
                             "i": 1
@@ -531,6 +1258,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "p": 1,
                             "f": 1
@@ -562,6 +1292,9 @@ const GameData = {
                             "money": 10
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1
                         }
@@ -574,6 +1307,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "i": 1,
                             "t": 1
@@ -592,6 +1328,10 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1,
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -623,6 +1363,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1
                         }
@@ -653,6 +1396,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -684,6 +1430,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "e": 1
@@ -697,6 +1446,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -712,6 +1464,9 @@ const GameData = {
                             "energy": -5,
                             "meaning": 10,
                             "money": -10
+                        },
+                        "passion": {
+                            "maker": 1
                         },
                         "cog": {
                             "t": 1
@@ -753,6 +1508,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "craftsman",
+                        "passion": {
+                            "maker": 2
+                        },
                         "cog": {
                             "n": 1,
                             "t": 1
@@ -771,6 +1529,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "t": 1,
                             "i": 1
@@ -801,6 +1562,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "i": 1,
                             "j": 1
@@ -814,6 +1578,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "n": 1
@@ -834,6 +1601,9 @@ const GameData = {
                             "money": 30
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "j": 1
                         }
@@ -846,6 +1616,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -863,6 +1636,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "n": 1
                         }
@@ -893,6 +1669,9 @@ const GameData = {
                             "money": -20
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -924,6 +1703,10 @@ const GameData = {
                             "money": -10
                         },
                         "track": "service",
+                        "passion": {
+                            "explorer": 1,
+                            "connector": 1
+                        },
                         "cog": {
                             "n": 1,
                             "f": 1
@@ -954,6 +1737,9 @@ const GameData = {
                             "money": 10
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "t": 1,
                             "f": 1
@@ -985,6 +1771,9 @@ const GameData = {
                             "money": -15
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -997,6 +1786,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "s": 1
                         }
@@ -1014,6 +1806,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -1045,6 +1840,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -1086,6 +1884,9 @@ const GameData = {
                             "meaning": 10,
                             "money": -20
                         },
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "i": 1
@@ -1117,6 +1918,9 @@ const GameData = {
                             "money": 30
                         },
                         "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "p": 1
                         }
@@ -1134,6 +1938,9 @@ const GameData = {
                             "money": 20
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -1147,6 +1954,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "e": 1
@@ -1165,6 +1975,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -1178,6 +1991,10 @@ const GameData = {
                             "money": 0
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1,
+                            "performer": 1
+                        },
                         "cog": {
                             "f": 1,
                             "e": 1
@@ -1211,6 +2028,9 @@ const GameData = {
                             "money": 15
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "n": 1
                         }
@@ -1228,6 +2048,9 @@ const GameData = {
                             "money": 10
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -1241,6 +2064,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "i": 1,
                             "f": 1
@@ -1259,6 +2085,9 @@ const GameData = {
                             "money": 15
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "n": 1
                         }
@@ -1288,6 +2117,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "freedom",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "t": 1
                         }
@@ -1318,6 +2150,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "freedom",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -1331,6 +2166,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "security",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "s": 1
@@ -1349,6 +2187,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -1380,6 +2221,9 @@ const GameData = {
                             "money": 10
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "j": 1
                         }
@@ -1392,6 +2236,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -1409,6 +2256,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -1508,6 +2358,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -1525,6 +2378,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "security",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "s": 1,
                             "j": 1
@@ -1557,6 +2413,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -1587,6 +2446,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "t": 1
                         }
@@ -1617,6 +2479,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
                         "cog": {
                             "f": 1,
                             "j": 1
@@ -1661,6 +2526,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "i": 1
@@ -1679,6 +2547,9 @@ const GameData = {
                             "money": 10
                         },
                         "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "j": 1
                         }
@@ -1708,6 +2579,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "e": 1
@@ -1721,6 +2595,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1
                         }
@@ -1751,6 +2628,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "challenge",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "n": 1
                         }
@@ -1781,6 +2661,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -1798,6 +2681,10 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1,
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "f": 1
@@ -1858,6 +2745,9 @@ const GameData = {
                             "money": -20
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "e": 1
@@ -1889,6 +2779,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "e": 1
@@ -1921,6 +2814,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -1933,6 +2829,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "security",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "s": 1,
                             "j": 1
@@ -1951,6 +2850,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -1963,6 +2865,10 @@ const GameData = {
                             "money": 0
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1,
+                            "maker": 1
+                        },
                         "cog": {
                             "n": 1,
                             "t": 1
@@ -1981,6 +2887,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "freedom",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -2012,6 +2921,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 2
+                        },
                         "cog": {
                             "n": 1,
                             "t": 1
@@ -2043,6 +2955,9 @@ const GameData = {
                             "money": 20
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -2056,6 +2971,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "i": 1,
                             "n": 1
@@ -2074,6 +2992,10 @@ const GameData = {
                             "money": 0
                         },
                         "track": "service",
+                        "passion": {
+                            "maker": 1,
+                            "connector": 1
+                        },
                         "cog": {
                             "s": 1,
                             "f": 1
@@ -2104,6 +3026,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -2134,6 +3059,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -2165,6 +3093,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "i": 1,
                             "n": 1
@@ -2178,6 +3109,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "j": 1
@@ -2196,6 +3130,10 @@ const GameData = {
                             "money": 0
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1,
+                            "performer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "e": 1
@@ -2209,6 +3147,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "influence",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "i": 1
@@ -2227,6 +3168,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
                         "cog": {
                             "f": 1,
                             "e": 1
@@ -2258,6 +3202,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -2270,6 +3217,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "n": 1,
                             "j": 1
@@ -2290,6 +3240,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -2319,6 +3272,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "j": 1
@@ -2332,6 +3288,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "security",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "i": 1
@@ -2350,6 +3309,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "t": 1
                         }
@@ -2362,6 +3324,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "security",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "s": 1
@@ -2380,6 +3345,10 @@ const GameData = {
                             "money": 25
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1,
+                            "maker": 1
+                        },
                         "cog": {
                             "e": 1,
                             "n": 1
@@ -2393,6 +3362,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "i": 1,
                             "t": 1
@@ -2411,6 +3383,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "t": 1,
                             "j": 1
@@ -2442,6 +3417,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "freedom",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "t": 1,
                             "e": 1
@@ -2455,6 +3433,9 @@ const GameData = {
                             "money": 5
                         },
                         "track": "security",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "s": 1
@@ -2473,6 +3454,9 @@ const GameData = {
                             "money": -10
                         },
                         "track": "freedom",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "i": 1
@@ -2503,6 +3487,9 @@ const GameData = {
                             "money": 15
                         },
                         "track": "influence",
+                        "passion": {
+                            "performer": 1
+                        },
                         "cog": {
                             "e": 1,
                             "f": 1
@@ -2534,6 +3521,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -2564,6 +3554,9 @@ const GameData = {
                             "money": 20
                         },
                         "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
                         "cog": {
                             "f": 1
                         }
@@ -2607,6 +3600,9 @@ const GameData = {
                             "money": -5
                         },
                         "track": "tech",
+                        "passion": {
+                            "maker": 1
+                        },
                         "cog": {
                             "j": 1
                         }
@@ -2624,6 +3620,9 @@ const GameData = {
                             "money": 0
                         },
                         "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
                         "cog": {
                             "f": 1,
                             "t": 1
@@ -2692,6 +3691,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
                     "cog": {
                         "e": 1,
                         "t": 1,
@@ -2706,6 +3708,9 @@ const GameData = {
                         "money": -5
                     },
                     "track": "freedom",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "i": 1,
                         "f": 1,
@@ -2727,6 +3732,9 @@ const GameData = {
                         "money": 20
                     },
                     "track": "challenge",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "e": 1,
                         "s": 1,
@@ -2742,6 +3750,9 @@ const GameData = {
                         "money": -10
                     },
                     "track": "security",
+                    "passion": {
+                        "connector": 1
+                    },
                     "cog": {
                         "i": 1,
                         "n": 1,
@@ -2763,6 +3774,9 @@ const GameData = {
                         "money": -5
                     },
                     "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
                     "cog": {
                         "i": 1,
                         "f": 1,
@@ -2798,6 +3812,9 @@ const GameData = {
                         "money": 0
                     },
                     "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
                     "cog": {
                         "e": 1,
                         "t": 1,
@@ -2848,6 +3865,9 @@ const GameData = {
                         "money": 8
                     },
                     "track": "challenge",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "e": 1,
                         "n": 1,
@@ -2870,6 +3890,9 @@ const GameData = {
                         "money": 18
                     },
                     "track": "challenge",
+                    "passion": {
+                        "explorer": 1
+                    },
                     "cog": {
                         "e": 1,
                         "n": 1,
@@ -2906,6 +3929,10 @@ const GameData = {
                         "money": 0
                     },
                     "track": "influence",
+                    "passion": {
+                        "performer": 1,
+                        "maker": 1
+                    },
                     "cog": {
                         "e": 1,
                         "t": 1,
@@ -2941,6 +3968,10 @@ const GameData = {
                         "money": -5
                     },
                     "track": "tech",
+                    "passion": {
+                        "explorer": 1,
+                        "maker": 1
+                    },
                     "cog": {
                         "i": 1,
                         "n": 1,
