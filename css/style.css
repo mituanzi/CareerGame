@@ -88,6 +88,38 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
 .passion-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; background: rgba(255,255,255,0.18); }
 .passion-bar-fill.passion-primary { background: var(--accent-color); box-shadow: 0 0 8px var(--glow); }
 
+/* ================= 折叠区块组件 ================= */
+.collapsible-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 0; cursor: pointer; user-select: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.collapsible-header .chevron {
+    transition: transform 0.3s ease; font-size: 14px; color: #666;
+}
+.collapsible-header.expanded .chevron { transform: rotate(180deg); }
+.collapsible-content {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding: 0;
+}
+.collapsible-content.expanded {
+    max-height: 2000px;
+    padding: 16px 0;
+}
+
+/* 一句话总结 */
+.one-liner {
+    font-size: 15px; line-height: 1.8; color: #ccc; text-align: center;
+    padding: 0 10px; margin-bottom: 24px; font-style: italic;
+}
+.one-liner em { color: var(--accent-color); font-style: normal; font-weight: 700; }
+
+/* 分享按钮行 */
+.share-row { display: flex; gap: 12px; margin-top: 20px; }
+.share-row .btn-share { flex: 1; margin-top: 0; }
+.share-row .btn-restart { flex: 1; margin-top: 0; background: rgba(255,255,255,0.08); color: #ccc; border: 1px solid rgba(255,255,255,0.12); }
+
 .diag-box { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px; margin-top: 20px; border-left: 4px solid var(--accent-color); }
 .diag-title { font-size: 14px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; }
 .diag-text { font-size: 13px; line-height: 1.6; color: #ddd; }
