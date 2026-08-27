@@ -118,6 +118,49 @@ const CROSS_MAP = {
     }
 };
 
+/* ============ 热爱轴（Passion Axis） ============ */
+const PASSION_META = {
+    maker:     { name: '创造者', icon: '🔨', desc: '从无到有造出东西' },
+    explorer:  { name: '探索者', icon: '🔬', desc: '搞懂复杂的系统和问题' },
+    connector: { name: '连接者', icon: '🤝', desc: '帮助人成长、建立深度关系' },
+    performer: { name: '表达者', icon: '🎤', desc: '影响、打动、带动一群人' }
+};
+
+const PASSION_CROSS_MAP = {
+    maker: {
+        tech: '你是手艺人——用技术创造作品，需要看到成品从手中诞生。纯执行的螺丝钉岗位会让你窒息。',
+        influence: '你是产品人——不只是造东西，还要造出影响很多人的东西。你需要拥有从 0 到 1 的自主权。',
+        freedom: '你是独立创造者——需要完全的创作自主权，不能被流程绑住。远程、自由职业或独立工作室是你的理想形态。',
+        security: '你是匠人——在稳定的环境里精雕细琢，不急不躁。体制内或大平台的研究岗能让你安心打磨作品。',
+        service: '你是社会创新者——创造的目的是解决真实的社会问题。公益技术、教育产品、无障碍设计是你的赛道。',
+        challenge: '你是硬核创造者——越难的问题越激发你的创造力。创业、攻坚项目、极限挑战是你的舞台。'
+    },
+    explorer: {
+        tech: '你是研究员——不满足于表面，要拆解到最底层。深度研究、架构设计、底层开发让你越钻越兴奋。',
+        influence: '你是战略分析师——用深度洞察指导决策。行研、战略、投资分析让你把好奇心变成真金白银。',
+        freedom: '你是自由学者——按自己的节奏探索世界。独立咨询、自由写作、数字游民让你不被组织节奏绑架。',
+        security: '你是体系内智囊——在大平台里做深度研究岗。智库、研究院、合规分析让你安稳地追求深度。',
+        service: '你是真相挖掘者——研究是为了帮助人看清现实。用户研究、社会调研、数据分析是你的助人方式。',
+        challenge: '你是谜题猎人——越复杂的问题越让你上头。咨询、科研攻坚、疑难杂症是你的精神食粮。'
+    },
+    connector: {
+        tech: '你是团队润滑剂——用技术能力帮助同事解决问题。代码 review、mentor、内部工具开发是你的表达方式。',
+        influence: '你是人心凝聚者——用影响力把人拉到一起。社区运营、团队建设、跨部门协调让你充满能量。',
+        freedom: '你是深度陪伴者——一对一地帮助他人成长。教练、咨询、mentor 是你的理想形态，不需要大舞台。',
+        security: '你是组织温暖源——在稳定环境里持续滋养身边的人。HR、教务、行政让你细水长流地帮助人。',
+        service: '你是天生助人者——帮助人就是你存在的意义。医护、社工、心理咨询是你的天然赛道，注意边界感。',
+        challenge: '你是危机凝聚者——在高压中把团队拉到一起。应急响应、变革管理、危机公关让你既挑战又连接。'
+    },
+    performer: {
+        tech: '你是技术布道者——用表达让技术被看见。技术写作、演讲、开源社区运营让你同时创造和表达。',
+        influence: '你是舞台型领袖——享受聚光灯，用感染力带动一群人。品牌、营销、公开演讲是你的主场。',
+        freedom: '你是独立内容人——用自己的声音影响世界。自媒体、播客、独立写作让你拥有完全的表達自由。',
+        security: '你是组织代言人——在稳定平台里做汇报、展示、对外沟通。体制内的笔杆子或发言人是你的生态位。',
+        service: '你是故事讲述者——用表达让被忽视的人被看见。公益传播、纪录片、倡导型内容是你的使命。',
+        challenge: '你是高能表演者——在高压舞台上最闪亮。销售路演、创业 pitch、直播带贷让你肾上腺素飙升。'
+    }
+};
+
 const Game = {
     state: {
         identity: 'worker',
@@ -126,7 +169,8 @@ const Game = {
         meaning: 50,
         money: 50,
         tracks: {},
-        cog: {}
+        cog: {},
+        passion: {}
     },
     
     history: [],       // 用于存放历史状态快照，支持回退
@@ -204,6 +248,7 @@ const Game = {
         this.state.money = 50;
         this.state.tracks = {};
         this.state.cog = {};
+        this.state.passion = {};
         
         // 清空历史记录
         this.history = [];
@@ -261,30 +306,31 @@ const Game = {
 
         const event = this.events[index];
         
-        // 更新时间
         const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
         document.getElementById('hud-time').innerText = `${days[index % 7]} ${(9 + index * 2) % 24}:00`;
 
-        // 填充文本
         const textEl = document.getElementById('event-text');
         textEl.innerText = event.text;
         
-        // 简单的淡入效果重置
         textEl.style.opacity = 0;
         setTimeout(() => {
             textEl.style.transition = 'opacity 0.4s';
             textEl.style.opacity = 1;
         }, 50);
 
-        const btnA = document.getElementById('btn-a');
-        const btnB = document.getElementById('btn-b');
+        const container = document.getElementById('option-btns');
+        container.innerHTML = '';
         
-        if (event.options && event.options.length >= 2) {
-            btnA.innerText = event.options[0].text;
-            btnB.innerText = event.options[1].text;
+        if (event.options) {
+            event.options.forEach((opt, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'act-btn';
+                btn.innerText = opt.text;
+                btn.onclick = () => this.handleAction(i);
+                container.appendChild(btn);
+            });
         }
 
-        // 突发事件：渲染紧张 UI + 启动倒计时（普通题则清理）
         if (event.isCrisis) this.renderCrisisUI(event);
         else this.clearCrisisUI();
     },
@@ -377,6 +423,13 @@ const Game = {
         if (option.cog) {
             for (const k in option.cog) {
                 this.state.cog[k] = (this.state.cog[k] || 0) + option.cog[k];
+            }
+        }
+
+        // 热爱轴：累加内驱力信号
+        if (option.passion) {
+            for (const k in option.passion) {
+                this.state.passion[k] = (this.state.passion[k] || 0) + option.passion[k];
             }
         }
 
@@ -672,6 +725,13 @@ const Game = {
         else temp = (jOrP === 'P') ? 'SP' : 'SJ';
         const cognitive = { type, axes: axisDetails, temp };
 
+        // 7. 热爱轴：排序内驱力信号
+        const passion = this.state.passion || {};
+        const passionSorted = Object.entries(passion)
+            .sort((a, b) => b[1] - a[1]);
+        const primaryPassion = (passionSorted[0] && passionSorted[0][0]) || 'maker';
+        const passionTotal = passionSorted.reduce((s, e) => s + e[1], 0) || 1;
+
         return {
             scores: this.state,
             archetype: archetype,
@@ -680,11 +740,14 @@ const Game = {
             isBurnout: reason === 'burnout',
             statusLevel: statusLevel,
             matchScore: matchScore,
-            cognitive: cognitive
+            cognitive: cognitive,
+            passion: passionSorted,
+            primaryPassion: primaryPassion,
+            passionTotal: passionTotal
         };
     },
 
-    /* 生成学生报告（优化版） */
+    /* 生成学生报告（v7 热爱轴版） */
     generateStudentReport(result) {
         const arch = result.archetype;
         const trait = result.mainTrait;
@@ -696,6 +759,10 @@ const Game = {
             coder: "程序员", finance: "金融民工", soe: "央企职员",
             civil: "体制内", academic: "高校青椒", medical: "医务工作者"
         };
+
+        const pMeta = PASSION_META[result.primaryPassion];
+        const crossInsight = (PASSION_CROSS_MAP[result.primaryPassion] && PASSION_CROSS_MAP[result.primaryPassion][result.primaryKey])
+            || '你的热爱与价值取向组合独特，建议结合具体行业再做判断。';
 
         return `
             <div class="report-card">
@@ -710,6 +777,13 @@ const Game = {
                     <div style="font-size: 14px; line-height: 1.8; color: #ddd; margin-top: 5px;">
                         ${arch.desc}
                     </div>
+                </div>
+
+                ${this.passionEngineHTML(result)}
+
+                <div class="rec-card" style="margin-top: 20px;">
+                    <div class="rec-title">🔥 热爱 × 价值 交叉洞察</div>
+                    <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${crossInsight}</div>
                 </div>
 
                 <div class="mirror-grid">
@@ -736,6 +810,40 @@ const Game = {
                 <button class="btn-restart" onclick="Game.restart()">重新测评</button>
             </div>
         `;
+    },
+
+    /* 生成热爱引擎区块（学生线 / 打工人线共用） */
+    passionEngineHTML(result) {
+        const passion = result.passion;
+        const total = result.passionTotal;
+        const primary = PASSION_META[result.primaryPassion];
+
+        const bars = passion.map(([key, val]) => {
+            const meta = PASSION_META[key];
+            if (!meta) return '';
+            const pct = total > 0 ? Math.round(val / total * 100) : 0;
+            const isPrimary = key === result.primaryPassion;
+            return `
+                <div class="passion-bar-row">
+                    <div class="passion-bar-label">
+                        <span>${meta.icon} ${meta.name}</span>
+                        <span style="font-size:11px;color:#999;">${pct}%</span>
+                    </div>
+                    <div class="status-track">
+                        <div class="passion-bar-fill${isPrimary ? ' passion-primary' : ''}" style="width: ${pct}%"></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        return `
+            <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 25px; position: relative;">
+                <div style="position: absolute; top: -10px; left: 20px; font-size: 24px;">${primary.icon}</div>
+                <div style="font-size: 18px; font-weight: 900; color: var(--accent-color); margin: 4px 0 2px;">你的热爱引擎 · ${primary.name}</div>
+                <div style="font-size: 12px; color: #ccc; line-height: 1.7; margin-bottom: 14px;">
+                    在 ${total} 次热爱信号中，「${primary.name}」出现了 ${passion[0] && passion[0][1] ? passion[0][1] : 0} 次——你对"${primary.desc}"的渴望远超其他方向。这不是能力判断，而是能量判断：${primary.desc.toLowerCase()}让你充电，而不是耗电。
+                </div>
+                ${bars}
+            </div>`;
     },
 
     /* 生成认知风格 + 职业认知交叉区块（学生线 / 打工人线共用） */
@@ -805,40 +913,70 @@ const Game = {
             '<div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin:4px 4px 0;"><span>▲ 情感 F（人·感受）</span><span>思考 T（逻辑·效率）▼</span></div>';
     },
 
-    /* 生成可分享海报（Canvas 零依赖绘制，file:// 双击可用） */
+    /* 生成可分享海报（Canvas 零依赖绘制，v7 热爱轴版） */
     drawPoster(canvas, result) {
         const ctx = canvas.getContext('2d');
         const W = canvas.width, H = canvas.height;
         const accent = (getComputedStyle(document.body).getPropertyValue('--accent-color').trim()) || '#00ff88';
         const font = (w, bold) => (bold ? 'bold ' : '') + w + 'px "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif';
 
-        // 背景
         const bg = ctx.createLinearGradient(0, 0, 0, H);
         bg.addColorStop(0, '#1a1a1c'); bg.addColorStop(1, '#0f0f11');
         ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-        // 顶部光晕
         const glow = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, W * 0.85);
         glow.addColorStop(0, hexA(accent, 0.2)); glow.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
 
         ctx.textAlign = 'center';
-        // 标题
         ctx.fillStyle = '#fff'; ctx.font = font(42, true); ctx.fillText('职业觉醒实验室', W / 2, 84);
         ctx.fillStyle = '#888'; ctx.font = font(19, false); ctx.fillText('YOUR CAREER AWAKENING LAB', W / 2, 116);
         ctx.strokeStyle = accent; ctx.globalAlpha = 0.6; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(W / 2 - 120, 140); ctx.lineTo(W / 2 + 120, 140); ctx.stroke(); ctx.globalAlpha = 1;
 
         const arch = result.archetype, c = result.cognitive, temp = TEMPERAMENTS[c.temp];
-        // 价值原型
-        ctx.font = font(66, false); ctx.fillText(arch.emoji, W / 2, 240);
-        ctx.fillStyle = accent; ctx.font = font(46, true); ctx.fillText(arch.label, W / 2, 300);
-        ctx.fillStyle = '#aaa'; ctx.font = font(20, false); ctx.fillText('你的价值原型', W / 2, 332);
+        ctx.font = font(66, false); ctx.fillText(arch.emoji, W / 2, 230);
+        ctx.fillStyle = accent; ctx.font = font(42, true); ctx.fillText(arch.label, W / 2, 285);
+        ctx.fillStyle = '#aaa'; ctx.font = font(18, false); ctx.fillText('价值原型 · ' + result.mainTrait.name, W / 2, 312);
+
+        // 热爱引擎
+        const pMeta = PASSION_META[result.primaryPassion];
+        ctx.fillStyle = '#fff'; ctx.font = font(26, true);
+        ctx.fillText(pMeta.icon + ' 热爱引擎 · ' + pMeta.name, W / 2, 360);
+
+        const passion = result.passion;
+        const pTotal = result.passionTotal;
+        const barX = 100, barW = W - 200, barH = 18, barGap = 36;
+        let barY = 390;
+        passion.forEach(([key, val]) => {
+            const meta = PASSION_META[key];
+            if (!meta) return;
+            const pct = pTotal > 0 ? val / pTotal : 0;
+            const isPrimary = key === result.primaryPassion;
+            ctx.textAlign = 'left';
+            ctx.fillStyle = isPrimary ? '#fff' : '#999';
+            ctx.font = font(isPrimary ? 16 : 14, isPrimary);
+            ctx.fillText(meta.icon + ' ' + meta.name, barX, barY + 13);
+            const pctTxt = Math.round(pct * 100) + '%';
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#888'; ctx.font = font(13, false);
+            ctx.fillText(pctTxt, barX + barW, barY + 13);
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            roundRect(ctx, barX, barY + 20, barW, barH, 6); ctx.fill();
+            if (pct > 0) {
+                ctx.fillStyle = isPrimary ? accent : 'rgba(255,255,255,0.2)';
+                roundRect(ctx, barX, barY + 20, barW * pct, barH, 6); ctx.fill();
+            }
+            barY += barGap;
+        });
+
         // 认知风格
-        ctx.fillStyle = '#fff'; ctx.font = font(30, true); ctx.fillText('认知风格 · ' + c.type, W / 2, 388);
-        ctx.fillStyle = '#bbb'; ctx.font = font(20, false); ctx.fillText(temp.name, W / 2, 420);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff'; ctx.font = font(26, true); ctx.fillText('认知风格 · ' + c.type, W / 2, barY + 30);
+        ctx.fillStyle = '#bbb'; ctx.font = font(18, false); ctx.fillText(temp.name, W / 2, barY + 58);
 
         // 九宫格
-        const gridX = 80, gridY = 452, cellW = (W - 160) / 3, cellH = 92;
+        const gridY = barY + 80;
+        const gridX = 80, cellW = (W - 160) / 3, cellH = 88;
         const { row: rowMe, col: colMe } = gridPos(c.axes);
         for (let r = 0; r < 3; r++) for (let col = 0; col < 3; col++) {
             const x = gridX + col * cellW, y = gridY + r * cellH;
@@ -849,27 +987,27 @@ const Game = {
             roundRect(ctx, x + 4, y + 4, cellW - 8, cellH - 8, 10); ctx.stroke();
             const cell = GRID_CELLS[r][col];
             if (me) {
-                ctx.fillStyle = accent; ctx.font = font(14, true); ctx.fillText('📍 你在这里', x + cellW / 2, y + 24);
-                ctx.fillStyle = accent; ctx.font = font(20, true); ctx.fillText(cell.t, x + cellW / 2, y + 56);
+                ctx.fillStyle = accent; ctx.font = font(13, true); ctx.fillText('📍 你在这里', x + cellW / 2, y + 22);
+                ctx.fillStyle = accent; ctx.font = font(18, true); ctx.fillText(cell.t, x + cellW / 2, y + 52);
             } else {
-                ctx.fillStyle = '#eee'; ctx.font = font(19, false); ctx.fillText(cell.t, x + cellW / 2, y + cellH / 2 - 2);
-                ctx.fillStyle = '#999'; ctx.font = font(12, false); ctx.fillText(cell.d, x + cellW / 2, y + cellH / 2 + 18);
+                ctx.fillStyle = '#eee'; ctx.font = font(17, false); ctx.fillText(cell.t, x + cellW / 2, y + cellH / 2 - 2);
+                ctx.fillStyle = '#999'; ctx.font = font(11, false); ctx.fillText(cell.d, x + cellW / 2, y + cellH / 2 + 16);
             }
         }
-        // 轴说明
-        ctx.fillStyle = '#777'; ctx.font = font(14, false);
-        ctx.textAlign = 'left'; ctx.fillText('◀ 实感 S', gridX + 6, gridY + 3 * cellH + 22);
-        ctx.textAlign = 'right'; ctx.fillText('直觉 N ▶', gridX + (W - 160) - 6, gridY + 3 * cellH + 22);
+        ctx.fillStyle = '#777'; ctx.font = font(13, false);
+        ctx.textAlign = 'left'; ctx.fillText('◀ 实感 S', gridX + 6, gridY + 3 * cellH + 20);
+        ctx.textAlign = 'right'; ctx.fillText('直觉 N ▶', gridX + (W - 160) - 6, gridY + 3 * cellH + 20);
         ctx.textAlign = 'center';
 
-        // 职业认知交叉建议
-        const cross = (CROSS_MAP[result.primaryKey] && CROSS_MAP[result.primaryKey][c.temp]) || '你的组合独特，建议结合具体行业再判断。';
-        ctx.fillStyle = accent; ctx.font = font(20, true); ctx.fillText('🔭 职业认知', W / 2, gridY + 3 * cellH + 64);
-        ctx.fillStyle = '#ddd'; ctx.font = font(18, false);
-        wrapText(ctx, cross, W / 2, gridY + 3 * cellH + 96, W - 140, 28);
+        // 交叉建议
+        const cross = (PASSION_CROSS_MAP[result.primaryPassion] && PASSION_CROSS_MAP[result.primaryPassion][result.primaryKey])
+            || '你的组合独特，建议结合具体行业再判断。';
+        const crossY = gridY + 3 * cellH + 50;
+        ctx.fillStyle = accent; ctx.font = font(18, true); ctx.fillText('🔥 热爱 × 价值', W / 2, crossY);
+        ctx.fillStyle = '#ddd'; ctx.font = font(16, false);
+        wrapText(ctx, cross, W / 2, crossY + 30, W - 140, 26);
 
-        // 底部署名
-        ctx.fillStyle = '#666'; ctx.font = font(16, false);
+        ctx.fillStyle = '#666'; ctx.font = font(15, false);
         ctx.fillText('— 测测你的职场人格觉醒路径 —', W / 2, H - 34);
     },
 
@@ -883,7 +1021,7 @@ const Game = {
             overlay.id = 'poster-overlay';
             overlay.className = 'poster-overlay';
             overlay.innerHTML = '<div class="poster-modal">' +
-                '<canvas id="poster-canvas" width="720" height="1080"></canvas>' +
+                '<canvas id="poster-canvas" width="720" height="1280"></canvas>' +
                 '<div class="poster-actions">' +
                     '<button class="btn-share" onclick="Game.downloadPoster()">📥 保存图片</button>' +
                     '<button class="btn-back" onclick="Game.closePoster()">关闭</button>' +
@@ -910,7 +1048,7 @@ const Game = {
         a.click();
     },
 
-    /* 生成打工人报告（优化版） */
+    /* 生成打工人报告（v7 热爱轴版） */
     generateWorkerReport(result) {
         const arch = result.archetype;
         const score = result.scores;
@@ -926,6 +1064,10 @@ const Game = {
         } else if (score.energy < 30) {
             diagnosis = { title: "身心亚健康", text: "能量条已经见红，虽然还在坚持，但这是不可持续的。", action: "调整节奏" };
         }
+
+        const pMeta = PASSION_META[result.primaryPassion];
+        const crossInsight = (PASSION_CROSS_MAP[result.primaryPassion] && PASSION_CROSS_MAP[result.primaryPassion][result.primaryKey])
+            || '你的热爱与价值取向组合独特，建议结合具体行业再做判断。';
 
         return `
             <div class="report-card">
@@ -955,8 +1097,15 @@ const Game = {
                     <div class="diag-text">${diagnosis.text}</div>
                 </div>
 
+                ${this.passionEngineHTML(result)}
+
+                <div class="rec-card">
+                    <div class="rec-title">🔥 热爱 × 价值 交叉洞察</div>
+                    <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${crossInsight}</div>
+                </div>
+
                 <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 13px; color: #ccc; line-height: 1.7;">
-                    🧬 <b style="color: var(--accent-color);">认知风格 ${result.cognitive.type}</b>（${TEMPERAMENTS[result.cognitive.temp].name}）· 你的“出厂设置”是【${result.mainTrait.name}】。上面的消耗或倦怠，往往发生在工作要求与你认知习惯相悖时——下一步调整，记得顺着自己的节奏。
+                    🧬 <b style="color: var(--accent-color);">认知风格 ${result.cognitive.type}</b>（${TEMPERAMENTS[result.cognitive.temp].name}）· 你的"出厂设置"是【${result.mainTrait.name}】。上面的消耗或倦怠，往往发生在工作要求与你认知习惯相悖时——下一步调整，记得顺着自己的节奏。
                 </div>
 
                 <div class="rec-card" style="margin-top: 20px;">
@@ -976,16 +1125,18 @@ const Game = {
         `;
     },
 
-    /* 新增：复制报告文本（修正版） */
+    /* 新增：复制报告文本（v7 热爱轴版） */
     copyReport() {
         if (!this.lastResult) return;
         
         const arch = this.lastResult.archetype;
         const role = document.getElementById('hud-role').innerText;
+        const pMeta = PASSION_META[this.lastResult.primaryPassion];
         
         let text = `我在【职业觉醒实验室】完成了测评！\n\n`;
         text += `👤 我的角色：${role}\n`;
         text += `🧬 核心人格：${arch.label} (${arch.emoji})\n`;
+        text += `🔥 热爱引擎：${pMeta.icon} ${pMeta.name}\n`;
         text += `🧠 认知风格：${this.lastResult.cognitive.type}（${TEMPERAMENTS[this.lastResult.cognitive.temp].name}）\n`;
         text += `⚡️ 能量值：${this.state.energy} | 🌟 意义感：${this.state.meaning} | 💰 收益：${this.state.money}\n\n`;
         
