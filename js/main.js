@@ -120,10 +120,10 @@ const CROSS_MAP = {
 
 /* ============ 热爱轴（Passion Axis） ============ */
 const PASSION_META = {
-    maker:     { name: '创造者', icon: '🔨', desc: '从无到有造出东西' },
-    explorer:  { name: '探索者', icon: '🔬', desc: '搞懂复杂的系统和问题' },
-    connector: { name: '连接者', icon: '🤝', desc: '帮助人成长、建立深度关系' },
-    performer: { name: '表达者', icon: '🎤', desc: '影响、打动、带动一群人' }
+    maker:     { name: '创造者', icon: '🔨', desc: '从无到有造出东西', oneLiner: '不造点东西就难受' },
+    explorer:  { name: '探索者', icon: '🔬', desc: '搞懂复杂的系统和问题', oneLiner: '搞不懂就睡不着' },
+    connector: { name: '连接者', icon: '🤝', desc: '帮助人成长、建立深度关系', oneLiner: '看到别人变好自己才踏实' },
+    performer: { name: '表达者', icon: '🎤', desc: '影响、打动、带动一群人', oneLiner: '不表达就觉得白活了' }
 };
 
 const PASSION_CROSS_MAP = {
@@ -160,6 +160,21 @@ const PASSION_CROSS_MAP = {
         challenge: '你是高能表演者——在高压舞台上最闪亮。销售路演、创业 pitch、直播带贷让你肾上腺素飙升。'
     }
 };
+
+/* 折叠/展开区块 */
+function toggleSection(id) {
+    const content = document.getElementById(id);
+    if (!content) return;
+    const header = content.previousElementSibling;
+    const isExpanded = content.classList.contains('expanded');
+    if (isExpanded) {
+        content.classList.remove('expanded');
+        if (header) header.classList.remove('expanded');
+    } else {
+        content.classList.add('expanded');
+        if (header) header.classList.add('expanded');
+    }
+}
 
 const Game = {
     state: {
@@ -747,7 +762,25 @@ const Game = {
         };
     },
 
-    /* 生成学生报告（v7 热爱轴版） */
+    /* 生成一句话数据总结 */
+    generateOneLiner(result) {
+        const p = PASSION_META[result.primaryPassion];
+        const trait = result.mainTrait.name;
+        const topCount = result.passion[0] ? result.passion[0][1] : 0;
+        const total = result.passionTotal;
+        return `在 <em>${total}</em> 次选择中，<em>${topCount}</em> 次指向${p.name}——你是那种${p.oneLiner}的人。<em>${trait}</em>是你的主战场。`;
+    },
+
+    _crossInsightHTML(result) {
+        const crossInsight = (PASSION_CROSS_MAP[result.primaryPassion] && PASSION_CROSS_MAP[result.primaryPassion][result.primaryKey])
+            || '你的热爱与价值取向组合独特，建议结合具体行业再做判断。';
+        return `<div class="rec-card" style="margin-top: 10px;">
+            <div class="rec-title">🔥 热爱 × 价值 交叉洞察</div>
+            <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${crossInsight}</div>
+        </div>`;
+    },
+
+    /* 生成学生报告（v7 热爱轴版 · 分层展开） */
     generateStudentReport(result) {
         const arch = result.archetype;
         const trait = result.mainTrait;
@@ -760,54 +793,61 @@ const Game = {
             civil: "体制内", academic: "高校青椒", medical: "医务工作者"
         };
 
-        const pMeta = PASSION_META[result.primaryPassion];
-        const crossInsight = (PASSION_CROSS_MAP[result.primaryPassion] && PASSION_CROSS_MAP[result.primaryPassion][result.primaryKey])
-            || '你的热爱与价值取向组合独特，建议结合具体行业再做判断。';
+        const oneLiner = this.generateOneLiner(result);
 
         return `
             <div class="report-card">
-                <div class="archetype-box" style="text-align: center; margin-bottom: 30px; padding: 25px 0;">
+                <div class="archetype-box" style="text-align: center; margin-bottom: 10px; padding: 25px 0 10px;">
                     <div class="archetype-icon" style="font-size: 50px; margin-bottom: 10px;">${arch.emoji}</div>
                     <div class="archetype-label" style="font-size: 26px; font-weight: 900; color: var(--accent-color); margin-bottom: 5px;">${arch.label}</div>
                     <div class="archetype-sub" style="font-size: 12px; color: #888; letter-spacing: 2px;">YOUR CAREER ARCHETYPE</div>
                 </div>
 
-                <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; margin-bottom: 25px; position: relative;">
-                    <div style="position: absolute; top: -10px; left: 20px; font-size: 24px;">💡</div>
-                    <div style="font-size: 14px; line-height: 1.8; color: #ddd; margin-top: 5px;">
-                        ${arch.desc}
+                <div class="one-liner">${oneLiner}</div>
+
+                <div class="collapsible-header expanded" onclick="toggleSection('sec-passion')">
+                    <span>🔥 热爱引擎 · ${PASSION_META[result.primaryPassion].name}</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-passion" class="collapsible-content expanded">
+                    ${this.passionEngineHTML(result)}
+                    ${this._crossInsightHTML(result)}
+                </div>
+
+                <div class="collapsible-header" onclick="toggleSection('sec-cognitive')">
+                    <span>🧠 认知风格 · ${result.cognitive.type}</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-cognitive" class="collapsible-content">
+                    ${this.cognitiveBlockHTML(result)}
+                </div>
+
+                <div class="collapsible-header" onclick="toggleSection('sec-career')">
+                    <span>🎯 职业建议</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-career" class="collapsible-content">
+                    <div class="mirror-grid">
+                        <div class="mirror-box mirror-good">
+                            <div class="mirror-title">✨ 你的天赋</div>
+                            <div class="mirror-desc">这种性格特质，是你的出厂设置。找到能发挥它的场景，你会比别人跑得更快。</div>
+                        </div>
+                        <div class="mirror-box mirror-bad">
+                            <div class="mirror-title">⚠️ 你的雷区</div>
+                            <div class="mirror-desc">初入职场，不仅要发挥优势，更要看清自己的性格底色可能在哪里碰壁。</div>
+                        </div>
+                    </div>
+                    <div class="rec-card">
+                        <div class="rec-title">🎯 推荐职业剧本</div>
+                        <div class="rec-role" style="color: var(--accent-color); font-size: 18px;">《${roleNames[recRole] || "职场通才"}》</div>
+                        <div class="rec-desc" style="margin-top: 5px;">在这个剧本里，你的特质将成为核心竞争力，而不是负担。</div>
                     </div>
                 </div>
 
-                ${this.passionEngineHTML(result)}
-
-                <div class="rec-card" style="margin-top: 20px;">
-                    <div class="rec-title">🔥 热爱 × 价值 交叉洞察</div>
-                    <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${crossInsight}</div>
+                <div class="share-row">
+                    <button class="btn-share" onclick="Game.shareResult()">📤 分享结果</button>
+                    <button class="btn-restart" onclick="Game.restart()">🔄 重新测评</button>
                 </div>
-
-                <div class="mirror-grid">
-                    <div class="mirror-box mirror-good">
-                        <div class="mirror-title">✨ 你的天赋</div>
-                        <div class="mirror-desc">这种性格特质，是你的出厂设置。找到能发挥它的场景，你会比别人跑得更快。</div>
-                    </div>
-                    <div class="mirror-box mirror-bad">
-                        <div class="mirror-title">⚠️ 你的雷区</div>
-                        <div class="mirror-desc">初入职场，不仅要发挥优势，更要看清自己的性格底色可能在哪里碰壁。</div>
-                    </div>
-                </div>
-
-                ${this.cognitiveBlockHTML(result)}
-
-                <div class="rec-card">
-                    <div class="rec-title">🎯 推荐职业剧本</div>
-                    <div class="rec-role" style="color: var(--accent-color); font-size: 18px;">《${roleNames[recRole] || "职场通才"}》</div>
-                    <div class="rec-desc" style="margin-top: 5px;">在这个剧本里，你的特质将成为核心竞争力，而不是负担。</div>
-                </div>
-
-                <button class="btn-share" onclick="Game.copyReport()">📋 复制结果发朋友圈</button>
-                <button class="btn-ai" onclick="Game.openPoster()">🖼️ 生成我的职场人格卡</button>
-                <button class="btn-restart" onclick="Game.restart()">重新测评</button>
             </div>
         `;
     },
@@ -1048,7 +1088,7 @@ const Game = {
         a.click();
     },
 
-    /* 生成打工人报告（v7 热爱轴版） */
+    /* 生成打工人报告（v7 热爱轴版 · 分层展开） */
     generateWorkerReport(result) {
         const arch = result.archetype;
         const score = result.scores;
@@ -1065,9 +1105,9 @@ const Game = {
             diagnosis = { title: "身心亚健康", text: "能量条已经见红，虽然还在坚持，但这是不可持续的。", action: "调整节奏" };
         }
 
-        const pMeta = PASSION_META[result.primaryPassion];
-        const crossInsight = (PASSION_CROSS_MAP[result.primaryPassion] && PASSION_CROSS_MAP[result.primaryPassion][result.primaryKey])
-            || '你的热爱与价值取向组合独特，建议结合具体行业再做判断。';
+        const actionDetail = result.isBurnout ? "建议立刻申请休假，或寻求心理咨询支持。" : 
+                        (result.matchScore < 70 ? "建议利用业余时间探索更适合你特质的岗位，尝试投递简历。" : 
+                        "目前状态良好，继续保持学习，积累更高层级的资本。");
 
         return `
             <div class="report-card">
@@ -1097,65 +1137,48 @@ const Game = {
                     <div class="diag-text">${diagnosis.text}</div>
                 </div>
 
-                ${this.passionEngineHTML(result)}
-
-                <div class="rec-card">
-                    <div class="rec-title">🔥 热爱 × 价值 交叉洞察</div>
-                    <div class="rec-desc" style="margin-top: 6px; line-height: 1.7; color: #ddd;">${crossInsight}</div>
+                <div class="collapsible-header expanded" onclick="toggleSection('sec-passion')">
+                    <span>🔥 热爱引擎 · ${PASSION_META[result.primaryPassion].name}</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-passion" class="collapsible-content expanded">
+                    ${this.passionEngineHTML(result)}
+                    ${this._crossInsightHTML(result)}
                 </div>
 
-                <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 13px; color: #ccc; line-height: 1.7;">
-                    🧬 <b style="color: var(--accent-color);">认知风格 ${result.cognitive.type}</b>（${TEMPERAMENTS[result.cognitive.temp].name}）· 你的"出厂设置"是【${result.mainTrait.name}】。上面的消耗或倦怠，往往发生在工作要求与你认知习惯相悖时——下一步调整，记得顺着自己的节奏。
+                <div class="collapsible-header" onclick="toggleSection('sec-cognitive')">
+                    <span>🧠 认知风格 · ${result.cognitive.type}</span>
+                    <span class="chevron">▼</span>
                 </div>
-
-                <div class="rec-card" style="margin-top: 20px;">
-                    <div class="rec-title">💊 行动建议</div>
-                    <div class="rec-role" style="color: ${result.isBurnout ? '#e74c3c' : 'var(--accent-color)'};">${diagnosis.action}</div>
-                    <div class="rec-desc" style="font-size: 12px; color: #aaa; margin-top: 8px;">
-                        ${result.isBurnout ? "建议立刻申请休假，或寻求心理咨询支持。" : 
-                        (result.matchScore < 70 ? "建议利用业余时间探索更适合你特质的岗位，尝试投递简历。" : 
-                        "目前状态良好，继续保持学习，积累更高层级的资本。")}
+                <div id="sec-cognitive" class="collapsible-content">
+                    <div class="insight-box" style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; font-size: 13px; color: #ccc; line-height: 1.7;">
+                        🧬 <b style="color: var(--accent-color);">认知风格 ${result.cognitive.type}</b>（${TEMPERAMENTS[result.cognitive.temp].name}）· 你的"出厂设置"是【${result.mainTrait.name}】。上面的消耗或倦怠，往往发生在工作要求与你认知习惯相悖时——下一步调整，记得顺着自己的节奏。
                     </div>
                 </div>
 
-                <button class="btn-share" onclick="Game.copyReport()">📋 复制结果发朋友圈</button>
-                <button class="btn-ai" onclick="Game.openPoster()">🖼️ 生成我的职场人格卡</button>
-                <button class="btn-restart" onclick="Game.restart()">重新测评</button>
+                <div class="collapsible-header" onclick="toggleSection('sec-action')">
+                    <span>💊 行动建议</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-action" class="collapsible-content">
+                    <div class="rec-card">
+                        <div class="rec-title">💊 行动建议</div>
+                        <div class="rec-role" style="color: ${result.isBurnout ? '#e74c3c' : 'var(--accent-color)'};">${diagnosis.action}</div>
+                        <div class="rec-desc" style="font-size: 12px; color: #aaa; margin-top: 8px;">${actionDetail}</div>
+                    </div>
+                </div>
+
+                <div class="share-row">
+                    <button class="btn-share" onclick="Game.shareResult()">📤 分享结果</button>
+                    <button class="btn-restart" onclick="Game.restart()">🔄 重新测评</button>
+                </div>
             </div>
         `;
     },
 
-    /* 新增：复制报告文本（v7 热爱轴版） */
-    copyReport() {
-        if (!this.lastResult) return;
-        
-        const arch = this.lastResult.archetype;
-        const role = document.getElementById('hud-role').innerText;
-        const pMeta = PASSION_META[this.lastResult.primaryPassion];
-        
-        let text = `我在【职业觉醒实验室】完成了测评！\n\n`;
-        text += `👤 我的角色：${role}\n`;
-        text += `🧬 核心人格：${arch.label} (${arch.emoji})\n`;
-        text += `🔥 热爱引擎：${pMeta.icon} ${pMeta.name}\n`;
-        text += `🧠 认知风格：${this.lastResult.cognitive.type}（${TEMPERAMENTS[this.lastResult.cognitive.temp].name}）\n`;
-        text += `⚡️ 能量值：${this.state.energy} | 🌟 意义感：${this.state.meaning} | 💰 收益：${this.state.money}\n\n`;
-        
-        if (this.state.identity === 'student') {
-            text += `🔮 测评结果：${arch.desc}`;
-        } else {
-            text += `💊 职场诊断：提醒我要关注自己的状态了。`;
-        }
-        
-        text += `\n来测测你的职场人格画像 👉 https://mituanzi.github.io/CareerGame/`;
-
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        
-        alert('✅ 报告已复制到剪贴板，快去粘贴发朋友圈吧！');
+    /* 分享结果：打开海报弹窗 */
+    shareResult() {
+        this.openPoster();
     },
 
     restart() {
