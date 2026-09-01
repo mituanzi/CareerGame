@@ -176,21 +176,43 @@ function toggleSection(id) {
     }
 }
 
+/* 剪贴板兜底：异步 Clipboard API 在 webview / 未聚焦的文档里会直接 reject，
+   而那正是用户点“复制文本”的场景 */
+function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+}
+
 const Game = {
     state: {
         identity: 'worker',
         mode: 'deep', // 默认深度模式
+        pain: null,       // 开局采集：你现在最难受的是什么
         energy: 100,
         meaning: 50,
         money: 50,
-        tracks: {},
+        tracks: {},       // 兼容保留：价值标签原始计数
+        trackPick: {},    // 选中的 track 次数
+        trackExp: {},     // 随机基线：该 track 出现在候选里的期望次数
+        trackOffers: {},  // 该 track 实际出现在几道题里（判断样本薄不薄）
         cog: {},
-        passion: {}
+        passion: {},
+        energySpent: 0,   // 内耗指数：实际选中的能量代价累计
+        energyBest: 0,    // 内耗指数：每题"最省力那个选项"的能量累计
+        choiceCount: 0,
+        npcMemory: []     // 存在 state 内 → 撤回时随快照一起回退
     },
     
     history: [],       // 用于存放历史状态快照，支持回退
     currentIndex: 0,
-    currentRole: null,
     events: [],
     lastResult: null,  // 【新增】用于存储最后一次计算的结果，供分享功能使用
 
@@ -199,13 +221,13 @@ const Game = {
         this.state.identity = type;
         
         const introText = type === 'student' 
-            ? "年轻的你站在人生的岔路口，每一次选择都将塑造未来的模样。" 
-            : "在职场摸爬滚打多年的你，是否还记得当初为何出发？";
+            ? "先别急着说你想干什么。先说说，什么最让你难受。" 
+            : "先别急着说你想干什么。先说说，现在什么最让你难受。";
         
-        document.getElementById('role-intro').innerText = introText;
+        document.getElementById('pain-intro').innerText = introText;
         
-        this.renderRoles();
-        this.showScreen('screen-role');
+        this.renderPainPoints();
+        this.showScreen('screen-pain');
     },
 
     /* 新增：模式选择 */
@@ -224,92 +246,126 @@ const Game = {
         }
     },
 
-    /* 2. 渲染角色卡片 */
-    renderRoles() {
-        const container = document.getElementById('role-container');
-        container.innerHTML = ''; 
+    /* 2. 渲染痛点卡片 */
+    renderPainPoints() {
+        const container = document.getElementById('pain-container');
+        container.innerHTML = '';
 
-        const roles = GameData.roles || [
-            { id: 'coder', name: '程序员', icon: '👨‍💻' },
-            { id: 'finance', name: '金融民工', icon: '📈' },
-            { id: 'soe', name: '央企职员', icon: '🏢' },
-            { id: 'civil', name: '体制内', icon: '☕️' },
-            { id: 'academic', name: '高校青椒', icon: '📚' },
-            { id: 'medical', name: '医务工作者', icon: '🏥' }
-        ];
+        const pains = GameData.painPoints || [];
 
-        roles.forEach(role => {
+        pains.forEach(p => {
             const card = document.createElement('div');
-            card.className = 'role-card';
-            card.onclick = () => this.start(role.id);
+            card.className = 'role-card pain-card';
+            card.onclick = () => this.start(p.id);
             card.innerHTML = `
-                <span class="role-icon">${role.icon}</span>
-                <div class="role-name">${role.name}</div>
+                <span class="role-icon">${p.icon}</span>
+                <div class="role-name">${p.name}</div>
+                <div class="pain-desc">${p.desc}</div>
             `;
             container.appendChild(card);
         });
     },
 
-    /* 3. 开始游戏 */
-    start(role) {
-        this.currentRole = role;
-        
-        // 应用主题皮肤
-        document.body.className = `theme-${role}`;
+    /* 3. 开始游戏：赛道不再由开局决定，改由答题推导 */
+    start(painId) {
+        this.state.pain = painId;
+
+        // 开局不上职业皮肤：皮肤跟着结论走，不跟着自我标签走
+        document.body.className = '';
 
         // 初始化状态
         this.state.energy = 100;
         this.state.meaning = 50;
         this.state.money = 50;
         this.state.tracks = {};
+        this.state.trackPick = {};
+        this.state.trackExp = {};
+        this.state.trackOffers = {};
         this.state.cog = {};
         this.state.passion = {};
+        this.state.energySpent = 0;
+        this.state.energyBest = 0;
+        this.state.choiceCount = 0;
+        this.state.npcMemory = [];
         
         // 清空历史记录
         this.history = [];
         document.getElementById('btn-back').style.display = 'none';
 
-        // 加载事件逻辑
-        let allEvents = GameData.universal ? [...GameData.universal] : [];
-        
-        if (GameData.scenarios && GameData.scenarios[role]) {
-            allEvents = [...allEvents, ...GameData.scenarios[role]];
-        }
+        this.events = this.buildEventSet();
 
-        // 洗牌
-        this.events = this.shuffle(allEvents);
-        
-        // 【核心修改】根据模式截断题库
-        if (this.state.mode === 'shallow') {
-            this.events = this.events.slice(0, 15);
-        }
-
-        // 插入突发事件（约 1/3、2/3 处），从 crises 池随机抽取、不重复
-        const _crises = (GameData.crises || []).slice();
+        // 插入突发事件（约 1/3、2/3 处）
+        const line = this.state.identity;
+        const crisisPool = ((GameData.crises || {})[line] || []).slice();
         const _n = this.events.length;
         const _pos = [];
         if (_n >= 6) { _pos.push(Math.floor(_n * 0.34)); if (_n >= 12) _pos.push(Math.floor(_n * 0.67)); }
         _pos.sort((a, b) => b - a); // 从后往前插入，避免位置偏移
         _pos.forEach(pos => {
-            if (_crises.length && pos < this.events.length) {
-                const ci = Math.floor(Math.random() * _crises.length);
-                this.events.splice(pos, 0, _crises.splice(ci, 1)[0]);
+            if (crisisPool.length && pos < this.events.length) {
+                const ci = Math.floor(Math.random() * crisisPool.length);
+                this.events.splice(pos, 0, crisisPool.splice(ci, 1)[0]);
             }
         });
 
         this.currentIndex = 0;
         
-        // 更新 HUD 显示
-        const roleNames = {
-            coder: "程序员", finance: "金融民工", soe: "央企职员",
-            civil: "体制内", academic: "高校青椒", medical: "医务工作者"
-        };
-        document.getElementById('hud-role').innerText = roleNames[role] || "职场人";
-        document.getElementById('hud-time').innerText = "周一 09:00";
-
+        document.getElementById('hud-role').innerText =
+            this.state.identity === 'student' ? "🎓 学生" : "💼 打工人";
+        this.updateProgress();
         this.showScreen('screen-game');
         this.updateStats();
         this.loadEvent(0);
+    },
+
+    /* 抽题：固定三段预算。领域轮抽保证六个行业情境均匀出现，
+       热爱题单独配额——原版在洗牌后 slice，会把它们随机切掉 */
+    buildEventSet() {
+        const deep = this.state.mode === 'deep';
+        const line = this.state.identity;
+        const fits = q => !q.line || q.line === 'both' || q.line === line;
+
+        const universal = (GameData.universal || []).filter(fits);
+        // 热爱测量表 = 显式标记的 4 选 1 强制判断题。不能靠"选项带不带 passion"
+        // 反推——通用题里 22/24 都顺带打了 passion 标签，会把整个池子误分类
+        const instrumentQ = this.shuffle(universal.filter(q => q.instrument));
+        const generalQ = this.shuffle(universal.filter(q => !q.instrument));
+
+        const domainBuckets = Object.keys(GameData.scenarios || {}).map(d =>
+            this.shuffle((GameData.scenarios[d] || []).filter(fits)));
+        const studentQ = this.shuffle((GameData.student || []).filter(fits));
+
+        // 学生线先占走一部分情境预算，否则 15 道在校题会被 72 道在职题淹没
+        const stuTake = line === 'student'
+            ? Math.min(studentQ.length, deep ? 8 : 4) : 0;
+        const domainTake = (deep ? 18 : 7) - stuTake;
+
+        const situational = [
+            ...studentQ.slice(0, stuTake),
+            ...this.interleave(domainBuckets).slice(0, domainTake)
+        ];
+
+        return this.shuffle([
+            ...instrumentQ.slice(0, deep ? 10 : 6),
+            ...generalQ.slice(0, deep ? 8 : 2),
+            ...situational
+        ]);
+    },
+
+    /* 轮抽交错：第 0 轮每个桶取 1 题，再第 1 轮……桶间数量差最多 1 */
+    interleave(buckets) {
+        const out = [];
+        const max = buckets.reduce((m, b) => Math.max(m, b.length), 0);
+        for (let i = 0; i < max; i++) {
+            buckets.forEach(b => { if (b[i]) out.push(b[i]); });
+        }
+        return out;
+    },
+
+    /* HUD 进度：答到第几题，比一个开局自己填的职业标签有用 */
+    updateProgress() {
+        const el = document.getElementById('hud-progress');
+        if (el) el.innerText = `第 ${this.currentIndex + 1} / ${this.events.length} 题`;
     },
 
     /* 4. 加载事件 */
@@ -323,6 +379,7 @@ const Game = {
         
         const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
         document.getElementById('hud-time').innerText = `${days[index % 7]} ${(9 + index * 2) % 24}:00`;
+        this.updateProgress();
 
         const textEl = document.getElementById('event-text');
         textEl.innerText = event.text;
@@ -396,6 +453,70 @@ const Game = {
         if (this._crisisTimer) { clearInterval(this._crisisTimer); this._crisisTimer = null; }
     },
 
+    /* 纯状态累加：不碰 DOM，供 handleAction 与验证脚本共用 */
+    applyOption(event, option) {
+        // 应用效果
+        if (option.effect) {
+            this.state.energy += option.effect.energy || 0;
+            this.state.meaning += option.effect.meaning || 0;
+            this.state.money += option.effect.money || 0;
+
+            this.state.energy = Math.max(0, Math.min(100, this.state.energy));
+            this.state.meaning = Math.max(0, Math.min(100, this.state.meaning));
+            this.state.money = Math.max(0, Math.min(100, this.state.money));
+        }
+
+        // 价值层：记录"随机基线"与"实际选择"，供打分器算超出机会偏好的程度。
+        // 直接累加会被标签密度带偏（全库 security 出现 55 次、challenge 只有 19 次）
+        const normTrack = t => t === 'craftsman' ? 'tech' : t;
+        const shown = event.options.length;
+        event.options.forEach(o => {
+            const t = normTrack(o.track);
+            if (!t) return;
+            this.state.trackExp[t] = (this.state.trackExp[t] || 0) + 1 / shown;
+            this.state.trackOffers[t] = (this.state.trackOffers[t] || 0) + 1;
+        });
+
+        const chosenTrack = normTrack(option.track);
+        if (chosenTrack) {
+            this.state.tracks[chosenTrack] = (this.state.tracks[chosenTrack] || 0) + 1;
+            this.state.trackPick[chosenTrack] = (this.state.trackPick[chosenTrack] || 0) + 1;
+        }
+
+        // 认知层：累加认知维度权重
+        if (option.cog) {
+            for (const k in option.cog) {
+                this.state.cog[k] = (this.state.cog[k] || 0) + option.cog[k];
+            }
+        }
+
+        // 热爱轴：累加内驱力信号
+        const chosenPassion = option.passion ? Object.keys(option.passion)[0] : null;
+        if (option.passion) {
+            for (const k in option.passion) {
+                this.state.passion[k] = (this.state.passion[k] || 0) + option.passion[k];
+            }
+        }
+
+        // 内耗指数：记下"你选的"和"当场最省力的"之间差多少电量
+        if (option.effect && 'energy' in option.effect) {
+            this.state.energySpent += option.effect.energy;
+            this.state.energyBest += Math.max(...event.options.map(o =>
+                (o.effect && typeof o.effect.energy === 'number') ? o.effect.energy : 0));
+            this.state.choiceCount++;
+        }
+
+        // 老周的记忆：存在 state 里，撤回时随快照一起回退
+        this.state.npcMemory.push({
+            qid: event.id || 'q?',
+            text: option.text,
+            track: chosenTrack,
+            passion: chosenPassion,
+            energy: this.state.energy,
+            meaning: this.state.meaning
+        });
+    },
+
     /* 5. 处理选择 */
     handleAction(optionIndex) {
         this.stopCrisisTimer(); // 做选择前先停掉危机倒计时
@@ -413,40 +534,7 @@ const Game = {
         // 显示撤回按钮
         document.getElementById('btn-back').style.display = 'block';
 
-        // 应用效果
-        if (option.effect) {
-            const e = option.effect.energy || 0;
-            const m = option.effect.meaning || 0;
-            const y = option.effect.money || 0;
-            
-            this.state.energy += e;
-            this.state.meaning += m;
-            this.state.money += y;
-            
-            this.state.energy = Math.max(0, Math.min(100, this.state.energy));
-            this.state.meaning = Math.max(0, Math.min(100, this.state.meaning));
-            this.state.money = Math.max(0, Math.min(100, this.state.money));
-        }
-
-        // 价值层：统计主导特质（累加计数，而非布尔标记——原版用 true 会导致排序失效）
-        if (option.track) {
-            const track = option.track === 'craftsman' ? 'tech' : option.track;
-            this.state.tracks[track] = (this.state.tracks[track] || 0) + 1;
-        }
-
-        // 认知层：累加认知维度权重
-        if (option.cog) {
-            for (const k in option.cog) {
-                this.state.cog[k] = (this.state.cog[k] || 0) + option.cog[k];
-            }
-        }
-
-        // 热爱轴：累加内驱力信号
-        if (option.passion) {
-            for (const k in option.passion) {
-                this.state.passion[k] = (this.state.passion[k] || 0) + option.passion[k];
-            }
-        }
+        this.applyOption(event, option);
 
         // 情境吐槽：把这次选择的代价/收益翻译成一句人话（实时反馈）
         if (option.effect) this.showQuip(option.effect);
@@ -589,7 +677,11 @@ const Game = {
         
         // 【重要】保存计算结果，供分享功能使用
         this.lastResult = result;
-        
+
+        // 皮肤跟着推导出的赛道走，不跟着开局自己填的标签走
+        const top = result.profRanking && result.profRanking[0];
+        if (top) document.body.className = `theme-${top.id}`;
+
         let resultHTML = '';
         if (this.state.identity === 'student') {
             resultHTML = this.generateStudentReport(result);
@@ -601,21 +693,26 @@ const Game = {
         this.showScreen('screen-result');
     },
 
-    /* 核心算法：计算特质与结果（重构版） */
+    /* 核心算法：计算特质与结果（v8：赛道由答题推导） */
     calculateResult(reason) {
-        // 1. 统计特质轨迹
-        const tracks = this.state.tracks;
-        
-        // 将 tracks 对象转为数组并排序，找出最强的两个特质
-        let sortedTracks = Object.keys(tracks).sort((a, b) => tracks[b] - tracks[a]);
-        
-        // 如果没有任何轨迹（极少见），给默认值
-        if (sortedTracks.length === 0) sortedTracks = ['tech'];
-        
-        const primary = sortedTracks[0]; // 第一特质
-        const secondary = sortedTracks[1] || sortedTracks[0]; // 第二特质
+        // 1. 价值层打分：超出随机基线的程度，而不是裸计数。
+        //    裸计数会被标签密度带偏（全库 security 55 次 vs challenge 19 次），
+        //    除以期望暴露并做平滑后，暴露不足的 track 自动被压回中性。
+        const KEYS = ['tech', 'influence', 'freedom', 'security', 'service', 'challenge'];
+        const pick = this.state.trackPick || {};
+        const exp = this.state.trackExp || {};
+        const trackScore = {};
+        KEYS.forEach(k => {
+            const p = pick[k] || 0;
+            const e = exp[k] || 0;
+            trackScore[k] = (p - e) / (e + 2);
+        });
 
-        // 2. 定义16种职场人格原型（组合映射）
+        let sortedTracks = KEYS.slice().sort((a, b) => trackScore[b] - trackScore[a]);
+        const primary = sortedTracks[0];
+        const secondary = trackScore[sortedTracks[1]] > 0 ? sortedTracks[1] : sortedTracks[0];
+
+        // 2. 职场人格原型：15 个赛道两两组合 + 6 个单轨极致，全表无遗漏
         const archetypes = {
             // --- 技术流 ---
             "tech-tech": { 
@@ -687,6 +784,42 @@ const Game = {
             "influence-freedom": { 
                 label: "外交官", emoji: "🕊️",
                 desc: "你天生属于需要与人打交道的岗位。你能在不同的利益方之间游刃有余，且极其厌恶被具体的执行细节困住。"
+            },
+
+            // --- 补齐：交叉流（原表漏掉的 4 个组合）---
+            "tech-security": {
+                label: "守夜人", emoji: "🌙",
+                desc: "你把专业当作立足的地基，不追风口，只追「这份工作一直需要我」。你的风险不是被淘汰，是熬到自己都不想再熬的那天。"
+            },
+            "freedom-service": {
+                label: "云游医者", emoji: "🧭",
+                desc: "你要帮到具体的人，却不愿意为任何组织固定下来。自由职业里的助人者是你最舒服的样子，也是没人给你兜底的样子。"
+            },
+            "security-challenge": {
+                label: "带绳攀岩", emoji: "🧗",
+                desc: "你只在输得起的前提下冒险。别人看你又稳又敢，其实你早算好了退路——真没有退路的时候，你比谁都不肯上。"
+            },
+            "service-challenge": {
+                label: "战地医护", emoji: "🚑",
+                desc: "局面越乱你越来劲。你救的不只是人，是那种「这一刻只有我能顶住」的感觉。代价是风平浪静的日子对你格外难熬。"
+            },
+
+            // --- 补齐：极致单轨（某条赛道一骑绝尘、亚军毫无信号）---
+            "freedom-freedom": {
+                label: "独行客", emoji: "🚶",
+                desc: "你在每一次选择里投的都是同一票：别管我。你对内容、对人都没那么执着，执着的是不被绑住。这份清醒很贵，别把它过成漂泊。"
+            },
+            "service-service": {
+                label: "摆渡人", emoji: "⛵",
+                desc: "你的存在感来自被需要。别人一句「能帮我吗」，你就把排期全交了。你缺的不是能力，是拒绝之后仍然觉得自己有价值的那份底气。"
+            },
+            "influence-influence": {
+                label: "无冕之王", emoji: "👑",
+                desc: "你所有的选择都指向同一件事：谁说了算。你天然会往资源交汇的地方走，只是位置带来的确定感，永远追得上下一个位置，追不满。"
+            },
+            "challenge-challenge": {
+                label: "浪尖玩家", emoji: "🌊",
+                desc: "稳对你来说等于死。你要的是下一把更大、更难、更能翻盘的事。真正的考验不是你能不能赢，是输光之后你能不能忍住不梭哈。"
             }
         };
 
@@ -701,25 +834,91 @@ const Game = {
             };
         }
 
-        // 4. 计算匹配度
+        // 4. 赛道推荐：由答题推导，不再是开局自己填的标签
         const traitMap = {
-            tech: { name: "技术创造", suit: ["coder", "academic"] },
-            influence: { name: "影响引领", suit: ["finance", "civil"] },
-            freedom: { name: "自由自主", suit: ["coder"] },
-            security: { name: "安全稳定", suit: ["soe", "civil"] },
-            service: { name: "服务贡献", suit: ["medical", "civil"] },
-            challenge: { name: "挑战突破", suit: ["finance"] }
+            tech: { name: "技术创造" }, influence: { name: "影响引领" },
+            freedom: { name: "自由自主" }, security: { name: "安全稳定" },
+            service: { name: "服务贡献" }, challenge: { name: "挑战突破" }
         };
 
-        const currentRole = this.currentRole;
-        const matchScore = traitMap[primary].suit.includes(currentRole) ? 90 : 60;
+        const profs = GameData.professions || [];
+        // 只用正向信号做点积。trackScore 是"超出随机基线多少"，没答过的赛道是负数；
+        // 拿负数去乘权重等于奖励那些权重表里 0 更多的职业——实测纯影响型学生
+        // 会被 体制内(influence 0.5, challenge 0) 压过 金融与商业(0.8, challenge 1)。
+        // 没表现出来的倾向应该是不参与，而不是倒扣。
+        const posScore = {};
+        KEYS.forEach(k => { posScore[k] = Math.max(0, trackScore[k]); });
+        const profScored = profs.map(p => {
+            const w = p.profile || {};
+            let raw = 0;
+            KEYS.forEach(k => { raw += posScore[k] * (w[k] || 0); });
+            return { id: p.id, name: p.name, icon: p.icon, tagline: p.tagline, raw };
+        }).sort((a, b) => b.raw - a.raw);
+        // 匹配度的分母是"你一共发出了多少有效赛道信号"，不是"除以第一名"。
+        // 后者永远给榜首打 100 —— 信号再弱的人也会看到"100% 匹配"，那就成了假精确。
+        // 但份额本身是无量纲的：随机作答的学生也能算出"工程师吸收了 85% 的信号"。
+        // 所以再乘一个强度折扣，让"你其实没什么信号"体现在数字上。
+        const signalStrength = Math.min(1, Math.max(0, trackScore[sortedTracks[0]]) / 0.5);
+        const signalSum = Math.max(0.0001,
+            KEYS.reduce((s, k) => s + Math.max(0, trackScore[k]), 0));
+        profScored.forEach(p => {
+            p.fit = Math.max(0, Math.min(100,
+                Math.round(Math.max(0, p.raw) / signalSum * 100 * signalStrength)));
+        });
+        const profRanking = profScored.slice(0, 3);
 
-        // 5. 计算状态等级
+        // 5. 方向清晰度：冠军甩开亚军的绝对领先量，再乘上样本可信度。
+        //    不用 (top-runner)/top 这种比值——分母本身是个噪声量，
+        //    24 次纯随机模拟里中位数 20、最大值能撞满 100：暴露少的赛道靠几次
+        //    运气就能把自己顶起来，再一除就像"方向异常清晰"。
+        //    0.9 是绝对领先的经验上限（纯一策略实测 0.63~0.83）。
+        const top = trackScore[sortedTracks[0]];
+        const runnerUp = Math.max(0, trackScore[sortedTracks[1]]);
+        // 门槛按本人作答数的 20% 折算，浅度模式不会被误判为不清晰。
+        const need = Math.max(3, (this.state.choiceCount || 0) * 0.2);
+        const certainty = Math.min(1, (pick[sortedTracks[0]] || 0) / need);
+        const coherence = Math.max(0, Math.min(100,
+            Math.round(Math.max(0, top - runnerUp) / 0.9 * 100 * certainty)));
+        // 低分有两种截然不同的原因：摇摆不定 vs 题库压根没给够机会。
+        // 实测：打工人 36 题里 security 平均出 13 道、challenge 只有 4 道；
+        // 快速模式更悬殊（security 4.8 vs challenge 1.5）。所以门槛不能是个绝对值——
+        // 定 8 会让快速模式全员"样本薄"，定 4 又放过打工人线的真实缺口。
+        // 改成跟上同一套题里其他方向比：不到中位数一半，才算题库没给够机会。
+        const primaryOffers = this.state.trackOffers?.[primary] || 0;
+        const offerLadder = KEYS.map(k => this.state.trackOffers?.[k] || 0).sort((a, b) => a - b);
+        const medianOffers = (offerLadder[2] + offerLadder[3]) / 2;
+        const thinSample = primaryOffers < Math.max(2, medianOffers * 0.5);
+
+        // 6. 内耗指数：平均每次选择比"当场最省力的那个选项"多花掉多少电量
+        const nChoice = this.state.choiceCount || 0;
+        const avgActual = nChoice ? this.state.energySpent / nChoice : 0;
+        const avgBest = nChoice ? this.state.energyBest / nChoice : 0;
+        const friction = Math.max(0, Math.min(100,
+            Math.round((avgBest - avgActual) / 20 * 100)));
+
+        // 7. 痛点对照：你嘴上说的 vs 数据里塌得最快的
+        const readings = [
+            { k: 'energy', label: '身心能量', v: this.state.energy },
+            { k: 'meaning', label: '意义感', v: this.state.meaning },
+            { k: 'money', label: '经济回报', v: this.state.money },
+            { k: 'coherence', label: '方向清晰度', v: coherence }
+        ];
+        const worst = readings.slice().sort((a, b) => a.v - b.v)[0];
+        const painMeta = (GameData.painPoints || []).find(p => p.id === this.state.pain);
+        const painMirror = painMeta ? {
+            said: painMeta.name,
+            saidIcon: painMeta.icon,
+            aligned: painMeta.read === worst.k,
+            readLabel: worst.label,
+            readValue: worst.v
+        } : null;
+
+        // 8. 计算状态等级
         let statusLevel = "健康";
         if (reason === 'burnout' || this.state.energy < 20) statusLevel = "危险";
         else if (this.state.energy < 40 || this.state.meaning < 30) statusLevel = "亚健康";
 
-        // 6. 认知层：由 cog 累加值推断认知类型与气质
+        // 9. 认知层：由 cog 累加值推断认知类型与气质
         const cog = this.state.cog || {};
         const axisDetails = [];
         let type = '';
@@ -740,7 +939,7 @@ const Game = {
         else temp = (jOrP === 'P') ? 'SP' : 'SJ';
         const cognitive = { type, axes: axisDetails, temp };
 
-        // 7. 热爱轴：排序内驱力信号
+        // 10. 热爱轴：排序内驱力信号
         const passion = this.state.passion || {};
         const passionSorted = Object.entries(passion)
             .sort((a, b) => b[1] - a[1]);
@@ -752,9 +951,18 @@ const Game = {
             archetype: archetype,
             mainTrait: traitMap[primary],
             primaryKey: primary,
+            secondaryKey: secondary,
+            trackScore: trackScore,
             isBurnout: reason === 'burnout',
             statusLevel: statusLevel,
-            matchScore: matchScore,
+            profRanking: profRanking,
+            coherence: coherence,
+            primaryPicks: pick[primary] || 0,
+            primaryOffers: primaryOffers,
+            medianOffers: medianOffers,
+            thinSample: thinSample,
+            friction: friction,
+            painMirror: painMirror,
             cognitive: cognitive,
             passion: passionSorted,
             primaryPassion: primaryPassion,
@@ -765,10 +973,11 @@ const Game = {
     /* 生成一句话数据总结 */
     generateOneLiner(result) {
         const p = PASSION_META[result.primaryPassion];
-        const trait = result.mainTrait.name;
+        const n = result.scores.choiceCount || 0;
         const topCount = result.passion[0] ? result.passion[0][1] : 0;
-        const total = result.passionTotal;
-        return `在 <em>${total}</em> 次选择中，<em>${topCount}</em> 次指向${p.name}——你是那种${p.oneLiner}的人。<em>${trait}</em>是你的主战场。`;
+        const pm = result.painMirror;
+        const lead = pm ? `你说最难受的是${pm.said}。` : '';
+        return `${lead}在 <em>${n}</em> 次选择里，<em>${topCount}</em> 次露出${p.name}的底色——你是那种${p.oneLiner}的人。<em>${result.mainTrait.name}</em>是你的主战场。`;
     },
 
     _crossInsightHTML(result) {
@@ -780,30 +989,76 @@ const Game = {
         </div>`;
     },
 
+    /* 痛点对照：你嘴上说的 vs 数据里塌得最快的（两条线共用） */
+    painMirrorHTML(result) {
+        const pm = result.painMirror;
+        if (!pm) return '';
+        const n = result.scores.choiceCount || 0;
+
+        const body = pm.aligned
+            ? `你自己已经感觉到了。<em>${pm.said}</em>在整轮选择里确实塌得最狠——这不是误判，是你早就知道，只是一直没说出口。`
+            : `你说最难受的是<em>${pm.said}</em>，但 ${n} 次选择跑下来，先撑不住的是<em>${pm.readLabel}</em>。真正在消耗你的，可能不是那个你最先说出口的东西。`;
+
+        return `
+            <div class="pain-mirror">
+                <div class="pain-said">你开局说：${pm.saidIcon} ${pm.said}</div>
+                <div class="pain-read">数据读到：${pm.readLabel} ${pm.readValue}</div>
+                <div class="pain-body">${body}</div>
+            </div>
+        `;
+    },
+
+    /* 赛道推荐：由答题推导出的 Top3（两条线共用） */
+    profRankingHTML(result) {
+        const list = result.profRanking || [];
+        if (!list.length) return '';
+        const n = result.scores.choiceCount || 0;
+
+        const rows = list.map((p, i) => `
+            <div class="prof-row">
+                <div class="prof-rank">${i + 1}</div>
+                <div class="prof-main">
+                    <div class="prof-name">${p.icon} ${p.name}</div>
+                    <div class="prof-tag">${p.tagline}</div>
+                    <div class="prof-track"><div class="prof-fill" style="width: ${p.fit}%"></div></div>
+                </div>
+                <div class="prof-fit">${p.fit}</div>
+            </div>
+        `).join('');
+
+        let verdict;
+        if (result.coherence >= 60) {
+            verdict = '你的选择高度一致，这个结论可信。';
+        } else if (result.thinSample) {
+            verdict = `这套题里只有 <em>${result.primaryOffers}</em> 道题给过这个方向，其他方向有 ${Math.round(result.medianOffers)} 道左右——不是你摇摆，是样本太薄，先别拿它当结论。`;
+        } else if (result.coherence >= 35) {
+            verdict = '你还在几条路之间摇摆，结论当参考就好。';
+        } else {
+            verdict = '你还在探索期。这不是坏消息，是信息还不够——多试几条路再测一次。';
+        }
+
+        return `
+            <div class="prof-note">这 ${list.length} 条不是你自己选的，是从你 <em>${n}</em> 次选择里推出来的。右侧数字表示它吸收了你多少倾向信号，不是成功率：数字低不代表它不适合你，代表你的数据还不够确定。</div>
+            ${rows}
+            <div class="prof-coherence">方向清晰度 <b>${result.coherence}</b> / 100 —— ${verdict}</div>
+        `;
+    },
+
     /* 生成学生报告（v7 热爱轴版 · 分层展开） */
     generateStudentReport(result) {
-        const arch = result.archetype;
-        const trait = result.mainTrait;
-        
-        let recRole = trait.suit[0];
-        if (result.scores.energy < 40) recRole = "soe";
-
-        const roleNames = {
-            coder: "程序员", finance: "金融民工", soe: "央企职员",
-            civil: "体制内", academic: "高校青椒", medical: "医务工作者"
-        };
-
         const oneLiner = this.generateOneLiner(result);
 
         return `
             <div class="report-card">
                 <div class="archetype-box" style="text-align: center; margin-bottom: 10px; padding: 25px 0 10px;">
-                    <div class="archetype-icon" style="font-size: 50px; margin-bottom: 10px;">${arch.emoji}</div>
-                    <div class="archetype-label" style="font-size: 26px; font-weight: 900; color: var(--accent-color); margin-bottom: 5px;">${arch.label}</div>
+                    <div class="archetype-icon" style="font-size: 50px; margin-bottom: 10px;">${result.archetype.emoji}</div>
+                    <div class="archetype-label" style="font-size: 26px; font-weight: 900; color: var(--accent-color); margin-bottom: 5px;">${result.archetype.label}</div>
                     <div class="archetype-sub" style="font-size: 12px; color: #888; letter-spacing: 2px;">YOUR CAREER ARCHETYPE</div>
                 </div>
 
                 <div class="one-liner">${oneLiner}</div>
+
+                ${this.painMirrorHTML(result)}
 
                 <div class="collapsible-header expanded" onclick="toggleSection('sec-passion')">
                     <span>🔥 热爱引擎 · ${PASSION_META[result.primaryPassion].name}</span>
@@ -812,6 +1067,14 @@ const Game = {
                 <div id="sec-passion" class="collapsible-content expanded">
                     ${this.passionEngineHTML(result)}
                     ${this._crossInsightHTML(result)}
+                </div>
+
+                <div class="collapsible-header" onclick="toggleSection('sec-tracks')">
+                    <span>🎯 ${result.coherence >= 45 ? '你的赛道' : '最接近的方向'} · ${(result.profRanking[0] || {}).name || ''}</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-tracks" class="collapsible-content">
+                    ${this.profRankingHTML(result)}
                 </div>
 
                 <div class="collapsible-header" onclick="toggleSection('sec-cognitive')">
@@ -823,7 +1086,7 @@ const Game = {
                 </div>
 
                 <div class="collapsible-header" onclick="toggleSection('sec-career')">
-                    <span>🎯 职业建议</span>
+                    <span>🧭 天赋与雷区</span>
                     <span class="chevron">▼</span>
                 </div>
                 <div id="sec-career" class="collapsible-content">
@@ -836,11 +1099,6 @@ const Game = {
                             <div class="mirror-title">⚠️ 你的雷区</div>
                             <div class="mirror-desc">初入职场，不仅要发挥优势，更要看清自己的性格底色可能在哪里碰壁。</div>
                         </div>
-                    </div>
-                    <div class="rec-card">
-                        <div class="rec-title">🎯 推荐职业剧本</div>
-                        <div class="rec-role" style="color: var(--accent-color); font-size: 18px;">《${roleNames[recRole] || "职场通才"}》</div>
-                        <div class="rec-desc" style="margin-top: 5px;">在这个剧本里，你的特质将成为核心竞争力，而不是负担。</div>
                     </div>
                 </div>
 
@@ -1064,6 +1322,7 @@ const Game = {
                 '<canvas id="poster-canvas" width="720" height="1280"></canvas>' +
                 '<div class="poster-actions">' +
                     '<button class="btn-share" onclick="Game.downloadPoster()">📥 保存图片</button>' +
+                    '<button class="btn-share" onclick="Game.copyShareText(this)">📋 复制文本</button>' +
                     '<button class="btn-back" onclick="Game.closePoster()">关闭</button>' +
                 '</div>' +
                 '<div class="poster-tip">长按图片也可保存到相册</div>' +
@@ -1071,6 +1330,7 @@ const Game = {
             document.body.appendChild(overlay);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) Game.closePoster(); });
         }
+        overlay.querySelector('.poster-copy-box')?.remove();
         overlay.style.display = 'flex';
         const canvas = document.getElementById('poster-canvas');
         this.drawPoster(canvas, result);
@@ -1088,26 +1348,93 @@ const Game = {
         a.click();
     },
 
+    /* 纯文本版结果：图片发不进群的时候，靠这个 */
+    shareText() {
+        const r = this.lastResult;
+        if (!r) return '';
+        const passion = (PASSION_META[r.primaryPassion] || {}).name || '';
+        return [
+            '【职业觉醒实验室】',
+            `${r.archetype.emoji} ${r.archetype.label}`,
+            this.generateOneLiner(r).replace(/<[^>]+>/g, ''),
+            '',
+            `🎯 推导出的赛道：${r.profRanking.map(p => `${p.name} ${p.fit}`).join(' / ')}`,
+            `🔥 热爱：${passion}　🧠 认知：${r.cognitive.type}　🧭 方向清晰度：${r.coherence}/100`,
+            `⚡ 能量 ${r.scores.energy}　🌟 意义 ${r.scores.meaning}　💰 收益 ${r.scores.money}`,
+            '',
+            'mituanzi.github.io/CareerGame'
+        ].join('\n');
+    },
+
+    async copyShareText(btn) {
+        const label = btn.innerText;
+        const text = this.shareText();
+        const ok = await new Promise(resolve => {
+            navigator.clipboard && navigator.clipboard.writeText(text)
+                .then(() => resolve(true))
+                .catch(() => resolve(fallbackCopy(text)));
+        });
+        if (ok) {
+            btn.innerText = '✓ 已复制';
+            setTimeout(() => { btn.innerText = label; }, 1600);
+        } else {
+            this.showManualCopy(text);
+        }
+    },
+
+    /* 两条剪贴板路径都被拦住时（未聚焦的 webview、老版 Safari），
+       给用户一个能自己 Ctrl+C 的地方，而不是一个死胡同 */
+    showManualCopy(text) {
+        const modal = document.querySelector('#poster-overlay .poster-modal');
+        if (!modal) return;
+        let box = modal.querySelector('.poster-copy-box');
+        if (!box) {
+            box = document.createElement('div');
+            box.className = 'poster-copy-box';
+            const tip = document.createElement('div');
+            tip.className = 'poster-copy-tip';
+            tip.innerText = '浏览器拦住了剪贴板，文本已经选中：按 Ctrl+C 复制';
+            const ta = document.createElement('textarea');
+            ta.className = 'poster-copy';
+            ta.setAttribute('readonly', '');
+            box.appendChild(tip);
+            box.appendChild(ta);
+            modal.insertBefore(box, modal.querySelector('.poster-actions'));
+        }
+        const ta = box.querySelector('textarea');
+        ta.value = text;
+        ta.focus();
+        ta.select();
+    },
+
     /* 生成打工人报告（v7 热爱轴版 · 分层展开） */
     generateWorkerReport(result) {
         const arch = result.archetype;
         const score = result.scores;
         
         let diagnosis = { title: "职场状态正常", text: "继续保持，注意劳逸结合。", action: "观望" };
-        
+        const pm = result.painMirror;
+        // 实测摩擦区间：总选最省力 = 0，总选最贵 = 56，真实作答落在 20~45。
+        // 42 是"经常性自我消耗"的下限，原先写 55 会让这条分支永远打不着。
+        const HIGH_FRICTION = 42;
+        const overshoot = (result.friction / 5).toFixed(1);
+
         if (result.isBurnout) {
             diagnosis = { title: "严重职业倦怠", text: "你的身心能量已逼近极限，这不仅影响效率，更损害健康。", action: "立即休息" };
-        } else if (result.matchScore < 70 && score.meaning < 40) {
-            diagnosis = { title: "人岗匹配度低", text: "你的内在特质与当前工作存在冲突，这正在消耗你的心理资本。", action: "考虑转型" };
+        } else if (result.friction > HIGH_FRICTION && score.meaning < 45) {
+            diagnosis = { title: "高内耗模式", text: `平均每次选择，你比当场最省力的那个选项多花掉 ${overshoot} 格电量，可意义感并没有因此涨回来。付出不等于回报，这条链路断了。`, action: "止损" };
+        } else if (pm && !pm.aligned && score.meaning < 40) {
+            diagnosis = { title: "错位消耗", text: `你说是${pm.said}最难受，但数据里先塌的是${pm.readLabel}。你一直在解决的不是真正在流血的那个问题。`, action: "重新定位" };
         } else if (score.money > 70 && score.meaning < 30) {
             diagnosis = { title: "金手铐陷阱", text: "收益很高，但意义感缺失。你正在用灵魂换金钱。", action: "寻找意义" };
         } else if (score.energy < 30) {
             diagnosis = { title: "身心亚健康", text: "能量条已经见红，虽然还在坚持，但这是不可持续的。", action: "调整节奏" };
         }
 
-        const actionDetail = result.isBurnout ? "建议立刻申请休假，或寻求心理咨询支持。" : 
-                        (result.matchScore < 70 ? "建议利用业余时间探索更适合你特质的岗位，尝试投递简历。" : 
-                        "目前状态良好，继续保持学习，积累更高层级的资本。");
+        const actionDetail = result.isBurnout ? "建议立刻申请休假，或寻求心理咨询支持。" :
+                        (result.friction > 55 ? "先做一次减法：把那些「花了钱也换不回意义」的事，从待办里划掉。" :
+                        (score.meaning < 40 ? "建议用业余时间验证上面推导出的赛道，接一个小项目试试，别裸辞。" :
+                         "目前状态良好，继续保持学习，积累更高层级的资本。"));
 
         return `
             <div class="report-card">
@@ -1133,9 +1460,11 @@ const Game = {
                 </div>
 
                 <div class="diag-box" style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; border-left: 4px solid ${result.isBurnout ? '#e74c3c' : 'var(--accent-color)'};">
-                    <div class="diag-title">🧠 深度诊断</div>
+                    <div class="diag-title">🧠 ${diagnosis.title}</div>
                     <div class="diag-text">${diagnosis.text}</div>
                 </div>
+
+                ${this.painMirrorHTML(result)}
 
                 <div class="collapsible-header expanded" onclick="toggleSection('sec-passion')">
                     <span>🔥 热爱引擎 · ${PASSION_META[result.primaryPassion].name}</span>
@@ -1144,6 +1473,14 @@ const Game = {
                 <div id="sec-passion" class="collapsible-content expanded">
                     ${this.passionEngineHTML(result)}
                     ${this._crossInsightHTML(result)}
+                </div>
+
+                <div class="collapsible-header" onclick="toggleSection('sec-tracks')">
+                    <span>🎯 ${result.coherence >= 45 ? '你的赛道' : '最接近的方向'} · ${(result.profRanking[0] || {}).name || ''}</span>
+                    <span class="chevron">▼</span>
+                </div>
+                <div id="sec-tracks" class="collapsible-content">
+                    ${this.profRankingHTML(result)}
                 </div>
 
                 <div class="collapsible-header" onclick="toggleSection('sec-cognitive')">
