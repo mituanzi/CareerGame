@@ -1,40 +1,126 @@
-/* ================= 游戏数据配置（已注入 cog 认知维度标签） ================= */
+/* ================= 游戏数据配置（v8：赛道由答题推导，不再由开局选择决定） ================= */
 const GameData = {
-    "roles": [
+    "professions": [
         {
             "id": "coder",
+            "name": "工程师",
             "icon": "💻",
-            "name": "程序员"
+            "tagline": "把东西造出来，并且让它真的跑起来",
+            "profile": {
+                "tech": 1.0,
+                "freedom": 0.7,
+                "challenge": 0.3,
+                "influence": 0.1,
+                "service": 0.1,
+                "security": 0.0
+            }
         },
         {
             "id": "finance",
-            "icon": "💰",
-            "name": "金融民工"
+            "name": "金融与商业",
+            "icon": "📈",
+            "tagline": "在高压和高回报里换话语权",
+            "profile": {
+                "challenge": 1.0,
+                "influence": 0.8,
+                "freedom": 0.3,
+                "tech": 0.2,
+                "service": 0.0,
+                "security": 0.0
+            }
         },
         {
             "id": "soe",
+            "name": "央企国企",
             "icon": "🏭",
-            "name": "央企职员"
+            "tagline": "大体系里的确定性和长周期项目",
+            "profile": {
+                "security": 1.0,
+                "tech": 0.4,
+                "service": 0.4,
+                "influence": 0.3,
+                "challenge": 0.1,
+                "freedom": 0.0
+            }
         },
         {
             "id": "civil",
+            "name": "体制内",
             "icon": "🏛️",
-            "name": "体制内"
+            "tagline": "把事办成，也把秩序守住",
+            "profile": {
+                "security": 1.0,
+                "service": 0.6,
+                "influence": 0.5,
+                "tech": 0.1,
+                "challenge": 0.0,
+                "freedom": 0.1
+            }
         },
         {
             "id": "academic",
+            "name": "高校与科研",
             "icon": "📚",
-            "name": "高校青椒"
+            "tagline": "围绕一个真问题，长期地挖下去",
+            "profile": {
+                "tech": 0.8,
+                "freedom": 0.6,
+                "challenge": 0.4,
+                "service": 0.3,
+                "influence": 0.2,
+                "security": 0.1
+            }
         },
         {
             "id": "medical",
+            "name": "医疗与公共卫生",
             "icon": "⚕️",
-            "name": "医务工作者"
+            "tagline": "在别人的关键时刻，被需要",
+            "profile": {
+                "service": 1.0,
+                "tech": 0.5,
+                "security": 0.4,
+                "challenge": 0.3,
+                "influence": 0.1,
+                "freedom": 0.0
+            }
+        }
+    ],
+    "painPoints": [
+        {
+            "id": "money",
+            "icon": "💰",
+            "name": "钱不到位",
+            "desc": "付出和回报明显不匹配，看不到涨上去的路径",
+            "read": "money"
+        },
+        {
+            "id": "meaning",
+            "icon": "🧭",
+            "name": "不知道图什么",
+            "desc": "事情做得还行，但感受不到它跟我有关系",
+            "read": "meaning"
+        },
+        {
+            "id": "burnout",
+            "icon": "🔋",
+            "name": "身体先撑不住",
+            "desc": "长期疲惫，睡眠和情绪都在报警",
+            "read": "energy"
+        },
+        {
+            "id": "growth",
+            "icon": "🧗",
+            "name": "没有成长空间",
+            "desc": "一眼望得到头，很久没学到新东西了",
+            "read": "coherence"
         }
     ],
     "universal": [
         {
+            "id": "u01",
             "text": "完全自由的一整天，没有任何安排，你最可能做什么？",
+            "instrument": true,
             "options": [
                 {
                     "text": "找个项目动手做——修东西、写代码、做模型、搞烹饪，总之手不能停。",
@@ -99,7 +185,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u02",
             "text": "朋友圈里，谁的状态最让你心里“咯噔”一下？",
+            "instrument": true,
             "options": [
                 {
                     "text": "那个做出了爆款产品/作品的人。",
@@ -165,7 +253,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u03",
             "text": "上一次完全忘记时间、连手机都没看，是在做什么？",
+            "instrument": true,
             "options": [
                 {
                     "text": "在创造某个东西——写代码/做PPT/写文章/做手工/画画。",
@@ -230,7 +320,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u04",
             "text": "小时候（10 岁以前），你最沉迷的事最接近哪个？",
+            "instrument": true,
             "options": [
                 {
                     "text": "搭积木/拆玩具/画画/做各种“小发明”。",
@@ -296,7 +388,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u05",
             "text": "每种工作都有恶心的部分，你最不能忍受哪个？",
+            "instrument": true,
             "options": [
                 {
                     "text": "每天重复同样的事，没有任何创造空间。",
@@ -364,7 +458,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u06",
             "text": "刷手机时，你更倾向于？",
+            "instrument": true,
             "options": [
                 {
                     "text": "自己产出——写点什么、拍点什么、做个小工具。",
@@ -427,7 +523,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u07",
             "text": "如果你和朋友们一起做一个项目（旅行/创业/公益都算），你最自然地会成为？",
+            "instrument": true,
             "options": [
                 {
                     "text": "那个把想法变成现实的人——做攻略/搭框架/出成品。",
@@ -493,7 +591,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u08",
             "text": "以下哪个场景最能让你感到“活着”？",
+            "instrument": true,
             "options": [
                 {
                     "text": "看着一个东西从无到有在自己手里诞生。",
@@ -558,7 +658,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u09",
             "text": "如果最终人们只记得你一件事，你希望是？",
+            "instrument": true,
             "options": [
                 {
                     "text": "他创造了一些了不起的东西。",
@@ -625,7 +727,9 @@ const GameData = {
             ]
         },
         {
+            "id": "u10",
             "text": "即使一分钱不赚、没人知道，你仍然会做的是什么？",
+            "instrument": true,
             "options": [
                 {
                     "text": "做东西——写代码/做手工/写文章/画画，创造本身就是回报。",
@@ -691,6 +795,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u11",
             "text": "面对一个复杂且模糊的问题时，你通常的反应是？",
             "options": [
                 {
@@ -730,6 +835,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u12",
             "text": "如果一份工作能给你极高的社会地位，但需要牺牲大量的个人生活，你会？",
             "options": [
                 {
@@ -767,6 +873,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u13",
             "text": "在一个团队中，你更倾向于扮演哪种角色？",
             "options": [
                 {
@@ -805,6 +912,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u14",
             "text": "面对突如其来的变动，你的心态通常是？",
             "options": [
                 {
@@ -839,6 +947,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u15",
             "text": "你更愿意为什么样的成就而感到自豪？",
             "options": [
                 {
@@ -877,6 +986,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u16",
             "text": "在做决定时，你更依赖什么？",
             "options": [
                 {
@@ -914,6 +1024,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u17",
             "text": "对于“规则”，你的看法是？",
             "options": [
                 {
@@ -948,6 +1059,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u18",
             "text": "当看到别人犯错时，你通常会选择？",
             "options": [
                 {
@@ -984,6 +1096,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u19",
             "text": "你理想中的周末是？",
             "options": [
                 {
@@ -1017,6 +1130,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u20",
             "text": "如果有一笔资金，你会倾向于？",
             "options": [
                 {
@@ -1051,6 +1165,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u21",
             "text": "周一早晨，闹钟响起，你感到一阵强烈的疲惫。",
             "options": [
                 {
@@ -1079,6 +1194,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u22",
             "text": "领导在群里问谁愿意接手一个没人要的烂摊子项目。",
             "options": [
                 {
@@ -1112,6 +1228,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u23",
             "text": "同事邀请你下班去聚餐，但你其实很想回家躺平。",
             "options": [
                 {
@@ -1143,6 +1260,7 @@ const GameData = {
             ]
         },
         {
+            "id": "u24",
             "text": "下班高峰期，外面下起了暴雨，打车排队要200多位。",
             "options": [
                 {
@@ -1174,6 +1292,7 @@ const GameData = {
     "scenarios": {
         "coder": [
             {
+                "id": "coder01",
                 "text": "你攻克了一个困扰团队一个月的技术难题，CEO在全员大会上点名表扬你。",
                 "options": [
                     {
@@ -1211,6 +1330,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder02",
                 "text": "架构调整，你有机会转做“技术管理”，工资涨一级，但告别代码。",
                 "options": [
                     {
@@ -1248,6 +1368,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder03",
                 "text": "猎头推了一个远程工作机会，薪资少20%，但可旅居。",
                 "options": [
                     {
@@ -1282,6 +1403,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder04",
                 "text": "代码写得烂的同事因和老板关系好，晋升比你快。",
                 "options": [
                     {
@@ -1318,6 +1440,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder05",
                 "text": "底层架构埋下隐患，修好需停服三天，不修也许不出事。",
                 "options": [
                     {
@@ -1353,6 +1476,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder06",
                 "text": "面试时，一个技术强但傲慢，一个平庸但听话，你投谁？",
                 "options": [
                     {
@@ -1386,6 +1510,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder07",
                 "text": "老系统每天报警，业务方拒绝重构，你感觉在做垃圾清理员。",
                 "options": [
                     {
@@ -1420,6 +1545,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder08",
                 "text": "上线Bug是产品逻辑漏洞，但产品经理暗示是你执行不到位。",
                 "options": [
                     {
@@ -1456,6 +1582,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder09",
                 "text": "产品经理突然加需求，下周上线AI大模型功能。",
                 "options": [
                     {
@@ -1487,6 +1614,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder10",
                 "text": "凌晨2点代码跑通，你在注释里看到了前人留下的脏话。",
                 "options": [
                     {
@@ -1519,6 +1647,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder11",
                 "text": "你发现团队使用了有严重漏洞的开源库。",
                 "options": [
                     {
@@ -1552,6 +1681,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "coder12",
                 "text": "公司号召“技术下沉”业务，让你去一线轮岗三个月。",
                 "options": [
                     {
@@ -1591,6 +1721,7 @@ const GameData = {
         ],
         "finance": [
             {
+                "id": "finance01",
                 "text": "主控项目赚了上千万，年终奖到账，你觉得通宵值了。",
                 "options": [
                     {
@@ -1626,6 +1757,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance02",
                 "text": "有机会接触顶级企业家，听他们讲商业帝国逻辑。",
                 "options": [
                     {
@@ -1659,6 +1791,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance03",
                 "text": "IPO过会前夕，发现小合规瑕疵，指出可能项目流产。",
                 "options": [
                     {
@@ -1693,6 +1826,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance04",
                 "text": "发现经手资金流向房地产泡沫，工作本质是把储蓄变富人游戏。",
                 "options": [
                     {
@@ -1727,6 +1861,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance05",
                 "text": "客户亏损严重，骂了你十分钟。",
                 "options": [
                     {
@@ -1761,6 +1896,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance06",
                 "text": "有去中后台机会，收入腰斩，但告别业绩压力。",
                 "options": [
                     {
@@ -1796,6 +1932,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance07",
                 "text": "看空报告引发股价大跌，高层暗示少发这种。",
                 "options": [
                     {
@@ -1830,6 +1967,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance08",
                 "text": "业务部想绕过合规做高风险产品。",
                 "options": [
                     {
@@ -1864,6 +2002,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance09",
                 "text": "美股熔断，客户疯狂打电话。",
                 "options": [
                     {
@@ -1895,6 +2034,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance10",
                 "text": "有一个内幕消息，胜率很高但违规。",
                 "options": [
                     {
@@ -1928,6 +2068,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance11",
                 "text": "领导让你去陪大客户喝酒，你酒精过敏。",
                 "options": [
                     {
@@ -1965,6 +2106,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "finance12",
                 "text": "做尽调时发现目标公司财务造假。",
                 "options": [
                     {
@@ -2005,6 +2147,7 @@ const GameData = {
         ],
         "soe": [
             {
+                "id": "soe01",
                 "text": "单位分房了，虽然地段一般，但省了几百万房贷。",
                 "options": [
                     {
@@ -2038,6 +2181,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe02",
                 "text": "领导调你去核心部门当秘书，升迁快但最累。",
                 "options": [
                     {
@@ -2075,6 +2219,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe03",
                 "text": "发表高质量论文，私企想高薪挖你。",
                 "options": [
                     {
@@ -2107,6 +2252,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe04",
                 "text": "部门需编造“创新成果”汇报，领导暗示你写。",
                 "options": [
                     {
@@ -2140,6 +2286,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe05",
                 "text": "“关系户”同事把麻烦报表扔给你。",
                 "options": [
                     {
@@ -2177,6 +2324,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe06",
                 "text": "工会组织红歌合唱，强制参加。",
                 "options": [
                     {
@@ -2211,6 +2359,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe07",
                 "text": "总部借调名额，去两年解决职级，但需两地分居。",
                 "options": [
                     {
@@ -2246,6 +2395,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe08",
                 "text": "年底评优，你和给领导开车的同事票数相同。",
                 "options": [
                     {
@@ -2279,6 +2429,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe09",
                 "text": "单位组织“岗位练兵”，其实就是考试，排名全系统通报。",
                 "options": [
                     {
@@ -2308,6 +2459,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe10",
                 "text": "食堂今天有很难抢的红烧肉。",
                 "options": [
                     {
@@ -2335,6 +2487,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe11",
                 "text": "有亲戚想让你帮走后门办业务。",
                 "options": [
                     {
@@ -2368,6 +2521,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "soe12",
                 "text": "上级视察，部门让你负责接待摆盘。",
                 "options": [
                     {
@@ -2403,6 +2557,7 @@ const GameData = {
         ],
         "civil": [
             {
+                "id": "civil01",
                 "text": "帮办事老人解决麻烦，他说你是好干部。",
                 "options": [
                     {
@@ -2436,6 +2591,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil02",
                 "text": "上级下达不合逻辑指标，强制执行损害基层利益。",
                 "options": [
                     {
@@ -2469,6 +2625,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil03",
                 "text": "大厅群众情绪激动，手续不全但跑大半天。",
                 "options": [
                     {
@@ -2503,6 +2660,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil04",
                 "text": "巡查组检查，台账缺失，补齐需造假。",
                 "options": [
                     {
@@ -2537,6 +2695,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil05",
                 "text": "有下乡扶贫名额，条件苦但提干概率大。",
                 "options": [
                     {
@@ -2569,6 +2728,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil06",
                 "text": "同事互评暗示交换“优秀”。",
                 "options": [
                     {
@@ -2605,6 +2765,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil07",
                 "text": "写讲话稿，要求“有高度又接地气”。",
                 "options": [
                     {
@@ -2638,6 +2799,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil08",
                 "text": "临时工搞乱档案，按规定辞退但他家困难。",
                 "options": [
                     {
@@ -2671,6 +2833,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil09",
                 "text": "领导让你帮他接孩子放学。",
                 "options": [
                     {
@@ -2705,6 +2868,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil10",
                 "text": "单位搞“数字化改革”，系统做得很难用。",
                 "options": [
                     {
@@ -2735,6 +2899,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil11",
                 "text": "隔壁科室大姐推销保险。",
                 "options": [
                     {
@@ -2769,6 +2934,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "civil12",
                 "text": "窗口服务遇到难缠的人，录像威胁投诉。",
                 "options": [
                     {
@@ -2804,6 +2970,7 @@ const GameData = {
         ],
         "academic": [
             {
+                "id": "academic01",
                 "text": "收到学生信件，说你的课改变了他人生观。",
                 "options": [
                     {
@@ -2840,6 +3007,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic02",
                 "text": "有“教学型教授”晋升通道，放弃科研。",
                 "options": [
                     {
@@ -2877,6 +3045,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic03",
                 "text": "导师让你帮“关系户”代写毕业论文。",
                 "options": [
                     {
@@ -2911,6 +3080,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic04",
                 "text": "评职称可选择发“水刊”或死磕冷门课题。",
                 "options": [
                     {
@@ -2945,6 +3115,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic05",
                 "text": "接横向课题赚钱多，但偏离学术主线。",
                 "options": [
                     {
@@ -2982,6 +3153,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic06",
                 "text": "离心机坏了，可用经费买新的，也可自己修。",
                 "options": [
                     {
@@ -3016,6 +3188,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic07",
                 "text": "学生论文被毙，在办公室哭一下午。",
                 "options": [
                     {
@@ -3049,6 +3222,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic08",
                 "text": "发票抬头写错，面临“找票抵扣”诱惑。",
                 "options": [
                     {
@@ -3083,6 +3257,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic09",
                 "text": "学院让你兼任行政职务（如班主任/秘书）。",
                 "options": [
                     {
@@ -3120,6 +3295,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic10",
                 "text": "有人质疑你的观点，并在学术会议上公开抨击。",
                 "options": [
                     {
@@ -3158,6 +3334,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic11",
                 "text": "学生想让你帮忙介绍对象。",
                 "options": [
                     {
@@ -3192,6 +3369,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "academic12",
                 "text": "申请到了国外访学机会，但孩子刚上幼儿园。",
                 "options": [
                     {
@@ -3230,6 +3408,7 @@ const GameData = {
         ],
         "medical": [
             {
+                "id": "medical01",
                 "text": "成功抢救危重病人，家属跪地感谢。",
                 "options": [
                     {
@@ -3262,6 +3441,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical02",
                 "text": "连轴转30小时，重症手术成功率80%，休息后95%。",
                 "options": [
                     {
@@ -3299,6 +3479,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical03",
                 "text": "家属跪求用无效进口药，有效廉价药被质疑。",
                 "options": [
                     {
@@ -3335,6 +3516,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical04",
                 "text": "独创手术技法，可申请专利跑市场。",
                 "options": [
                     {
@@ -3373,6 +3555,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical05",
                 "text": "病历复制粘贴带进上一位患者姓名。",
                 "options": [
                     {
@@ -3407,6 +3590,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical06",
                 "text": "进修名额给了“关系户”，你最有资格。",
                 "options": [
                     {
@@ -3444,6 +3628,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical07",
                 "text": "孩子发烧，今晚夜班，家人抱怨。",
                 "options": [
                     {
@@ -3477,6 +3662,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical08",
                 "text": "药代塞信封，说是讲课费，金额不低。",
                 "options": [
                     {
@@ -3511,6 +3697,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical09",
                 "text": "患者治好了，但没钱付医药费。",
                 "options": [
                     {
@@ -3544,6 +3731,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical10",
                 "text": "科室任务重，想辞职去私立医院，钱多事少。",
                 "options": [
                     {
@@ -3577,6 +3765,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical11",
                 "text": "值班室条件太差，没有洗澡水。",
                 "options": [
                     {
@@ -3610,6 +3799,7 @@ const GameData = {
                 ]
             },
             {
+                "id": "medical12",
                 "text": "有患者家属送锦旗，同时也送了购物卡。",
                 "options": [
                     {
@@ -3645,6 +3835,863 @@ const GameData = {
             }
         ]
     },
+    "student": [
+        {
+            "id": "stu01",
+            "text": "选课。一门公认水、给分高、简历好看；一门出了名的难，但你确实想搞懂它。",
+            "options": [
+                {
+                    "text": "选水课。GPA 是硬通货，别的都是虚的。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": -10,
+                        "money": 10
+                    },
+                    "track": "security",
+                    "cog": {
+                        "s": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "选难课。GPA 少零点几无所谓，我想知道自己啃不啃得下来。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 15,
+                        "money": -5
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "n": 1,
+                        "p": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu02",
+            "text": "你是社团负责人，换届前一个月，一家公司给了你实习机会。",
+            "options": [
+                {
+                    "text": "留任做完这一年。这群人是我带出来的。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 15,
+                        "money": -10
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "退下来去实习。社团离了谁都转。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": -5,
+                        "money": 15
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "t": 1,
+                        "i": 1
+                    }
+                },
+                {
+                    "text": "两边都扛，能撑多久算多久。",
+                    "effect": {
+                        "energy": -20,
+                        "meaning": 5,
+                        "money": 5
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "j": 1,
+                        "e": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu03",
+            "text": "小组作业，队友随你挑。一个是大神但基本不跟人说话，一个跟你聊得来但要你带着做。",
+            "options": [
+                {
+                    "text": "选大神。结果最重要，我宁愿少干活。",
+                    "effect": {
+                        "energy": 10,
+                        "meaning": -5,
+                        "money": 10
+                    },
+                    "track": "security",
+                    "cog": {
+                        "t": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "选聊得来的。这次分数我不是很在乎。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": -5
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 1
+                    },
+                    "cog": {
+                        "f": 1,
+                        "e": 1
+                    }
+                },
+                {
+                    "text": "选大神，但我主动负责跟他沟通那一块。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 10,
+                        "money": 5
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "e": 1,
+                        "t": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu04",
+            "text": "导师问你要不要接他的横向项目——钱给得不薄，但做的是重复的交付活。",
+            "options": [
+                {
+                    "text": "接。先拿到钱和导师的信任，其他以后再说。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": -10,
+                        "money": 20
+                    },
+                    "track": "security",
+                    "cog": {
+                        "s": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "婉拒，说想做自己的课题。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 20,
+                        "money": -10
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "explorer": 1
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "接，但想办法把它改造成能发论文的东西。",
+                    "effect": {
+                        "energy": -15,
+                        "meaning": 15,
+                        "money": 10
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "n": 1,
+                        "p": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu05",
+            "text": "如果明天必须定下来，哪条路让你最不慌？",
+            "options": [
+                {
+                    "text": "考公考编。确定性本身就是答案。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 0,
+                        "money": 5
+                    },
+                    "track": "security",
+                    "cog": {
+                        "s": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "去竞争最激烈的地方。慌说明我在乎。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 10,
+                        "money": 10
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "e": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "先不定义自己，多试几条。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": -5
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "explorer": 1
+                    },
+                    "cog": {
+                        "p": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "做点自己的东西，哪怕暂时不赚钱。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 15,
+                        "money": -15
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "p": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu06",
+            "text": "你的毕设在答辩上被外校评委当场夸。导师说这个方向是他组的，不算你独立成果。",
+            "options": [
+                {
+                    "text": "当场把贡献说清楚，哪怕场面难看。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 15,
+                        "money": -5
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "算了，反正评委已经记住了我。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "p": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "私下找导师谈，让他下次带我署名。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 0,
+                        "money": 10
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "connector": 1
+                    },
+                    "cog": {
+                        "j": 1,
+                        "f": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu07",
+            "text": "唯一的公派名额，给了成绩差你一截、但跟院里关系近的同学。",
+            "options": [
+                {
+                    "text": "去问个说法。规则就该写清楚。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "t": 1,
+                        "e": 1
+                    }
+                },
+                {
+                    "text": "不问了，把精力放回自己能控制的事上。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "i": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "真心替他高兴，也当面对他说了。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "f": 1,
+                        "e": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu08",
+            "text": "实习单位想留你，条件比预期好，但岗位内容跟你读研的方向完全无关。",
+            "options": [
+                {
+                    "text": "留下。真实的工作比再读三年值钱。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": -5,
+                        "money": 20
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "p": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "拒绝，回去读书。方向比起点重要。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 15,
+                        "money": -20
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "先谈一个能兼顾的兼职安排。",
+                    "effect": {
+                        "energy": -15,
+                        "meaning": 5,
+                        "money": 10
+                    },
+                    "track": "influence",
+                    "cog": {
+                        "j": 1,
+                        "e": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu09",
+            "text": "哪种课程考核方式最让你难受？",
+            "options": [
+                {
+                    "text": "每次都是同一套作业的重复。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": -10,
+                        "money": 0
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "n": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "只考背诵，不许你提出自己的看法。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": -10,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "全程个人战，谁也不许帮谁。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": -10,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "f": 1,
+                        "e": 1
+                    }
+                },
+                {
+                    "text": "交上去就没了下文，没人告诉你做得怎么样。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": -10,
+                        "money": 0
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "j": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu10",
+            "text": "你想转专业。家里说\"再读一年就毕业了，别折腾\"。",
+            "options": [
+                {
+                    "text": "转。方向错了，越早止损越好。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 20,
+                        "money": -15
+                    },
+                    "track": "freedom",
+                    "passion": {
+                        "explorer": 1
+                    },
+                    "cog": {
+                        "n": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "不转，把想学的当自学方向。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": -5,
+                        "money": 5
+                    },
+                    "track": "security",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "s": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "不转，但用辅修和作品证明我能做。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "t": 1,
+                        "e": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu11",
+            "text": "你写的小工具被半个年级用着，但没人知道是谁做的。",
+            "options": [
+                {
+                    "text": "挺好的，东西在跑就行。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "发条说说清楚。我想让人记住我做的东西。",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 5,
+                        "money": 5
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "j": 1
+                    }
+                },
+                {
+                    "text": "借这个机会组个队，把它做大。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 10,
+                        "money": 5
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "connector": 1
+                    },
+                    "cog": {
+                        "e": 1,
+                        "t": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu12",
+            "text": "你在帮同学补一门你擅长的课。花掉的正好是你自己项目卡住的那晚。",
+            "options": [
+                {
+                    "text": "继续讲完。他明天要考。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "f": 1,
+                        "e": 1
+                    }
+                },
+                {
+                    "text": "道歉，回去赶自己的进度。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": -10,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "i": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "改成拉个群，让会的人一起讲。",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "connector": 1
+                    },
+                    "cog": {
+                        "j": 1,
+                        "e": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu13",
+            "text": "毕业论文选题：一个热点方向，好发、老师熟、三个月能交；一个你真想搞懂的问题，可能三年出不来。",
+            "options": [
+                {
+                    "text": "选热点。先拿到入场券。",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": -10,
+                        "money": 10
+                    },
+                    "track": "security",
+                    "cog": {
+                        "s": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "选那个真想搞懂的。",
+                    "effect": {
+                        "energy": -15,
+                        "meaning": 25,
+                        "money": -10
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "explorer": 2
+                    },
+                    "cog": {
+                        "n": 1,
+                        "i": 1
+                    }
+                },
+                {
+                    "text": "选热点的壳，把真问题塞进去。",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 15,
+                        "money": 5
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "maker": 1
+                    },
+                    "cog": {
+                        "n": 1,
+                        "p": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu14",
+            "text": "十年后的同学聚会上，你最希望别人用哪句话介绍你？",
+            "options": [
+                {
+                    "text": "\"他做出来的东西一直在被人用。\"",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "s": 1
+                    }
+                },
+                {
+                    "text": "\"他把一个很难的领域讲明白了。\"",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 5
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "performer": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "n": 1
+                    }
+                },
+                {
+                    "text": "\"很多人是他一手带出来的。\"",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "f": 1,
+                        "e": 1
+                    }
+                },
+                {
+                    "text": "\"他一直在换赛道，而且每次都成了。\"",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 10
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "explorer": 1
+                    },
+                    "cog": {
+                        "p": 1,
+                        "n": 1
+                    }
+                }
+            ],
+            "line": "student"
+        },
+        {
+            "id": "stu15",
+            "text": "哪种\"我很擅长\"，你听了更舒服？",
+            "options": [
+                {
+                    "text": "\"我擅长把没人会做的东西做出来。\"",
+                    "effect": {
+                        "energy": 5,
+                        "meaning": 10,
+                        "money": 0
+                    },
+                    "track": "tech",
+                    "passion": {
+                        "maker": 2
+                    },
+                    "cog": {
+                        "i": 1,
+                        "p": 1
+                    }
+                },
+                {
+                    "text": "\"我擅长把复杂的东西拆到别人能懂。\"",
+                    "effect": {
+                        "energy": 0,
+                        "meaning": 10,
+                        "money": 5
+                    },
+                    "track": "influence",
+                    "passion": {
+                        "explorer": 1
+                    },
+                    "cog": {
+                        "n": 1,
+                        "t": 1
+                    }
+                },
+                {
+                    "text": "\"我擅长让一群人愿意一起干。\"",
+                    "effect": {
+                        "energy": -5,
+                        "meaning": 15,
+                        "money": 0
+                    },
+                    "track": "service",
+                    "passion": {
+                        "connector": 2
+                    },
+                    "cog": {
+                        "e": 1,
+                        "f": 1
+                    }
+                },
+                {
+                    "text": "\"我擅长在没人看好的时候证明我是对的。\"",
+                    "effect": {
+                        "energy": -10,
+                        "meaning": 10,
+                        "money": 10
+                    },
+                    "track": "challenge",
+                    "passion": {
+                        "performer": 1
+                    },
+                    "cog": {
+                        "t": 1,
+                        "n": 1
+                    }
+                }
+            ],
+            "line": "student"
+        }
+    ],
     "traits": {
         "tech": {
             "name": "技术创造",
@@ -3677,323 +4724,575 @@ const GameData = {
             "cons": "难以忍受重复工作。"
         }
     },
-    "crises": [
-        {
-            "isCrisis": true,
-            "text": "💥 突发！公司突然宣布组织架构调整，你所在的部门被整体列入裁员名单。HR 给你两个选择——",
-            "timer": 12,
-            "options": [
-                {
-                    "text": "争取转岗到核心业务，从头再拼一次",
-                    "effect": {
-                        "energy": -15,
-                        "meaning": 5,
-                        "money": 0
+    "crises": {
+        "worker": [
+            {
+                "id": "cr01",
+                "isCrisis": true,
+                "text": "💥 突发！公司突然宣布组织架构调整，你所在的部门被整体列入裁员名单。HR 给你两个选择——",
+                "timer": 12,
+                "options": [
+                    {
+                        "text": "争取转岗到核心业务，从头再拼一次",
+                        "effect": {
+                            "energy": -15,
+                            "meaning": 5,
+                            "money": 0
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "t": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "challenge",
-                    "passion": {
-                        "performer": 1
-                    },
-                    "cog": {
-                        "e": 1,
-                        "t": 1,
-                        "j": 1
+                    {
+                        "text": "拿 N+3 赔偿体面离开，给自己一段缓冲",
+                        "effect": {
+                            "energy": 10,
+                            "meaning": 0,
+                            "money": -5
+                        },
+                        "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "i": 1,
+                            "f": 1,
+                            "p": 1
+                        }
                     }
-                },
-                {
-                    "text": "拿 N+3 赔偿体面离开，给自己一段缓冲",
-                    "effect": {
-                        "energy": 10,
-                        "meaning": 0,
-                        "money": -5
+                ]
+            },
+            {
+                "id": "cr02",
+                "isCrisis": true,
+                "text": "📞 突发！竞品 HR 深夜来电，开出双倍薪资挖你，但要求一周内到另一座城市报到。",
+                "timer": 12,
+                "options": [
+                    {
+                        "text": "接下 offer，去陌生城市重新开始",
+                        "effect": {
+                            "energy": -10,
+                            "meaning": -5,
+                            "money": 20
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "s": 1,
+                            "t": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "freedom",
-                    "passion": {
-                        "explorer": 1
-                    },
-                    "cog": {
-                        "i": 1,
-                        "f": 1,
-                        "p": 1
+                    {
+                        "text": "婉拒，留在熟悉的环境与人际里",
+                        "effect": {
+                            "energy": 5,
+                            "meaning": 5,
+                            "money": -10
+                        },
+                        "track": "security",
+                        "passion": {
+                            "connector": 1
+                        },
+                        "cog": {
+                            "i": 1,
+                            "n": 1,
+                            "f": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "📞 突发！竞品 HR 深夜来电，开出双倍薪资挖你，但要求一周内到另一座城市报到。",
-            "timer": 12,
-            "options": [
-                {
-                    "text": "接下 offer，去陌生城市重新开始",
-                    "effect": {
-                        "energy": -10,
-                        "meaning": -5,
-                        "money": 20
+                ]
+            },
+            {
+                "id": "cr03",
+                "isCrisis": true,
+                "text": "🏥 突发！家人深夜突发疾病住院，需要有人陪床。接下来的日子，你的精力会被严重分割。",
+                "timer": 13,
+                "options": [
+                    {
+                        "text": "请假亲自照料，工作先放一放",
+                        "effect": {
+                            "energy": -12,
+                            "meaning": 12,
+                            "money": -5
+                        },
+                        "track": "service",
+                        "passion": {
+                            "connector": 2
+                        },
+                        "cog": {
+                            "i": 1,
+                            "f": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "challenge",
-                    "passion": {
-                        "explorer": 1
-                    },
-                    "cog": {
-                        "e": 1,
-                        "s": 1,
-                        "t": 1,
-                        "j": 1
+                    {
+                        "text": "请护工、靠远程维持工作节奏",
+                        "effect": {
+                            "energy": -8,
+                            "meaning": -5,
+                            "money": -10
+                        },
+                        "track": "security",
+                        "cog": {
+                            "e": 1,
+                            "t": 1,
+                            "p": 1
+                        }
                     }
-                },
-                {
-                    "text": "婉拒，留在熟悉的环境与人际里",
-                    "effect": {
-                        "energy": 5,
-                        "meaning": 5,
-                        "money": -10
+                ]
+            },
+            {
+                "id": "cr04",
+                "isCrisis": true,
+                "text": "🔥 突发！你主导的项目出现重大数据事故，全公司都知道了。是扛下来，还是撇清？",
+                "timer": 11,
+                "options": [
+                    {
+                        "text": "主动站出来担责并带队补救",
+                        "effect": {
+                            "energy": -15,
+                            "meaning": 10,
+                            "money": 0
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "t": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "security",
-                    "passion": {
-                        "connector": 1
-                    },
-                    "cog": {
-                        "i": 1,
-                        "n": 1,
-                        "f": 1
+                    {
+                        "text": "低调撇清，先保住自己的绩效",
+                        "effect": {
+                            "energy": -5,
+                            "meaning": -10,
+                            "money": 5
+                        },
+                        "track": "security",
+                        "cog": {
+                            "i": 1,
+                            "t": 1,
+                            "p": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "🏥 突发！家人深夜突发疾病住院，需要有人陪床。接下来的日子，你的精力会被严重分割。",
-            "timer": 13,
-            "options": [
-                {
-                    "text": "请假亲自照料，工作先放一放",
-                    "effect": {
-                        "energy": -12,
-                        "meaning": 12,
-                        "money": -5
+                ]
+            },
+            {
+                "id": "cr05",
+                "isCrisis": true,
+                "text": "🩺 突发！年度体检报告写着「过劳预警」，医生严肃建议你立刻调整作息。",
+                "timer": 12,
+                "options": [
+                    {
+                        "text": "听从医嘱，规律作息、拒绝无效加班",
+                        "effect": {
+                            "energy": 18,
+                            "meaning": 8,
+                            "money": -8
+                        },
+                        "track": "security",
+                        "cog": {
+                            "i": 1,
+                            "s": 1,
+                            "f": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "service",
-                    "passion": {
-                        "connector": 2
-                    },
-                    "cog": {
-                        "i": 1,
-                        "f": 1,
-                        "j": 1
+                    {
+                        "text": "先撑过这阵子，身体自己能扛",
+                        "effect": {
+                            "energy": -18,
+                            "meaning": 0,
+                            "money": 8
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "n": 1,
+                            "t": 1,
+                            "p": 1
+                        }
                     }
-                },
-                {
-                    "text": "请护工、靠远程维持工作节奏",
-                    "effect": {
-                        "energy": -8,
-                        "meaning": -5,
-                        "money": -10
+                ]
+            },
+            {
+                "id": "cr06",
+                "isCrisis": true,
+                "text": "🎰 突发！朋友拉你入场一个来钱极快的项目，但灰色地带、风险极高，还要你押上积蓄。",
+                "timer": 11,
+                "options": [
+                    {
+                        "text": "All in，赌一把大的",
+                        "effect": {
+                            "energy": -10,
+                            "meaning": -8,
+                            "money": 18
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "n": 1,
+                            "p": 1
+                        }
                     },
-                    "track": "security",
-                    "cog": {
-                        "e": 1,
-                        "t": 1,
-                        "p": 1
+                    {
+                        "text": "只做观察，守住本金与底线",
+                        "effect": {
+                            "energy": 0,
+                            "meaning": 3,
+                            "money": -2
+                        },
+                        "track": "security",
+                        "cog": {
+                            "i": 1,
+                            "s": 1,
+                            "t": 1,
+                            "j": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "🔥 突发！你主导的项目出现重大数据事故，全公司都知道了。是扛下来，还是撇清？",
-            "timer": 11,
-            "options": [
-                {
-                    "text": "主动站出来担责并带队补救",
-                    "effect": {
-                        "energy": -15,
-                        "meaning": 10,
-                        "money": 0
+                ]
+            },
+            {
+                "id": "cr07",
+                "isCrisis": true,
+                "text": "😤 突发！新来的上司当众把你的方案贬得一文不值，并暗示「不换思路就换人」。",
+                "timer": 12,
+                "options": [
+                    {
+                        "text": "正面沟通，坚持自己的专业判断",
+                        "effect": {
+                            "energy": -8,
+                            "meaning": 8,
+                            "money": 0
+                        },
+                        "track": "influence",
+                        "passion": {
+                            "performer": 1,
+                            "maker": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "t": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "challenge",
-                    "passion": {
-                        "performer": 1
-                    },
-                    "cog": {
-                        "e": 1,
-                        "t": 1,
-                        "j": 1
+                    {
+                        "text": "先低头照做，保住眼前的位子",
+                        "effect": {
+                            "energy": -12,
+                            "meaning": -6,
+                            "money": 3
+                        },
+                        "track": "security",
+                        "cog": {
+                            "i": 1,
+                            "f": 1,
+                            "p": 1
+                        }
                     }
-                },
-                {
-                    "text": "低调撇清，先保住自己的绩效",
-                    "effect": {
-                        "energy": -5,
-                        "meaning": -10,
-                        "money": 5
+                ]
+            },
+            {
+                "id": "cr08",
+                "isCrisis": true,
+                "text": "🌪️ 突发！一纸政策下来，你所在的高薪赛道被一夜收紧，同行纷纷转行。",
+                "timer": 12,
+                "options": [
+                    {
+                        "text": "果断转型，去学一门全新的硬技能",
+                        "effect": {
+                            "energy": -10,
+                            "meaning": 5,
+                            "money": -5
+                        },
+                        "track": "tech",
+                        "passion": {
+                            "explorer": 1,
+                            "maker": 1
+                        },
+                        "cog": {
+                            "i": 1,
+                            "n": 1,
+                            "t": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "security",
-                    "cog": {
-                        "i": 1,
-                        "t": 1,
-                        "p": 1
+                    {
+                        "text": "坚守原地，相信寒冬终会过去",
+                        "effect": {
+                            "energy": -5,
+                            "meaning": -3,
+                            "money": 2
+                        },
+                        "track": "security",
+                        "cog": {
+                            "i": 1,
+                            "s": 1,
+                            "f": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "🩺 突发！年度体检报告写着「过劳预警」，医生严肃建议你立刻调整作息。",
-            "timer": 12,
-            "options": [
-                {
-                    "text": "听从医嘱，规律作息、拒绝无效加班",
-                    "effect": {
-                        "energy": 18,
-                        "meaning": 8,
-                        "money": -8
+                ]
+            }
+        ],
+        "student": [
+            {
+                "id": "crs01",
+                "isCrisis": true,
+                "timer": 12,
+                "text": "💥 突发！保研规则半夜改了：绩点只占四成，新增\"科研成果\"打分。你绩点第二，论文零篇。",
+                "options": [
+                    {
+                        "text": "两周内硬凑一篇出来，哪怕只是挂名",
+                        "effect": {
+                            "energy": -20,
+                            "meaning": -10,
+                            "money": 5
+                        },
+                        "track": "security",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "j": 1,
+                            "t": 1
+                        }
                     },
-                    "track": "security",
-                    "cog": {
-                        "i": 1,
-                        "s": 1,
-                        "f": 1,
-                        "j": 1
+                    {
+                        "text": "放弃保研，把这两个月拿去准备出国或求职",
+                        "effect": {
+                            "energy": -5,
+                            "meaning": 10,
+                            "money": -10
+                        },
+                        "track": "freedom",
+                        "passion": {
+                            "maker": 1
+                        },
+                        "cog": {
+                            "p": 1,
+                            "e": 1
+                        }
                     }
-                },
-                {
-                    "text": "先撑过这阵子，身体自己能扛",
-                    "effect": {
-                        "energy": -18,
-                        "meaning": 0,
-                        "money": 8
+                ]
+            },
+            {
+                "id": "crs02",
+                "isCrisis": true,
+                "timer": 11,
+                "text": "💥 突发！导师把你做了大半年的成果拿去报项目，说你可以署个第三作者。",
+                "options": [
+                    {
+                        "text": "接受。得罪他的代价你付不起",
+                        "effect": {
+                            "energy": -10,
+                            "meaning": -20,
+                            "money": 5
+                        },
+                        "track": "security",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "i": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "challenge",
-                    "passion": {
-                        "explorer": 1
-                    },
-                    "cog": {
-                        "e": 1,
-                        "n": 1,
-                        "t": 1,
-                        "p": 1
+                    {
+                        "text": "谈条件：要么第一作者，要么撤稿",
+                        "effect": {
+                            "energy": -15,
+                            "meaning": 15,
+                            "money": -10
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "performer": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "t": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "🎰 突发！朋友拉你入场一个来钱极快的项目，但灰色地带、风险极高，还要你押上积蓄。",
-            "timer": 11,
-            "options": [
-                {
-                    "text": "All in，赌一把大的",
-                    "effect": {
-                        "energy": -10,
-                        "meaning": -8,
-                        "money": 18
+                ]
+            },
+            {
+                "id": "crs03",
+                "isCrisis": true,
+                "timer": 13,
+                "text": "💥 突发！家里摊牌：不再供你读研，要么考公要么直接工作。",
+                "options": [
+                    {
+                        "text": "先应下来，考公一年，边考边想清楚",
+                        "effect": {
+                            "energy": -5,
+                            "meaning": -10,
+                            "money": 10
+                        },
+                        "track": "security",
+                        "passion": {
+                            "connector": 1
+                        },
+                        "cog": {
+                            "s": 1,
+                            "j": 1
+                        }
                     },
-                    "track": "challenge",
-                    "passion": {
-                        "explorer": 1
-                    },
-                    "cog": {
-                        "e": 1,
-                        "n": 1,
-                        "p": 1
+                    {
+                        "text": "自己解决学费，把想读的方向读下去",
+                        "effect": {
+                            "energy": -20,
+                            "meaning": 20,
+                            "money": -20
+                        },
+                        "track": "freedom",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "n": 1,
+                            "p": 1
+                        }
                     }
-                },
-                {
-                    "text": "只做观察，守住本金与底线",
-                    "effect": {
-                        "energy": 0,
-                        "meaning": 3,
-                        "money": -2
+                ]
+            },
+            {
+                "id": "crs04",
+                "isCrisis": true,
+                "timer": 12,
+                "text": "💥 突发！实习公司的转正 offer 和研究生录取，同一天要你答复。转正岗位跟你读的方向完全无关。",
+                "options": [
+                    {
+                        "text": "签转正。确定的收入比一个学位实在",
+                        "effect": {
+                            "energy": 5,
+                            "meaning": -15,
+                            "money": 20
+                        },
+                        "track": "security",
+                        "passion": {
+                            "maker": 1
+                        },
+                        "cog": {
+                            "s": 1,
+                            "t": 1
+                        }
                     },
-                    "track": "security",
-                    "cog": {
-                        "i": 1,
-                        "s": 1,
-                        "t": 1,
-                        "j": 1
+                    {
+                        "text": "去读。有些窗口错过就没了",
+                        "effect": {
+                            "energy": -10,
+                            "meaning": 15,
+                            "money": -25
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "n": 1,
+                            "f": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "😤 突发！新来的上司当众把你的方案贬得一文不值，并暗示「不换思路就换人」。",
-            "timer": 12,
-            "options": [
-                {
-                    "text": "正面沟通，坚持自己的专业判断",
-                    "effect": {
-                        "energy": -8,
-                        "meaning": 8,
-                        "money": 0
+                ]
+            },
+            {
+                "id": "crs05",
+                "isCrisis": true,
+                "timer": 11,
+                "text": "💥 突发！竞赛队友在比赛前两周集体退出，只剩你。交不上去，这半年白干。",
+                "options": [
+                    {
+                        "text": "一个人做完，砍到只剩核心功能",
+                        "effect": {
+                            "energy": -25,
+                            "meaning": 20,
+                            "money": 0
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "maker": 1
+                        },
+                        "cog": {
+                            "i": 1,
+                            "p": 1
+                        }
                     },
-                    "track": "influence",
-                    "passion": {
-                        "performer": 1,
-                        "maker": 1
-                    },
-                    "cog": {
-                        "e": 1,
-                        "t": 1,
-                        "j": 1
+                    {
+                        "text": "找别的队收留，哪怕只能打下手",
+                        "effect": {
+                            "energy": -5,
+                            "meaning": -5,
+                            "money": 5
+                        },
+                        "track": "service",
+                        "passion": {
+                            "connector": 1
+                        },
+                        "cog": {
+                            "e": 1,
+                            "f": 1
+                        }
                     }
-                },
-                {
-                    "text": "先低头照做，保住眼前的位子",
-                    "effect": {
-                        "energy": -12,
-                        "meaning": -6,
-                        "money": 3
+                ]
+            },
+            {
+                "id": "crs06",
+                "isCrisis": true,
+                "timer": 12,
+                "text": "💥 突发：你发现课题组一篇在投论文的数据像是拼的。通讯作者是导师，署名里没有你。",
+                "options": [
+                    {
+                        "text": "匿名反映。这事不能装作没看见",
+                        "effect": {
+                            "energy": -15,
+                            "meaning": 25,
+                            "money": -15
+                        },
+                        "track": "challenge",
+                        "passion": {
+                            "explorer": 1
+                        },
+                        "cog": {
+                            "i": 1,
+                            "f": 1
+                        }
                     },
-                    "track": "security",
-                    "cog": {
-                        "i": 1,
-                        "f": 1,
-                        "p": 1
+                    {
+                        "text": "什么都没说，但开始准备离开这个组",
+                        "effect": {
+                            "energy": -10,
+                            "meaning": -15,
+                            "money": 0
+                        },
+                        "track": "freedom",
+                        "passion": {
+                            "maker": 1
+                        },
+                        "cog": {
+                            "n": 1,
+                            "j": 1
+                        }
                     }
-                }
-            ]
-        },
-        {
-            "isCrisis": true,
-            "text": "🌪️ 突发！一纸政策下来，你所在的高薪赛道被一夜收紧，同行纷纷转行。",
-            "timer": 12,
-            "options": [
-                {
-                    "text": "果断转型，去学一门全新的硬技能",
-                    "effect": {
-                        "energy": -10,
-                        "meaning": 5,
-                        "money": -5
-                    },
-                    "track": "tech",
-                    "passion": {
-                        "explorer": 1,
-                        "maker": 1
-                    },
-                    "cog": {
-                        "i": 1,
-                        "n": 1,
-                        "t": 1,
-                        "j": 1
-                    }
-                },
-                {
-                    "text": "坚守原地，相信寒冬终会过去",
-                    "effect": {
-                        "energy": -5,
-                        "meaning": -3,
-                        "money": 2
-                    },
-                    "track": "security",
-                    "cog": {
-                        "i": 1,
-                        "s": 1,
-                        "f": 1
-                    }
-                }
-            ]
-        }
-    ]
+                ]
+            }
+        ]
+    }
 };
