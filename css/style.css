@@ -116,6 +116,12 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
 .one-liner em { color: var(--accent-color); font-style: normal; font-weight: 700; }
 
 /* 分享按钮行 */
+.btn-share {
+    background: rgba(255,255,255,0.08); color: #ddd; border: 1px solid rgba(255,255,255,0.15);
+    padding: 13px 16px; border-radius: 12px; font-size: 14px; cursor: pointer;
+    white-space: nowrap; transition: background 0.2s;
+}
+.btn-share:hover { background: rgba(255,255,255,0.16); }
 .share-row { display: flex; gap: 12px; margin-top: 20px; }
 .share-row .btn-share { flex: 1; margin-top: 0; }
 .share-row .btn-restart { flex: 1; margin-top: 0; background: rgba(255,255,255,0.08); color: #ccc; border: 1px solid rgba(255,255,255,0.12); }
@@ -263,6 +269,14 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
 .poster-actions .btn-share { flex: 1; margin-top: 0; }
 .poster-actions .btn-back { flex: 1; margin-top: 0; }
 .poster-tip { color: #888; font-size: 12px; margin-top: 12px; }
+.poster-copy-box { width: 100%; margin-top: 14px; }
+.poster-copy-tip { color: #e8b84b; font-size: 12px; margin-bottom: 6px; text-align: center; }
+.poster-copy {
+    width: 100%; box-sizing: border-box; height: 88px; resize: none; overflow: auto;
+    background: #0f0f11; color: #ddd; border: 1px solid #333; border-radius: 8px;
+    font-family: inherit; font-size: 12px; line-height: 1.5; padding: 10px 12px;
+}
+.poster-modal:has(.poster-copy-box) #poster-canvas { max-height: 50vh; }
 
 /* ================= 情境吐槽 toast ================= */
 #quip-layer {
@@ -279,3 +293,45 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--te
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .quip-toast.show { opacity: 1; transform: translateY(0) scale(1); }
+
+/* ================= v8：痛点选择（替代开局职业剧本） ================= */
+.pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pain-card { padding: 22px 14px; text-align: center; }
+.pain-card .role-name { margin-bottom: 6px; }
+.pain-desc { font-size: 11px; color: #888; line-height: 1.5; }
+.pain-note { font-size: 11px; color: #555; margin-top: 22px; line-height: 1.6; }
+
+/* HUD 进度 */
+#hud-progress { color: var(--accent-color); font-weight: 700; letter-spacing: .5px; }
+
+/* ================= v8：痛点对照 ================= */
+.pain-mirror {
+    background: rgba(0,0,0,0.32); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 16px 18px; margin: 18px 0 4px;
+}
+.pain-said { font-size: 12px; color: #777; }
+.pain-read { font-size: 12px; color: var(--accent-color); margin-top: 4px; font-weight: 700; }
+.pain-body { font-size: 13.5px; line-height: 1.75; color: #ddd; margin-top: 10px; }
+.pain-body em { color: var(--accent-color); font-style: normal; font-weight: 700; }
+
+/* ================= v8：赛道推荐 Top3 ================= */
+.prof-note { font-size: 12px; color: #888; line-height: 1.7; margin-bottom: 16px; }
+.prof-note em { color: var(--accent-color); font-style: normal; font-weight: 700; }
+.prof-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.prof-rank {
+    width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%;
+    background: rgba(255,255,255,0.07); color: #999; font-size: 11px;
+    font-weight: 900; display: flex; align-items: center; justify-content: center;
+}
+.prof-row:first-of-type .prof-rank { background: var(--accent-color); color: #000; }
+.prof-main { flex: 1; min-width: 0; }
+.prof-name { font-size: 15px; font-weight: 700; color: #fff; }
+.prof-tag { font-size: 11px; color: #888; margin: 3px 0 6px; line-height: 1.5; }
+.prof-track { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.09); overflow: hidden; }
+.prof-fill { height: 100%; border-radius: 3px; background: var(--accent-color); transition: width 1s ease; }
+.prof-fit { width: 30px; flex-shrink: 0; text-align: right; font-size: 14px; font-weight: 900; color: var(--accent-color); }
+.prof-coherence {
+    margin-top: 16px; padding-top: 14px; border-top: 1px dashed rgba(255,255,255,0.1);
+    font-size: 12px; color: #999; line-height: 1.7;
+}
+.prof-coherence b { color: var(--accent-color); font-size: 14px; }
